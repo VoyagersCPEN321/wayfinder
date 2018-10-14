@@ -17,12 +17,14 @@
   },
   "homepage": "https://github.com/VoyagersCPEN321/wayfinder#readme",
   "scripts": {
-    "start": "node ./bin/main",
+    "start": "node ./output/server.js",
     "test": "-t",
     "grunt": "grunt"
   },
   "dependencies": {
     "@types/express": "^4.16.0",
+    "@types/mongodb": "^3.1.12",
+    "@types/mongoose": "^5.2.19",
     "@types/node": "^10.11.4",
     "@types/serve-static": "^1.13.2",
     "body-parser": "^1.18.3",
@@ -32,6 +34,8 @@
     "grunt-contrib-watch": "^1.1.0",
     "grunt-ts": "^6.0.0-beta.21",
     "grunt-tslint": "^5.0.2",
+    "mongodb": "^3.1.8",
+    "mongoose": "^5.3.3",
     "tslint": "^5.11.0",
     "types": "^0.1.1",
     "typescript": "^3.1.1"

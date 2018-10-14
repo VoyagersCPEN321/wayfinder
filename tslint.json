@@ -21,7 +21,6 @@
       "no-trailing-whitespace": true,
       "no-unused-expression": true,
       "no-unused-variable": false,
-      "no-use-before-declare": true,
       "no-var-requires": false,
       "one-line": [
         true,
@@ -30,7 +29,6 @@
         "check-else",
         "check-whitespace"
       ],
-      "quotemark": [true, "double"],
       "semicolon": true,
       "triple-equals": [true, "allow-null-check"],
       "typedef": [true,
