@@ -10,8 +10,8 @@ To run the current hello world server:
 in the root dir run: "npm start"
 
 To compile:
-run "npm grunt watch" for files to be autocompiled and get style checked as you edit them.
-run "npm grunt" to run grunt which compile and check code style only once.
+run "npm run-script grunt watch" for files to be autocompiled and get style checked as you edit them.
+run "npm run-script grunt" to run grunt which compile and check code style only once.
 
 
 For MongoDB:
