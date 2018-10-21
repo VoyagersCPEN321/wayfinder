@@ -1,0 +1,47 @@
+{ 
+ "days":
+ [
+	{	
+		"Courses":
+		[
+			{
+ 				"courseTitle" : "Econ 101",
+		 		"building"   : "brock hall",
+				"address"    : "1874 E Mall, Vancouver, BC V6T 1Z1",
+			 	"startTime"  : "10:00",
+	 			"endTime"    : "12:00"
+			},
+			{
+				"courseTitle" : "Cpen 331",
+			 	"building"    : " Macleod",
+				"address"     : "2356 Main Mall, Vancouver, BC V6T 1Z4",	
+		 		"startTime"   : "15:00",
+		 		"endTime"     : "16:00"
+			}
+
+		]	
+	},
+	{	
+		"Courses":
+		[
+			{
+ 				"courseTitle" : "phys 101",
+	 			"building"    : "Beaty biodiversity museum",
+				"address"     : "Vancouver Campus, 2212 Main Mall, Vancouver, BC V6T 1Z4",
+			 	"startTime"   : "12:00",
+		 		"endTime"     : "13:00"
+			},
+			{
+				"courseTitle" : "math 331",
+			 	"building"    : " Macleod",
+				"address"     : "2356 Main Mall, Vancouver, BC V6T 1Z4",	
+	 			"startTime"   : "17:00",
+			 	"endTime"     : "19:00"
+			}
+		]
+	}
+
+	
+
+ ]
+}
