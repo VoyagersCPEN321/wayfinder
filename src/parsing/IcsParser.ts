@@ -20,7 +20,7 @@ import { parse } from "path";
 export class IcsParser {
     private VEVENT_SELECTOR: String = "vevent";
     public parseICS(icsContent: String): mongoose.Document[] {
-        if (!icsContent) {
+        if (icsContent == null) {
             throw new ReferenceError("null calendar data");
         }
         try {
