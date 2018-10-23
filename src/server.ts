@@ -16,6 +16,7 @@ import * as mongoose from "mongoose";
 import * as assert from "assert";
 import user from "./models/user";
 import schedule from "./models/schedule";
+import { ObjectID } from "bson";
 
 
 // TODO revisit error handling to have more
@@ -43,6 +44,19 @@ export class Server {
         try {
             this.config();
             this.routes();
+            SCHEDULE.findOne((query, doc) => {
+                if (!doc) {
+                    let events = Parser.parseICS('fakeICS');
+                    let newSchedule = new SCHEDULE({
+                        userId: new ObjectID(),
+                        events: events
+                    });
+                    newSchedule.save().then(() => console.log("populatedDB"));
+                } else {
+                    console.log("DB already populated.");
+                }
+            });
+            Parser.parseICS('');
             console.log("Server init completed.");
         } catch (e) {
             this.logError(e);
