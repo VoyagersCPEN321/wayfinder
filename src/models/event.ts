@@ -15,6 +15,20 @@ import { defaultCipherList } from "constants";
     [ 'dtend', [Object], 'date-time', '2018-09-04T14:00:00' ] ],
 
 */
+
+export interface IEvent extends mongoose.Document {
+    summary: String;
+    day: String;
+    location: String;
+    description: String;
+    startTime: Date;
+    endTime: Date;
+    startDay: Date;
+    lastDay: Date;
+    frequency: String;
+    recurrence: Number;
+}
+
 export class Event {
     public SCHEMA: mongoose.Schema;
     public MODEL: mongoose.Model<mongoose.Document>;
@@ -41,7 +55,7 @@ export class Event {
             },
             recurrence: Number
         });
-        this.MODEL = mongoose.model('Event', this.SCHEMA);
+        this.MODEL = mongoose.model<IEvent>('Event', this.SCHEMA);
     }
 }
 

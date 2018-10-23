@@ -17,6 +17,9 @@ import * as assert from "assert";
 import user from "./models/user";
 import schedule from "./models/schedule";
 
+
+// TODO revisit error handling to have more
+// meaningful error handling and error messages
 /**
  * The server.
  *
@@ -37,66 +40,43 @@ export class Server {
         this.app = express();
 
         //configure application
-        this.config();
-        this.routes();
+        try {
+            this.config();
+            this.routes();
+            console.log("Server init completed.");
+        } catch (e) {
+            this.logError(e);
+        }
     }
 
     private config(): void {
-        this.app.use(bodyParser.json());
-        this.app.use(bodyParser.urlencoded({ extended: false }));
-        mongoose.connect("mongodb://localhost/test");
-        this.db = mongoose.connection;
-        let that = this;
-        // this.db.once('open', () => {
-        //     console.log("connected successfully");
-        //     // let newUser = new USER({
-        //     //     _id: new mongoose.Types.ObjectId,
-        //     //     email: "fakeEmail"
-        //     // });
-        //     // newUser.save().then(() => {
-        //     //     USER.findById(newUser._id, (err: any, res: mongoose.Document) => {
-        //     //         assert(err === null);
-        //     //         console.log(res);
-        //     //         USER.find({}, (err: any, res: mongoose.Document[]) => {
-        //     //             assert(err === null);
-        //     //             res.forEach(entry => console.log(entry));
-        //     //             console.log("closed connection successfully");
-        //     //             let schedule: mongoose.Document = new SCHEDULE({ userId: res[0]._id, events: Parser.parseICS("shadgjha") });
-        //     //             schedule.save();
-        //     //             //that.db.close();
-        //     //         });
-        //     //     });
-        //     // });
-        // });
+        try {
+            this.app.use(bodyParser.json());
+            this.app.use(bodyParser.urlencoded({ extended: false }));
+            mongoose.connect("mongodb://localhost/test");
+            console.log("Config complete.");
+        } catch (e) {
+            this.logError(e);
+        }
     }
 
     private routes(): void {
         const router = express.Router();
-
-        router.get("/", (req: Request, res: Response) => {
-            res.status(200).send({
-                message: "Howdy!"
-            });
+        router.get("/getSchedule", (req: Request, res: Response) => {
+            console.log("/getSchedule called");
+            try {
+                SCHEDULE.findOne({}, (req, doc) => {
+                    res.status(200).json(doc);
+                });
+            } catch (e) {
+                this.logError(e);
+            }
         });
-
-        router.get("/getSCHEDULE", (req: Request, res: Response) => {
-            console.log("got here");
-            SCHEDULE.findOne({}, (req, doc) => {
-                res.status(200).json(doc).send();
-            });
-        });
-
-        // in case you want to experiment with Models and requests
-        // router.get("/deleteAllUsers", (req: Request, res: Response) => {
-        //     USER.find({}, () => {
-
-        //     }).remove();
-        //     res.status(200).send({
-        //         message: "Howdy!"
-        //     });
-        // });
-
         this.app.use("/", router);
+    }
+
+    private logError(e: Error): void {
+        console.log("Encountered Error : " + e);
     }
 }
 
