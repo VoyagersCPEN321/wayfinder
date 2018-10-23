@@ -6,7 +6,7 @@
  */
 
 conn = new Mongo();
-db = conn.getDB("test") // Update here to populate a different db
+db = conn.getDB("test"); // Update here to populate a different db
 
 db.getCollections("locations").updateMany({}, locations, upsert = true);
 
@@ -78,4 +78,4 @@ var locations =[
     {     "West Mall Annex": "1933 West Mall"                                          },  
     {     "West Mall Swing Space": "2175 West Mall V6T 1Z4"                            },
     {     "Woodward (Instructional Resources Centre-IRC)": "2194 Health Sciences Mall" } 
-]
+];
