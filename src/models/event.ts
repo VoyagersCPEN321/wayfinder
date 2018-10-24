@@ -1,25 +1,12 @@
 "use strict";
 
 import * as mongoose from "mongoose";
-import { defaultCipherList } from "constants";
-
-/*
-  [ [ 'dtstamp', {}, 'date-time', '2018-10-16T01:39:36Z' ],
-    [ 'rrule', {}, 'recur', [Object] ],
-    [ 'summary', {}, 'text', 'CPEN 311 101' ],
-    [ 'location', {}, 'text', 'MacLeod, Room 228' ],
-    [ 'description', {}, 'text', '' ],
-    [ 'dtstamp', {}, 'date-time', '2018-10-16T01:39:36Z' ],
-    [ 'uid', {}, 'text', '12341539653976597abcd137620' ],
-    [ 'dtstart', [Object], 'date-time', '2018-09-04T12:30:00' ],
-    [ 'dtend', [Object], 'date-time', '2018-09-04T14:00:00' ] ],
-
-*/
 
 export interface IEvent extends mongoose.Document {
     summary: String;
     day: String;
     location: String;
+    room: String;
     description: String;
     startTime: Date;
     endTime: Date;
@@ -43,6 +30,7 @@ export class Event {
                 required: true
             },
             location: { type: String, required: true },
+            room: {type: String, required: true },
             description: String,
             startTime: { type: Date, required: true },
             endTime: { type: Date, required: true },
