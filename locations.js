@@ -4,9 +4,6 @@
  * 
  * to populate the DB remotely
  */
-
-// conn = new Mongo();
-// db = conn.getDB("test"); // Update here to populate a different db
 var locations =[
     {
         "buildingName": "Acute Care Unit",
@@ -278,4 +275,13 @@ var locations =[
     }
 ];
 
-locations.forEach(location =>db.getCollection("locations").update({buildingName : location.buildingName}, {$addToSet : location}, {upsert :true}));
+locations.forEach(location =>db.getCollection("locations")
+.update({"buildingName" : location.buildingName}, 
+    {
+        $set: {
+            buildingName : location.buildingName,
+            address : location.address
+        }
+    }, 
+    {upsert :true}));
+print('done updating locations collection');
