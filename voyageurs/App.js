@@ -105,7 +105,7 @@ export default class App extends React.Component {
                 nextEvent = event;
                 nextEventStartTime = new Date(nextEvent.startTime);
               }
-            }
+            } 
 
           });
 
@@ -126,9 +126,9 @@ export default class App extends React.Component {
                   longitude: location.lng,
                 }
 
-                this.setState({ nextClassInfo: nextEvent.summary + ', ' + nextEvent.room });
                 this.setState({ destination: destinationResult });
                 this.setState({ showDirections: true });
+                this.setState({ nextClassInfo: nextEvent.summary + ', ' + nextEvent.room });
 
                 // console.log("state values: ");
                 // console.log("destination: " + this.state.destination.latitude);
@@ -201,13 +201,13 @@ export default class App extends React.Component {
             </View>
           </MapView.Marker>
           {this.renderDirections()}
+          {this.renderMarkers()}
         </MapView>
         <View style={styles.bottomView}>
           <Button
             title="Get Next Class"
             onPress={this.getDestination} />
         </View>
-        {this.renderMarkers()}
         {this.renderMessage()}
       </View>
     );
@@ -256,7 +256,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     position: 'absolute',
     bottom: 10,
-    backgroundColor: "rgba(255, 255, 255, 0.1)"
+    backgroundColor: "rgba(255, 255, 255, 0.0)"
   },
   calloutView: {
     backgroundColor: "rgba(255, 255, 255, 0.65)",
