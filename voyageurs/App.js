@@ -1,5 +1,5 @@
 import React from 'react';
-import MapView from 'react-native-maps';
+import MapView, { Callout } from 'react-native-maps';
 import Geocoder from 'react-native-geocoding';
 import MapViewDirections from 'react-native-maps-directions';
 import {
@@ -36,7 +36,9 @@ export default class App extends React.Component {
       destination: {
         latitude: 49.2580,
         longitude: -123.253,
-      }
+      },
+      showDirections: false,
+      nextClassInfo: null
     }
   }
   componentDidMount() {
@@ -56,25 +58,6 @@ export default class App extends React.Component {
     }, (error) => alert(JSON.stringify(error)),
       { enableHighAccuracy: true, maximumAge: 1000 })
   }
-
-
-  // Fetch('https://mywebsite.com/endpoint/', {
-  //   method: 'POST',
-  //   headers: {
-  //     Accept: 'application/json',
-  //     'Content-Type': 'application/json',
-  //   },
-  //   body: JSON.stringify({
-  //     firstParam: 'yourValue',
-  //     secondParam: 'yourOtherValue',
-  //   }),
-  // }).then((response) => response.json())
-  //     .then((responseJson) => {
-  //       return responseJson.movies;
-  //     })
-  //     .catch((error) => {
-  //       console.error(error);
-  //     });
 
 
   getDestination = () => {
@@ -129,10 +112,6 @@ export default class App extends React.Component {
           if (!nextEvent) {
             Alert.alert('Done for the day!');
           } else {
-            console.log("balls");
-            console.log(nextEvent);
-            console.log("sack");
-
             Geocoder.from(nextEvent.location)
               .then(json => {
                 var location = json.results[0].geometry.location;
@@ -147,21 +126,66 @@ export default class App extends React.Component {
                   longitude: location.lng,
                 }
 
-                this.setState({ destination: destinationResult })
+                this.setState({ nextClassInfo: nextEvent.summary + ', ' + nextEvent.room });
+                this.setState({ destination: destinationResult });
+                this.setState({ showDirections: true });
 
-                console.log("state values: ");
-                console.log("destination: " + this.state.destination.latitude);
-                console.log("destination: " + this.state.destination.longitude);
+                // console.log("state values: ");
+                // console.log("destination: " + this.state.destination.latitude);
+                // console.log("destination: " + this.state.destination.longitude);
               })
               .catch(error => console.warn(error));
-            }
-          }  else {
-            Alert.alert('No classes today!');
           }
-        });
+        } else {
+          Alert.alert('No classes today!');
+        }
+      });
     });
 
   }
+
+  renderMarkers = () => {
+    if (this.state.showDirections) {
+      return (
+        <MapView.Marker
+          coordinate={this.state.destination}>
+        </MapView.Marker>
+      );
+    }
+    return null;
+  };
+
+  renderDirections = () => {
+    if (this.state.showDirections) {
+      return (
+        <MapViewDirections
+          origin={this.state.markerPosition}
+          destination={this.state.destination}
+          apikey={GOOGLE_MAPS_APIKEY}
+          mode={"bicycling"}
+          strokeWidth={6}
+          strokeColor={"red"}
+        />
+      );
+    }
+    return null;
+  }
+
+  renderMessage = () => {
+    if (this.state.showDirections) {
+      console.log("rnder msg" + this.state.nextClassInfo)
+      return (
+        <View style={styles.calloutView} >
+          <Callout>
+            <Text style={styles.calloutMessage}>
+              {this.state.nextClassInfo}
+            </Text>
+          </Callout>
+        </View>);
+    }
+    return null;
+  }
+
   render() {
     return (
       <View style={styles.container}>
@@ -176,25 +200,15 @@ export default class App extends React.Component {
               <View style={styles.marker} />
             </View>
           </MapView.Marker>
-          <MapView.Marker
-            coordinate={this.state.destination}>
-
-          </MapView.Marker>
-          <MapViewDirections
-            origin={this.state.markerPosition}
-            destination={this.state.destination}
-            apikey={GOOGLE_MAPS_APIKEY}
-            mode={"bicycling"}
-            strokeWidth={6}
-            strokeColor={"red"}
-          />
+          {this.renderDirections()}
         </MapView>
-
         <View style={styles.bottomView}>
           <Button
             title="Get Next Class"
             onPress={this.getDestination} />
         </View>
+        {this.renderMarkers()}
+        {this.renderMessage()}
       </View>
     );
   }
@@ -221,8 +235,6 @@ const styles = StyleSheet.create({
     borderRadius: 20 / 2,
     overflow: 'hidden',
     backgroundColor: '#007AFF',
-
-
   },
   container: {
     flex: 1,
@@ -234,7 +246,7 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     top: 0,
-    bottom: 80,
+    bottom: 0,
     position: 'absolute'
   },
   bottomView: {
@@ -243,6 +255,36 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     position: 'absolute',
-    bottom: 0
+    bottom: 10,
+    backgroundColor: "rgba(255, 255, 255, 0.1)"
+  },
+  calloutView: {
+    backgroundColor: "rgba(255, 255, 255, 0.65)",
+    borderRadius: 10,
+    width: '75%',
+    height: 40,
+    marginLeft: "30%",
+    marginRight: "30%",
+    marginTop: 20,
+    top: 30,
+    position: 'absolute',
+  },
+  callout: {
+    flexDirection: "row",
+    marginLeft: 'auto',
+    alignSelf: 'center',
+    width: '100%'
+  },
+  calloutMessage: {
+    borderColor: "transparent",
+    marginLeft: 10,
+    marginRight: 10,
+    marginTop: 10,
+    marginBottom: 10,
+    marginRight: 10,
+    height: 40,
+    borderWidth: 0.0,
+    textAlign: 'center',
+    fontWeight: 'bold'
   }
 });
