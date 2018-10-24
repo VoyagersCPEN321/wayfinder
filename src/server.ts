@@ -5,18 +5,14 @@
 
 "use strict";
 
-import USER from "./models/user";
 import Parser from "./parsing/IcsParser";
 import SCHEDULE from "./models/schedule";
 import * as express from "express";
 import * as bodyParser from "body-parser";
-import * as path from "path";
 import { Request, Response } from "express";
 import * as mongoose from "mongoose";
-import * as assert from "assert";
-import user from "./models/user";
-import schedule from "./models/schedule";
 import { ObjectID } from "bson";
+import locationsMap from "./parsing/locationsMap";
 
 
 // TODO revisit error handling to have more
@@ -37,26 +33,12 @@ export class Server {
      * @constructor
      */
     constructor() {
-        //create expressjs application
         this.app = express();
 
         //configure application
         try {
             this.config();
             this.routes();
-            SCHEDULE.findOne((query, doc) => {
-                if (!doc) {
-                    let events = Parser.parseICS('fakeICS');
-                    let newSchedule = new SCHEDULE({
-                        userId: new ObjectID(),
-                        events: events
-                    });
-                    newSchedule.save().then(() => console.log("populatedDB"));
-                } else {
-                    console.log("DB already populated.");
-                }
-            });
-            Parser.parseICS('');
             console.log("Server init completed.");
         } catch (e) {
             this.logError(e);
@@ -67,7 +49,26 @@ export class Server {
         try {
             this.app.use(bodyParser.json());
             this.app.use(bodyParser.urlencoded({ extended: false }));
-            mongoose.connect("mongodb://localhost/test");
+            mongoose.connect("mongodb://localhost/test").then(() => {
+                locationsMap.config().then((result) => {
+                    if (result) {
+                        SCHEDULE.findOne((query, doc) => {
+                            if (!doc) {
+                                let events = Parser.parseICS('fakeICS');
+                                let newSchedule = new SCHEDULE({
+                                    userId: new ObjectID(),
+                                    events: events
+                                });
+                                newSchedule.save().then(() => console.log("populatedDB"));
+                            } else {
+                                console.log("DB already populated.");
+                            }
+                        });
+                    } else {
+                        console.log("failed to init locationsMap");
+                    }
+                });
+            });
             console.log("Config complete.");
         } catch (e) {
             this.logError(e);

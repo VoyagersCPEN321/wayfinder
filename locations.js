@@ -90,8 +90,12 @@ var locations =[
         "address": "2219 Main Mall"
     },
     {
-        "buildingName": "Earth and Ocean Sciences - Main",
-        "address": "6339 Stores Road"
+        "buildingName": "Earth and Ocean Sciences - East",
+        "address": "2219 Main Mall"
+    },
+    {
+        "buildingName": "Earth Sciences Building",
+        "address": "2219 Main Mall"
     },
     {
         "buildingName": "Food, Nutrition and Health",
