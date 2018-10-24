@@ -55,8 +55,8 @@ export class IcsParser {
             let day: string = rules.parts.BYDAY[0];
             // TODO use the db to transform to actual location.
             let fullICSLocation = parsedEvent.getFirstPropertyValue(this.LOCATION_SELECTOR);
-            let location: string = this.getAddress(fullICSLocation);
-            let room: string = this.extractRoom(fullICSLocation);
+            let location: string = this.getAddress(fullICSLocation.slice());
+            let room: string = this.extractRoom(fullICSLocation.slice());
             let description: string = parsedEvent.getFirstPropertyValue(this.DESCRIPTION_SELECTOR);
             let startTime: Date = new Date(parsedEvent.getFirstPropertyValue(this.START_DATE_SELECTOR));
             let endTime: Date = new Date(parsedEvent.getFirstPropertyValue(this.END_DATE_SELECTOR));
