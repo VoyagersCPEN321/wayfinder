@@ -9,6 +9,7 @@ import {
   View, Button, Alert } from 'react-native';
   var timetable2 ='{"days":[{ "Courses":[{"courseTitle": "Econ 101", "building" : "brock hall", "address":"1874 E Mall, Vancouver, BC V6T 1Z1","startTime"  : "10:00","endTime"    : "12:00"}, {"courseTitle": "cpen 331", "building" : "Macleod", "address":"2356 Main Mall, Vancouver, BC V6T 1Z4","startTime"  : "12:00","endTime"    : "14:00"}] }]}';
   var obj = JSON.parse(timetable2);
+var ep = require('./eventProcessor.js');
 
 
 const LATITUDEDELTA =  0.0122
@@ -55,30 +56,112 @@ componentDidMount(){
     {enableHighAccuracy: true,  maximumAge: 1000})
 }
 
+
+// Fetch('https://mywebsite.com/endpoint/', {
+//   method: 'POST',
+//   headers: {
+//     Accept: 'application/json',
+//     'Content-Type': 'application/json',
+//   },
+//   body: JSON.stringify({
+//     firstParam: 'yourValue',
+//     secondParam: 'yourOtherValue',
+//   }),
+// }).then((response) => response.json())
+//     .then((responseJson) => {
+//       return responseJson.movies;
+//     })
+//     .catch((error) => {
+//       console.error(error);
+//     });
+
+
 getDestination = () => {
-  Geocoder.from(obj.days[0].Courses[1].building + " ubc")
-      .then(json => {
-        var location = json.results[0].geometry.location;
-        //Alert.alert(JSON.stringify(location));
 
-        console.log("geocoder values: ");
-        console.log(location.lat);
-        console.log(location.lng);
+  var allEvents;
+    fetch('http://40.117.145.64:8080/getSchedule', {
+      method: 'GET'
+    }).then(response => {
+     response.json().then((schedule) => {
+          allEvents = schedule.events;
+          var nextEvent;
 
-        var destinationResult = {
-          latitude: location.lat,
-          longitude: location.lng,
-        }
+          var todayClasses = allEvents.filter(event => ep.isHappeningToday(event));
+          // works till hereee
 
-        this.setState({destination: destinationResult})
+          let currentDate = new Date();
+          // console.log(currentDate.getDay());
+          //console.log(todayClasses);
+          nextEvent = null;
 
-        console.log("state values: ");
-        console.log("destination: " + this.state.destination.latitude);
-        console.log("destination: " + this.state.destination.longitude);
-      })
-      .catch(error => console.warn(error));
+          let aTime = new Date();
+          let bTime = new Date();
+          let nextEventStartTime;
+          if(!todayClasses.length  == 0){
+            todayClasses.forEach((event)=>{
+              let startTime = new Date(event.startTime);
+              if(nextEvent == null){
+                if(startTime.getHours() >=  currentDate.getHours() ){
+                  nextEvent = event;
+                  nextEventStartTime = new Date(nextEvent.startTime);
+                }
+                else if(startTime.getHours() == currentDate.getHours()){
+                  if(startTime.getMinutes() < currentDate.getMinutes()){
+                    nextEvent = event;
+                    nextEventStartTime = new Date(nextEvent.startTime);
+                  }
+                }
+              }
+              else if(startTime.getHours() <  nextEventStartTime.getHours() ){
+                nextEvent = event;
+                nextEventStartTime = new Date(nextEvent.startTime);
+              }
+              else if(startTime.getHours() == nextEventStartTime.getHours()){
+                if(startTime.getMinutes() < nextEventStartTime.getMinutes()){
+                  nextEvent = event;
+                  nextEventStartTime = new Date(nextEvent.startTime);
+                }
+              }
+
+          });
+
+          if(!nextEvent) {
+            Alert.alert('Done for the day!');
+          } else {
+            console.log("balls");
+            console.log(nextEvent);
+            console.log("sack");
+
+            Geocoder.from(nextEvent.location)
+                .then(json => {
+                  var location = json.results[0].geometry.location;
+                  //Alert.alert(JSON.stringify(location));
+
+                  console.log("geocoder values: ");
+                  console.log(location.lat);
+                  console.log(location.lng);
+
+                  var destinationResult = {
+                    latitude: location.lat,
+                    longitude: location.lng,
+                  }
+
+                  this.setState({destination: destinationResult})
+
+                  console.log("state values: ");
+                  console.log("destination: " + this.state.destination.latitude);
+                  console.log("destination: " + this.state.destination.longitude);
+                })
+                .catch(error => console.warn(error));
+
+
+        }  else{
+              Alert.alert('No classes today!');
+          }
+     });
+ });
+
 }
-
   render() {
     return (
       <View style={styles.container}>

@@ -3,9 +3,12 @@ export function isHappeningToday(event) {
     let today = new Date();
     if(!event) throw new Error("null event");
     /* Check if the event's first occurence hasn't occurred yet. */
-    if (isBeforeDay(today, event.startDay)) return false;
+    var startDay = new Date(event.startDay);
+    var lastDay = new Date(event.lastDay);
+
+    if (isBeforeDay(today, startDay)) return false;
     /* Check if the event's last occurrence already passed */
-    if (isBeforeDay(event.startDay, today)) return false;
+    if (isBeforeDay(lastDay, today)) return false;
 
     /* We know the event is within its ocurrence range */
     if (today.getDay() !== dayToUTCDay(event.day)) return false;
@@ -17,14 +20,25 @@ export function isHappeningToday(event) {
  * Checks if a is before b in a day level comparison.
  */
 function isBeforeDay(a, b) {
-    return b.getDate() > a.getDate()
-        && b.getMonth() >= a.getMonth()
-        && b.getFullYear() >= a.getFullYear()
-};
+  if(b.getFullYear() > a.getFullYear) {
+          return true;
+      }else if(b.getFullYear() < a.getFullYear) {
+          return false;
+      } else if(b.getMonth() > a.getMonth()) {
+          return true;
+      } else if(b.getMonth() < a.getMonth()) {
+          return false;
+      }else if(b.getDay() > a.getDay()) {
+          return true;
+      }else if(b.getDay() < a.getDay()){
+          return false;
+      }else {
+          return false;
+      }};
 
 function dayToUTCDay(day) {
     switch (day) {
-        case "MU": return 1;
+        case "MO": return 1;
         case "TU": return 2;
         case "WE": return 3;
         case "TH": return 4;
