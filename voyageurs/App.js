@@ -60,6 +60,13 @@ export default class App extends React.Component {
 
   getDestination = () => {
 
+    NetInfo.isConnected.fetch().done((isConnected) => {
+      if(isConnected == 'offline'){
+        Alert.alert("You are not connected to the internet");
+        return;
+      }
+    });
+
     var allEvents;
     fetch("http://40.117.145.64:8080/getSchedule", {
       method: "GET"
@@ -125,6 +132,9 @@ export default class App extends React.Component {
           Alert.alert("No classes today!");
         }
       });
+    })
+    .catch((error) =>{
+      Alert.alert("Unable to connect to server. Error: " + error);
     });
 
   }
