@@ -1,20 +1,4 @@
 // TODO add a frontend model class to match IEvent on the backend
-/*
- * Checks if a is before b in a day level comparison.
- */
-function isBeforeDay(a, b) {
-  if (b.getFullYear() !== a.getFullYear) {
-    return isBeforeYear(a, b);
-  }
-  if (b.getMonth() !== a.getMonth()) {
-    return isBeforeMonth(a, b);
-  }
-  if (b.getDay() > a.getDay()) {
-    return true;
-  }
-  return false;
-}
-
 function isBeforeYear(a, b) {
   if (b.getFullYear() > a.getFullYear) {
     return true;
@@ -31,6 +15,22 @@ function isBeforeMonth(a, b) {
   if (b.getMonth() < a.getMonth()) {
     return false;
   }
+}
+
+/*
+ * Checks if a is before b in a day level comparison.
+ */
+function isBeforeDay(a, b) {
+  if (b.getFullYear() !== a.getFullYear) {
+    return isBeforeYear(a, b);
+  }
+  if (b.getMonth() !== a.getMonth()) {
+    return isBeforeMonth(a, b);
+  }
+  if (b.getDay() > a.getDay()) {
+    return true;
+  }
+  return false;
 }
 
 function dayToUTCDay(day) {
