@@ -196,78 +196,77 @@ export default class App extends React.Component {
       </View>
     );
   }
+
+  const styles = StyleSheet.create({
+    radius: {
+      height: 50,
+      width: 50,
+      borderRadius: 50 / 2,
+      overflow: "hidden",
+      backgroundColor: "rgba(0,122,255,0.1)",
+      borderWidth: 1,
+      borderColor: "rgba(0,122,255,0.3)",
+      alignItems: "center",
+      justifyContent: "center",
+    },
+    marker: {
+      height: 20,
+      width: 20,
+      borderWidth: 3,
+      borderColor: "white",
+      borderRadius: 20 / 2,
+      overflow: "hidden",
+      backgroundColor: "#007AFF",
+    },
+    container: {
+      flex: 1,
+      backgroundColor: "#fff",
+      alignItems: "center",
+      justifyContent: "center",
+    },
+    map: {
+      left: 0,
+      right: 0,
+      top: 0,
+      bottom: 0,
+      position: "absolute"
+    },
+    bottomView: {
+      width: "100%",
+      height: 80,
+      justifyContent: "center",
+      alignItems: "center",
+      position: "absolute",
+      bottom: 10,
+      backgroundColor: "rgba(255, 255, 255, 0.0)"
+    },
+    calloutView: {
+      backgroundColor: "rgba(255, 255, 255, 0.65)",
+      borderRadius: 10,
+      width: "75%",
+      height: 40,
+      marginLeft: "30%",
+      marginRight: "30%",
+      marginTop: 20,
+      top: 30,
+      position: "absolute",
+    },
+    callout: {
+      flexDirection: "row",
+      marginLeft: "auto",
+      alignSelf: "center",
+      width: "100%"
+    },
+    calloutMessage: {
+      borderColor: "transparent",
+      marginLeft: 10,
+      marginTop: 10,
+      marginBottom: 10,
+      marginRight: 10,
+      height: 40,
+      borderWidth: 0.0,
+      textAlign: "center",
+      fontWeight: "bold"
+    }
+  });
 }
-
-
-const styles = StyleSheet.create({
-  radius: {
-    height: 50,
-    width: 50,
-    borderRadius: 50 / 2,
-    overflow: "hidden",
-    backgroundColor: "rgba(0,122,255,0.1)",
-    borderWidth: 1,
-    borderColor: "rgba(0,122,255,0.3)",
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  marker: {
-    height: 20,
-    width: 20,
-    borderWidth: 3,
-    borderColor: "white",
-    borderRadius: 20 / 2,
-    overflow: "hidden",
-    backgroundColor: "#007AFF",
-  },
-  container: {
-    flex: 1,
-    backgroundColor: "#fff",
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  map: {
-    left: 0,
-    right: 0,
-    top: 0,
-    bottom: 0,
-    position: "absolute"
-  },
-  bottomView: {
-    width: "100%",
-    height: 80,
-    justifyContent: "center",
-    alignItems: "center",
-    position: "absolute",
-    bottom: 10,
-    backgroundColor: "rgba(255, 255, 255, 0.0)"
-  },
-  calloutView: {
-    backgroundColor: "rgba(255, 255, 255, 0.65)",
-    borderRadius: 10,
-    width: "75%",
-    height: 40,
-    marginLeft: "30%",
-    marginRight: "30%",
-    marginTop: 20,
-    top: 30,
-    position: "absolute",
-  },
-  callout: {
-    flexDirection: "row",
-    marginLeft: "auto",
-    alignSelf: "center",
-    width: "100%"
-  },
-  calloutMessage: {
-    borderColor: "transparent",
-    marginLeft: 10,
-    marginTop: 10,
-    marginBottom: 10,
-    marginRight: 10,
-    height: 40,
-    borderWidth: 0.0,
-    textAlign: "center",
-    fontWeight: "bold"
-  }
-});
