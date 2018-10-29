@@ -34,14 +34,16 @@ function isBeforeMonth(a, b) {
 }
 
 function dayToUTCDay(day) {
-
-  dict = { "MO": 1, "TU": 2, "WE": 3, "TH": 4, "FR": 5, "SA": 6, "SU": 7 };
-
-  if (dict[day]) {
-    return dict[day];
+    switch (day) {
+      case "MU": return 1;
+      case "TU": return 2;
+      case "WE": return 3;
+      case "TH": return 4;
+      case "FR": return 5;
+      case "SA": return 6;
+      case "SU": return 7;
+      default: throw new Error("Invalid day");
   }
-
-  throw new Error("Invalid day");
 }
 
 export function isHappeningToday(event) {
