@@ -282,14 +282,13 @@ var locations =[
     }
 ];
 
-locations.forEach(location => db.getCollection("locations")
-                            .update(
-                                {"buildingName" : location.buildingName}, 
-                                {
-                                    $set: {
-                                        buildingName : location.buildingName,
-                                        address : location.address
-                                    }
-                                }, 
-                                {upsert :true}));
+locations.forEach((location) => db.getCollection("locations")
+.update({"buildingName" : location.buildingName}, 
+    {
+        $set: {
+            buildingName : location.buildingName,
+            address : location.address
+        }
+    }, 
+    {upsert :true}));
 print("done updating locations collection");
