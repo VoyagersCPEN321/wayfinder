@@ -279,7 +279,7 @@ var locations =[
     }
 ];
 
-locations.forEach(location =>db.getCollection("locations")
+locations.forEach((location) => db.getCollection("locations")
 .update({"buildingName" : location.buildingName}, 
     {
         $set: {
@@ -288,4 +288,4 @@ locations.forEach(location =>db.getCollection("locations")
         }
     }, 
     {upsert :true}));
-print('done updating locations collection');
+print("done updating locations collection");

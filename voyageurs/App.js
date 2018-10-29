@@ -1,26 +1,24 @@
-import React from 'react';
-import MapView, { Callout } from 'react-native-maps';
-import Geocoder from 'react-native-geocoding';
-import MapViewDirections from 'react-native-maps-directions';
+import React from "react";
+import MapView, { Callout } from "react-native-maps";
+import Geocoder from "react-native-geocoding";
+import MapViewDirections from "react-native-maps-directions";
 import {
-  AppRegistry,
   StyleSheet,
   Text,
   View, Button, Alert
-} from 'react-native';
-var timetable2 = '{"days":[{ "Courses":[{"courseTitle": "Econ 101", "building" : "brock hall", "address":"1874 E Mall, Vancouver, BC V6T 1Z1","startTime"  : "10:00","endTime"    : "12:00"}, {"courseTitle": "cpen 331", "building" : "Macleod", "address":"2356 Main Mall, Vancouver, BC V6T 1Z4","startTime"  : "12:00","endTime"    : "14:00"}] }]}';
-var obj = JSON.parse(timetable2);
-var ep = require('./eventProcessor.js');
+} from "react-native";
 
+var ep = require("./eventProcessor.js");
 
-const LATITUDEDELTA = 0.0122
-const LONGITUDEDELTA = .0221
-const GOOGLE_MAPS_APIKEY = 'AIzaSyCvW9JtKWa3ftr-FD-bGsFqR9EBQMlGn7k'
+const LATITUDEDELTA = 0.0122;
+const LONGITUDEDELTA = .0221;
+const GOOGLE_MAPS_APIKEY = "AIzaSyCvW9JtKWa3ftr-FD-bGsFqR9EBQMlGn7k";
+
 Geocoder.init(GOOGLE_MAPS_APIKEY); // use a valid API key
 
 export default class App extends React.Component {
   constructor(props) {
-    super(props)
+    super(props);
 
     this.state = {
       initialPosition: {
@@ -39,12 +37,12 @@ export default class App extends React.Component {
       },
       showDirections: false,
       nextClassInfo: null
-    }
+    };
   }
   componentDidMount() {
     navigator.geolocation.getCurrentPosition((position) => {
-      var lat = parseFloat(position.coords.latitude)
-      var long = parseFloat(position.coords.longitude)
+      var lat = parseFloat(position.coords.latitude);
+      var long = parseFloat(position.coords.longitude);
 
       var initialRegion = {
         latitude: lat,
@@ -64,13 +62,13 @@ export default class App extends React.Component {
 
     var allEvents;
     fetch('http://40.117.145.64:8080/getSchedule', {
-      method: 'GET'
+      method: "GET"
     }).then(response => {
       response.json().then((schedule) => {
         allEvents = schedule.events;
         var nextEvent;
 
-        var todayClasses = allEvents.filter(event => ep.isHappeningToday(event));
+        var todayClasses = allEvents.filter((event) => ep.isHappeningToday(event));
         // works till hereee
 
         let currentDate = new Date();
@@ -113,13 +111,8 @@ export default class App extends React.Component {
             Alert.alert('Done for the day!');
           } else {
             Geocoder.from(nextEvent.location)
-              .then(json => {
+              .then((json) => {
                 var location = json.results[0].geometry.location;
-                //Alert.alert(JSON.stringify(location));
-
-                console.log("geocoder values: ");
-                console.log(location.lat);
-                console.log(location.lng);
 
                 var destinationResult = {
                   latitude: location.lat,
@@ -129,15 +122,11 @@ export default class App extends React.Component {
                 this.setState({ destination: destinationResult });
                 this.setState({ showDirections: true });
                 this.setState({ nextClassInfo: nextEvent.summary + ', ' + nextEvent.room });
-
-                // console.log("state values: ");
-                // console.log("destination: " + this.state.destination.latitude);
-                // console.log("destination: " + this.state.destination.longitude);
               })
               .catch(error => console.warn(error));
           }
         } else {
-          Alert.alert('No classes today!');
+          Alert.alert("No classes today!");
         }
       });
     });
@@ -231,7 +220,7 @@ const styles = StyleSheet.create({
     height: 20,
     width: 20,
     borderWidth: 3,
-    borderColor: 'white',
+    borderColor: "white",
     borderRadius: 20 / 2,
     overflow: 'hidden',
     backgroundColor: '#007AFF',
