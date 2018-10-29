@@ -49,21 +49,21 @@ export default class App extends React.Component {
         longitude: long,
         latitudeDelta: LATITUDEDELTA,
         longitudeDelta: LONGITUDEDELTA,
-      }
+      };
 
-      this.setState({ initialPosition: initialRegion })
-      this.setState({ markerPosition: initialRegion })
+      this.setState({ initialPosition: initialRegion });
+      this.setState({ markerPosition: initialRegion });
     }, (error) => alert(JSON.stringify(error)),
-      { enableHighAccuracy: true, maximumAge: 1000 })
+      { enableHighAccuracy: true, maximumAge: 1000 });
   }
 
 
   getDestination = () => {
 
     var allEvents;
-    fetch('http://40.117.145.64:8080/getSchedule', {
+    fetch("http://40.117.145.64:8080/getSchedule", {
       method: "GET"
-    }).then(response => {
+    }).then((response) => {
       response.json().then((schedule) => {
         allEvents = schedule.events;
         var nextEvent;
@@ -72,12 +72,8 @@ export default class App extends React.Component {
         // works till hereee
 
         let currentDate = new Date();
-        // console.log(currentDate.getDay());
-        //console.log(todayClasses);
         nextEvent = null;
 
-        let aTime = new Date();
-        let bTime = new Date();
         let nextEventStartTime;
         if (!todayClasses.length === 0) {
           todayClasses.forEach((event) => {
@@ -108,7 +104,7 @@ export default class App extends React.Component {
           });
 
           if (!nextEvent) {
-            Alert.alert('Done for the day!');
+            Alert.alert("Done for the day!");
           } else {
             Geocoder.from(nextEvent.location)
               .then((json) => {
@@ -121,9 +117,9 @@ export default class App extends React.Component {
 
                 this.setState({ destination: destinationResult });
                 this.setState({ showDirections: true });
-                this.setState({ nextClassInfo: nextEvent.summary + ', ' + nextEvent.room });
+                this.setState({ nextClassInfo: nextEvent.summary + ", " + nextEvent.room });
               })
-              .catch(error => console.warn(error));
+              .catch((error) => Alert.alert("Unexpected communication error, please try again."));
           }
         } else {
           Alert.alert("No classes today!");
@@ -162,7 +158,6 @@ export default class App extends React.Component {
 
   renderMessage = () => {
     if (this.state.showDirections) {
-      console.log("rnder msg" + this.state.nextClassInfo)
       return (
         <View style={styles.calloutView} >
           <Callout>
@@ -209,12 +204,12 @@ const styles = StyleSheet.create({
     height: 50,
     width: 50,
     borderRadius: 50 / 2,
-    overflow: 'hidden',
-    backgroundColor: 'rgba(0,122,255,0.1)',
+    overflow: "hidden",
+    backgroundColor: "rgba(0,122,255,0.1)",
     borderWidth: 1,
-    borderColor: 'rgba(0,122,255,0.3)',
-    alignItems: 'center',
-    justifyContent: 'center',
+    borderColor: "rgba(0,122,255,0.3)",
+    alignItems: "center",
+    justifyContent: "center",
   },
   marker: {
     height: 20,
@@ -222,58 +217,57 @@ const styles = StyleSheet.create({
     borderWidth: 3,
     borderColor: "white",
     borderRadius: 20 / 2,
-    overflow: 'hidden',
-    backgroundColor: '#007AFF',
+    overflow: "hidden",
+    backgroundColor: "#007AFF",
   },
   container: {
     flex: 1,
-    backgroundColor: '#fff',
-    alignItems: 'center',
-    justifyContent: 'center',
+    backgroundColor: "#fff",
+    alignItems: "center",
+    justifyContent: "center",
   },
   map: {
     left: 0,
     right: 0,
     top: 0,
     bottom: 0,
-    position: 'absolute'
+    position: "absolute"
   },
   bottomView: {
-    width: '100%',
+    width: "100%",
     height: 80,
-    justifyContent: 'center',
-    alignItems: 'center',
-    position: 'absolute',
+    justifyContent: "center",
+    alignItems: "center",
+    position: "absolute",
     bottom: 10,
     backgroundColor: "rgba(255, 255, 255, 0.0)"
   },
   calloutView: {
     backgroundColor: "rgba(255, 255, 255, 0.65)",
     borderRadius: 10,
-    width: '75%',
+    width: "75%",
     height: 40,
     marginLeft: "30%",
     marginRight: "30%",
     marginTop: 20,
     top: 30,
-    position: 'absolute',
+    position: "absolute",
   },
   callout: {
     flexDirection: "row",
-    marginLeft: 'auto',
-    alignSelf: 'center',
-    width: '100%'
+    marginLeft: "auto",
+    alignSelf: "center",
+    width: "100%"
   },
   calloutMessage: {
     borderColor: "transparent",
     marginLeft: 10,
-    marginRight: 10,
     marginTop: 10,
     marginBottom: 10,
     marginRight: 10,
     height: 40,
     borderWidth: 0.0,
-    textAlign: 'center',
-    fontWeight: 'bold'
+    textAlign: "center",
+    fontWeight: "bold"
   }
 });
