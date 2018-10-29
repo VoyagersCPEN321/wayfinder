@@ -1,6 +1,6 @@
 import React from 'react';
-import MapView, { Callout } from 'react-native-maps';
-import Geocoder from 'react-native-geocoding';
+import MapView from 'react-native-maps';
+import Geocoder from "react-native-geocoding";
 import MapViewDirections from 'react-native-maps-directions';
 import {
   AppRegistry,
@@ -13,14 +13,14 @@ var obj = JSON.parse(timetable2);
 var ep = require('./eventProcessor.js');
 
 
-const LATITUDEDELTA = 0.0122
-const LONGITUDEDELTA = .0221
-const GOOGLE_MAPS_APIKEY = 'AIzaSyCvW9JtKWa3ftr-FD-bGsFqR9EBQMlGn7k'
+const LATITUDEDELTA =  0.0122;
+const LONGITUDEDELTA = .0221;
+const GOOGLE_MAPS_APIKEY = 'AIzaSyCvW9JtKWa3ftr-FD-bGsFqR9EBQMlGn7k';
 Geocoder.init(GOOGLE_MAPS_APIKEY); // use a valid API key
 
 export default class App extends React.Component {
-  constructor(props) {
-    super(props)
+  constructor(props){
+    super(props);
 
     this.state = {
       initialPosition: {

@@ -1,4 +1,7 @@
 /*
+ * This script should be run within
+ * the mongo environment, hence no need to declare db
+ * 
  * Can use:
  * new Mongo(<host:port>)
  * 
@@ -279,13 +282,14 @@ var locations =[
     }
 ];
 
-locations.forEach(location =>db.getCollection("locations")
-.update({"buildingName" : location.buildingName}, 
-    {
-        $set: {
-            buildingName : location.buildingName,
-            address : location.address
-        }
-    }, 
-    {upsert :true}));
-print('done updating locations collection');
+locations.forEach(location => db.getCollection("locations")
+                            .update(
+                                {"buildingName" : location.buildingName}, 
+                                {
+                                    $set: {
+                                        buildingName : location.buildingName,
+                                        address : location.address
+                                    }
+                                }, 
+                                {upsert :true}));
+print("done updating locations collection");
