@@ -63,80 +63,80 @@ export default class App extends React.Component {
     NetInfo.isConnected.fetch().done((isConnected) => {
       if(isConnected == 'offline'){
         Alert.alert("You are not connected to the internet");
-        return;
-      }
-    });
+ 
+      }else if(isConnected == 'online'){
 
-    var allEvents;
-    fetch("http://40.117.145.64:8080/getSchedule", {
-      method: "GET"
-    }).then((response) => {
-      response.json().then((schedule) => {
-        allEvents = schedule.events;
-        var nextEvent;
+        var allEvents;
+        fetch("http://40.117.145.64:8080/getSchedule", {
+          method: "GET"
+        }).then((response) => {
+          response.json().then((schedule) => {
+            allEvents = schedule.events;
+            var nextEvent;
 
-        var todayClasses = allEvents.filter((event) => ep.isHappeningToday(event));
-        // works till hereee
+            var todayClasses = allEvents.filter((event) => ep.isHappeningToday(event));
+            // works till hereee
 
-        let currentDate = new Date();
-        nextEvent = null;
+            let currentDate = new Date();
+            nextEvent = null;
 
-        let nextEventStartTime;
-        if (!todayClasses.length === 0) {
-          todayClasses.forEach((event) => {
-            let startTime = new Date(event.startTime);
-            if (nextEvent == null) {
-              if (startTime.getHours() >= currentDate.getHours()) {
-                nextEvent = event;
-                nextEventStartTime = new Date(nextEvent.startTime);
-              }
-              else if (startTime.getHours() === currentDate.getHours()) {
-                if (startTime.getMinutes() < currentDate.getMinutes()) {
+            let nextEventStartTime;
+            if (!todayClasses.length === 0) {
+              todayClasses.forEach((event) => {
+                let startTime = new Date(event.startTime);
+                if (nextEvent == null) {
+                  if (startTime.getHours() >= currentDate.getHours()) {
+                    nextEvent = event;
+                    nextEventStartTime = new Date(nextEvent.startTime);
+                  }
+                  else if (startTime.getHours() === currentDate.getHours()) {
+                    if (startTime.getMinutes() < currentDate.getMinutes()) {
+                      nextEvent = event;
+                      nextEventStartTime = new Date(nextEvent.startTime);
+                    }
+                  }
+                }
+                else if (startTime.getHours() < nextEventStartTime.getHours()) {
                   nextEvent = event;
                   nextEventStartTime = new Date(nextEvent.startTime);
                 }
-              }
-            }
-            else if (startTime.getHours() < nextEventStartTime.getHours()) {
-              nextEvent = event;
-              nextEventStartTime = new Date(nextEvent.startTime);
-            }
-            else if (startTime.getHours() === nextEventStartTime.getHours()) {
-              if (startTime.getMinutes() < nextEventStartTime.getMinutes()) {
-                nextEvent = event;
-                nextEventStartTime = new Date(nextEvent.startTime);
-              }
-            }
-
-          });
-
-          if (!nextEvent) {
-            Alert.alert("Done for the day!");
-          } else {
-            Geocoder.from(nextEvent.location)
-              .then((json) => {
-                var location = json.results[0].geometry.location;
-
-                var destinationResult = {
-                  latitude: location.lat,
-                  longitude: location.lng,
+                else if (startTime.getHours() === nextEventStartTime.getHours()) {
+                  if (startTime.getMinutes() < nextEventStartTime.getMinutes()) {
+                    nextEvent = event;
+                    nextEventStartTime = new Date(nextEvent.startTime);
+                  }
                 }
 
-                this.setState({ destination: destinationResult });
-                this.setState({ showDirections: true });
-                this.setState({ nextClassInfo: nextEvent.summary + ", " + nextEvent.room });
-              })
-              .catch((error) => Alert.alert("Unexpected communication error, please try again."));
-          }
-        } else {
-          Alert.alert("No classes today!");
-        }
-      });
-    })
-    .catch((error) =>{
-      Alert.alert("Unable to connect to server. Error: " + error);
-    });
+              });
 
+              if (!nextEvent) {
+                Alert.alert("Done for the day!");
+              } else {
+                Geocoder.from(nextEvent.location)
+                  .then((json) => {
+                    var location = json.results[0].geometry.location;
+
+                    var destinationResult = {
+                      latitude: location.lat,
+                      longitude: location.lng,
+                    }
+
+                    this.setState({ destination: destinationResult });
+                    this.setState({ showDirections: true });
+                    this.setState({ nextClassInfo: nextEvent.summary + ", " + nextEvent.room });
+                  })
+                  .catch((error) => Alert.alert("Unexpected geocoder communication error, please try again."));
+              }
+            } else {
+              Alert.alert("No classes today!");
+            }
+          });
+        })
+        .catch((error) =>{
+          Alert.alert("Unable to connect to server. Error: " + error);
+        });
+      }
+    });
   }
 
   renderMarkers = () => {
