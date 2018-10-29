@@ -79,7 +79,7 @@ export default class App extends React.Component {
         let aTime = new Date();
         let bTime = new Date();
         let nextEventStartTime;
-        if (!todayClasses.length == 0) {
+        if (!todayClasses.length === 0) {
           todayClasses.forEach((event) => {
             let startTime = new Date(event.startTime);
             if (nextEvent == null) {
@@ -87,7 +87,7 @@ export default class App extends React.Component {
                 nextEvent = event;
                 nextEventStartTime = new Date(nextEvent.startTime);
               }
-              else if (startTime.getHours() == currentDate.getHours()) {
+              else if (startTime.getHours() === currentDate.getHours()) {
                 if (startTime.getMinutes() < currentDate.getMinutes()) {
                   nextEvent = event;
                   nextEventStartTime = new Date(nextEvent.startTime);
@@ -98,12 +98,12 @@ export default class App extends React.Component {
               nextEvent = event;
               nextEventStartTime = new Date(nextEvent.startTime);
             }
-            else if (startTime.getHours() == nextEventStartTime.getHours()) {
+            else if (startTime.getHours() === nextEventStartTime.getHours()) {
               if (startTime.getMinutes() < nextEventStartTime.getMinutes()) {
                 nextEvent = event;
                 nextEventStartTime = new Date(nextEvent.startTime);
               }
-            } 
+            }
 
           });
 
