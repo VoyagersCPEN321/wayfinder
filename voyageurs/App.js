@@ -5,7 +5,7 @@ import MapViewDirections from "react-native-maps-directions";
 import {
   StyleSheet,
   Text,
-  View, Button, Alert
+  View, Button, Alert, NetInfo
 } from "react-native";
 
 var ep = require("./eventProcessor.js");
@@ -60,11 +60,17 @@ export default class App extends React.Component {
 
   getDestination = () => {
 
+    NetInfo.isConnected.addEventListener('connectionChange', Function.prototype);
+
     NetInfo.isConnected.fetch().done((isConnected) => {
-      if(isConnected == 'offline'){
+
+      if(!isConnected){
+
+        console.log(isConnected);
         Alert.alert("You are not connected to the internet");
  
-      }else if(isConnected == 'online'){
+      }
+      else{
 
         var allEvents;
         fetch("http://40.117.145.64:8080/getSchedule", {
@@ -133,6 +139,7 @@ export default class App extends React.Component {
           });
         })
         .catch((error) =>{
+          console.log("Unable to connect to server. Error: " + error);
           Alert.alert("Unable to connect to server. Error: " + error);
         });
       }
@@ -206,6 +213,7 @@ export default class App extends React.Component {
       </View>
     );
   }
+}
 
   const styles = StyleSheet.create({
     radius: {
@@ -279,4 +287,3 @@ export default class App extends React.Component {
       fontWeight: "bold"
     }
   });
-}
