@@ -68,7 +68,7 @@ export default class App extends React.Component {
 
         console.log(isConnected);
         Alert.alert("You are not connected to the internet");
- 
+
       }
       else{
 
