@@ -37,6 +37,8 @@
     "ical.js": "^1.2.2",
     "mongodb": "^3.1.8",
     "mongoose": "^5.3.3",
+    "react-native-navigation": "^2.0.2641",
+    "react-navigation": "^2.18.2",
     "tslint": "^5.11.0",
     "types": "^0.1.1",
     "typescript": "^3.1.1"

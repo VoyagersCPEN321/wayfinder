@@ -36,8 +36,7 @@ export class IcsParser {
             });
             return allEvents;
         } catch (e) {
-            throw e;
-            //throw new Error("Invalid ICS file");
+            throw new Error("Invalid ICS file");
         }
     }
 
