@@ -4,9 +4,6 @@ node_js:
   - "iojs"
   - "node"
 
-before_install:
-  - npm install
-
 script:
   - npm run grunt
 
