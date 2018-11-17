@@ -16,7 +16,7 @@ class LoginScreen extends React.Component {
   };
 
   gotoMapScreen = () => {
-    this.props.navigation('MapScreen');
+    this.props.navigation.navigate('MapScreen');
   }
 
   logIn = async function (view) {

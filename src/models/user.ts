@@ -8,9 +8,11 @@ class User {
     constructor() {
         // TODO add validation over email field
         this.userSchema = new mongoose.Schema({
-            _id: mongoose.Schema.Types.ObjectId,
-            email: String
+            userId: mongoose.Schema.Types.ObjectId,
+            facebookId: { type: String, unique: true },
+            name: String
         });
+
         this.USER = mongoose.model('User', this.userSchema);
     }
 }
