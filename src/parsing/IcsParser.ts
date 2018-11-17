@@ -24,8 +24,8 @@ export class IcsParser {
         }
         try {
             // TODO remove when done testing
-            let icalData = ICAL.parse(fs.readFileSync('ical-2.ics', 'utf8'));
-            let schedule = new ICAL.Component(icalData);
+            //let icalData = ICAL.parse(fs.readFileSync('ical-2.ics', 'utf8'));
+            let schedule = new ICAL.Component(icsContent);
             let allEvents: mongoose.Document[] = [];
             let parsedEvents: [] = schedule.getAllSubcomponents(this.VEVENT_SELECTOR);
             if (parsedEvents.length === 0) {
