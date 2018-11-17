@@ -14,8 +14,6 @@ import * as mongoose from "mongoose";
 import { ObjectID } from "bson";
 import locationsMap from "./parsing/locationsMap";
 import Authenticator from "./authenticator";
-import * as jwt from 'jsonwebtoken';
-
 
 // TODO revisit error handling to have more
 // meaningful error handling and error messages
@@ -98,6 +96,44 @@ export class Server {
                 res.status(200).json(doc);
             });
         });
+
+        router.post("/schedule", Authenticator.validateUserToken, (req: Request, res: Response) => {
+            if (!req.user) {
+                res.send(401);
+                return;
+            }
+            try {
+                // TODO put the ics in here
+                let events = Parser.parseICS('fakeICS');
+                let newSchedule = new SCHEDULE({
+                    userId: req.user.userId,
+                    events: events
+                });
+                SCHEDULE.findOneAndUpdate({ userId: req.user.userId }, { events: events }, { upsert: true }, (err, doc) => {
+                    if (err || !doc) {
+                        res.send(500).json({
+                            message: err ? err.message : "Unexpected Error, please try again"
+                        });
+                        return;
+                    }
+                    res.send(200).json(doc);
+                    return;
+                });
+            } catch (e) {
+                res.send(500).json({
+                    message: e.message
+                });
+            }
+
+        }, (err, res) => {
+            if (err) {
+                console.log(err);
+                res.status(400).json({ success: false, message: 'Auth failed', err });
+            }
+            return;
+        });
+
+
         router.post("/auth/fb", Authenticator.authenticateFB, (req, res) => {
             if (req.user.err) {
                 res.status(401).json({
@@ -123,6 +159,7 @@ export class Server {
                 console.log(err);
                 res.status(400).json({ success: false, message: 'Auth failed', err });
             }
+            return;
         });
 
         router.get("/validate", Authenticator.validateUserToken, (req: Request, res: Response) => {
@@ -151,10 +188,11 @@ export class Server {
     }
 
     private errorHandler(): void {
-        this.app.use((err : any, req: Request, res: Response, next: any) => {
+        this.app.use((err: any, req: Request, res: Response, next: any) => {
             if (err.name === 'UnauthorizedError') {
                 Authenticator.unauthorizedHandler(err, req, res, next);
             }
+            return;
         });
     }
 }
