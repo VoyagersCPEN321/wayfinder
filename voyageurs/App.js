@@ -5,6 +5,8 @@ import DirectionsView from './MapScreen';
 import MapScreen from './MapScreen';
 import { AsyncStorage } from "react-native"
 
+
+
 const APP_ID = "171287213807359";
 const APP_URL = "http://128.189.90.74:8080";
 const FB_AUTH = "/auth/fb/";
@@ -90,6 +92,19 @@ class LoginScreen extends React.Component {
     });
   }
 
+  pickDocument = async () => {
+
+
+    const result = await Expo.DocumentPicker.getDocumentAsync(
+      {
+        copyToCacheDirectory : true,
+      }
+    );
+
+    console.log('result', result);
+  }
+
+
   render() {
     //const { navigate } = this.props.navigation;
     return (
@@ -103,9 +118,17 @@ class LoginScreen extends React.Component {
         backgroundColor: "rgba(255, 255, 255, 0.0)"
       }}>
         <Button
-          title="Login with Facebook"
+          title="Login-with Facebook"
           onPress={() => this.logIn(this)}
         />
+      
+      <Button
+          title="files"
+          onPress={ this.pickDocument }
+      />
+
+    
+
       </View>
     );
   }
