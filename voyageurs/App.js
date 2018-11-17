@@ -15,9 +15,6 @@ class LoginScreen extends React.Component {
   constructor(props) {
     super(props);
     this.state = { email: 'Test@test.com', password: '123456', error: '', loading: false, token: null };
-    fetch(APP_URL+"/getSchedule").then((res) => {
-      console.log("restuned:  " + res);
-    })
   }
 
   static navigationOptions = {
