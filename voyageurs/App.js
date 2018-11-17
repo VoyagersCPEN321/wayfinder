@@ -4,6 +4,8 @@ import { createStackNavigator } from 'react-navigation';
 import DirectionsView from './MapScreen';
 import MapScreen from './MapScreen';
 
+
+
 const APP_ID = "171287213807359";
 class LoginScreen extends React.Component {
   constructor(props) {
@@ -49,6 +51,19 @@ class LoginScreen extends React.Component {
     }
   }
 
+  pickDocument = async () => {
+
+
+    const result = await Expo.DocumentPicker.getDocumentAsync(
+      {
+        copyToCacheDirectory : true,
+      }
+    );
+
+    console.log('result', result);
+  }
+
+
   render() {
     //const { navigate } = this.props.navigation;
     return (
@@ -62,9 +77,17 @@ class LoginScreen extends React.Component {
         backgroundColor: "rgba(255, 255, 255, 0.0)"
       }}>
         <Button
-          title="Login with Facebook"
+          title="Login-with Facebook"
           onPress={() => this.logIn(this)}
         />
+      
+      <Button
+          title="files"
+          onPress={ this.pickDocument }
+      />
+
+    
+
       </View>
     );
   }
