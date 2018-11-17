@@ -90,17 +90,34 @@ class LoginScreen extends React.Component {
   }
 
   pickDocument = async () => {
-
-
-    const result = await Expo.DocumentPicker.getDocumentAsync(
+    const document = await Expo.DocumentPicker.getDocumentAsync(
       {
+        type : "text/calendar",
         copyToCacheDirectory : true,
       }
     );
+    console.log('result', document);
 
-    console.log('result', result);
+    const data = new FormData();
+
+    data.append('name', 'new_calendar'); 
+    data.append('calendar', {
+      uri: document.uri,
+      type: 'text/calendar', 
+      name: 'uploaded_calendar'
+    });
+    
+    fetch("http://40.117.145.64:8080/schedule", {
+      method: 'POST',
+      headers: {
+        'x-auth-token': await AsyncStorage.getItem('token'),
+      },
+      body: data
+    }).then(res => {
+      console.log(res)
+    });
+
   }
-
 
   render() {
     //const { navigate } = this.props.navigation;
