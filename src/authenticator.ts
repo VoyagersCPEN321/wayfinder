@@ -13,7 +13,7 @@ export interface IAuthenticator {
     authenticateFB: express.RequestHandler;
     validateUserToken: expressJwt.RequestHandler;
     getUserToken(user: mongoose.Document): string;
-    unauthorizedHandler(err: any, req: Request, res: Response, next): void;
+    unauthorizedHandler(err: any, req: Request, res: Response, next: any): void;
 }
 
 class Authenticator implements IAuthenticator {
@@ -35,7 +35,7 @@ class Authenticator implements IAuthenticator {
             enableProof: false
         }, (accessToken, refreshToken, profile: FacebookTokenStrategy.Profile, done) => {
             USER.findOne({ facebookId: profile.id }).then((user: mongoose.Document) => {
-                if(!user) {
+                if (!user) {
                     let newUser = new USER({
                         userId: new ObjectID(),
                         facebookId: profile.id,
@@ -46,7 +46,7 @@ class Authenticator implements IAuthenticator {
                     });
                 }
                 return done(null, user);
-            })
+            });
         }));
         this.authenticateFB = passport.authenticate('facebook-token', { session: false });
 
@@ -66,16 +66,17 @@ class Authenticator implements IAuthenticator {
     }
 
     public getUserToken(user: mongoose.Document): string {
-        if(user) {
+        if (user) {
             return jwt.sign(user.toJSON(), this.APP_SECRET);
         }
         return null;
     }
 
-    public unauthorizedHandler(err: any, req: Request, res: Response, next) {
+    public unauthorizedHandler(err: any, req: Request, res: Response, next: any) {
         if (err.name === 'UnauthorizedError') {
             // TODO add a meaningful error message
             res.status(401).send('Please Login.');
+            return;
           }
     }
 }

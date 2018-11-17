@@ -90,15 +90,14 @@ export class Server {
                 this.logError(e);
             }
         });
-        router.post("/auth/fb", Authenticator.authenticateFB,(req, res)=>{
-            if(req.user.err){
+        router.post("/auth/fb", Authenticator.authenticateFB, (req, res) => {
+            if (req.user.err) {
                 res.status(401).json({
                     success: false,
                     message: 'Auth failed',
                     error: req.user.err
-                })
-            }
-            else if(req.user) {
+                });
+            } else if (req.user) {
                 res.status(200).json({
                     success: true,
                     message: 'Enjoy your token!',
@@ -112,9 +111,9 @@ export class Server {
                 });
             }
         }, (err, req, res, next) => {
-            if(err) {
+            if (err) {
                 console.log(err);
-                res.status(400).json({success: false, message: 'Auth failed', err})
+                res.status(400).json({ success: false, message: 'Auth failed', err });
             }
         });
 
@@ -144,9 +143,9 @@ export class Server {
     }
 
     private errorHandler(): void {
-        this.app.use(function (err, req, res, next) {
+        this.app.use((err : any, req: Request, res: Response, next: any) => {
             if (err.name === 'UnauthorizedError') {
-              Authenticator.unauthorizedHandler(err, req, res, next);
+                Authenticator.unauthorizedHandler(err, req, res, next);
             }
         });
     }
