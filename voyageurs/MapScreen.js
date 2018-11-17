@@ -79,7 +79,7 @@ export default class MapScreen extends React.Component {
       else{
 
         var allEvents;
-        fetch("http://40.117.145.64:8080/getSchedule", {
+        fetch("http://104.41.132.251:8080/getSchedule", {
           method: "GET"
         }).then((response) => {
           response.json().then((schedule) => {
