@@ -69,7 +69,7 @@ class Authenticator implements IAuthenticator {
         if(user) {
             return jwt.sign(user.toJSON(), this.APP_SECRET);
         }
-        return 'invalid';
+        return null;
     }
 
     public unauthorizedHandler(err: any, req: Request, res: Response, next) {

@@ -1,14 +1,21 @@
 import React from 'react';
-import { View, Text, Button } from 'react-native';
+import { View, Text, Button, Alert } from 'react-native';
 import { createStackNavigator } from 'react-navigation';
 import DirectionsView from './MapScreen';
 import MapScreen from './MapScreen';
+import { AsyncStorage } from "react-native"
 
 const APP_ID = "171287213807359";
+const APP_URL = "http://128.189.90.74:8080";
+const FB_AUTH = "/auth/fb/";
+
 class LoginScreen extends React.Component {
   constructor(props) {
     super(props);
-    //this.state = { email: 'Test@test.com', password: '123456', error: '', loading: false };
+    this.state = { email: 'Test@test.com', password: '123456', error: '', loading: false, token: null };
+    fetch(APP_URL+"/getSchedule").then((res) => {
+      console.log("restuned:  " + res);
+    })
   }
 
   static navigationOptions = {
@@ -19,34 +26,68 @@ class LoginScreen extends React.Component {
     this.props.navigation.navigate('MapScreen');
   }
 
+  loginFailedAlert = () => {
+    Alert("Login Failed please try again");
+  }
+
   logIn = async function (view) {
     try {
       const {
         type,
-        token,
-        expires,
-        permissions,
-        declinedPermissions,
+        token
       } = await Expo.Facebook.logInWithReadPermissionsAsync(APP_ID, {
-        permissions: ['public_profile'],
+        permissions: ['public_profile']
       });
-      console.log(await Expo.Facebook.logInWithReadPermissionsAsync(APP_ID, {
-        permissions: ['public_profile', 'email'],
-      }));
+
       if (type === 'success') {
-        // Get the user's name using Facebook's Graph API
-        const response = await fetch(`https://graph.facebook.com/me?access_token=${token}&fields=id,name,email`);
-        //Alert.alert('Logged in!', `Hi ${(await response.json()).name}!`);
-        /* Dummy Nvaigation TODO remove. */
-        const { navigate } = view.props.navigation;
-        navigate('MapScreen');
+        /* Request JWT from server */
+        await view.getJWT(token).then(() => {
+          if(!view.state.token) {
+            view.loginFailedAlert();
+          } else {
+            // TODO delete
+            console.log("transferring view");
+            view.gotoMapScreen();
+          }
+        });
       } else {
-        console.log("login failed");
+        view.loginFailedAlert();
       }
     } catch (e) {
-      console.log(e);
-      //alert(`Facebook Login Error: `);
+      alert(`Facebook Login Error: ` + e);
     }
+  }
+
+  getJWT = async (fbToken) => {
+    return fetch(APP_URL + FB_AUTH, {
+      method: "POST",
+      headers: new Headers({
+        'Authorization': 'Bearer ' + fbToken
+      })
+    }).then((res) => {
+      if (res.status == 200) {
+        return this.extractToken(res);
+      } else {
+        this.loginFailedAlert();
+        return;
+      }
+    });
+  }
+
+  extractToken = async (res) => {
+    return res.json().then( async (jsonBody) => {
+      if (!jsonBody.token) {
+        this.loginFailedAlert();
+        console.log("Failed here at .json getJWT");
+        console.log(jsonBody);
+        return;
+      } else {
+        this.setState({ token: jsonBody.token })
+        await AsyncStorage.setItem('@tokenStore', jsonBody.token);
+        // TODO remove
+        console.log("stored user token successfully");
+      }
+    });
   }
 
   render() {
