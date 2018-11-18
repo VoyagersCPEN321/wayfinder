@@ -130,7 +130,7 @@ class LoginScreen extends React.Component {
         bottom: 300,
         backgroundColor: "rgba(255, 255, 255, 0.0)"
       }}>
-        <Button
+        <Button testID="loginButton" 
           title="Login-with Facebook"
           onPress={() => this.logIn(this)}
         />
