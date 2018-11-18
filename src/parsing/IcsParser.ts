@@ -20,19 +20,22 @@ export class IcsParser {
         if (icsContent == null) {
             throw new ReferenceError("null calendar data");
         }
+        let schedule = this.getMainComponent(icsContent);
+        let allEvents: mongoose.Document[] = [];
+        let parsedEvents: [] = schedule.getAllSubcomponents(this.VEVENT_SELECTOR);
+        if (parsedEvents.length === 0) {
+            throw new ReferenceError("No Events found in file.");
+        }
+        parsedEvents.forEach(event => {
+            allEvents.push(this.createEvent(event));
+        });
+        return allEvents;
+    }
+
+    private getMainComponent(icsContent: string): any {
         try {
-            // TODO remove when done testing
-            //let icalData = ICAL.parse(fs.readFileSync('ical-2.ics', 'utf8'));
-            let schedule = new ICAL.Component(icsContent);
-            let allEvents: mongoose.Document[] = [];
-            let parsedEvents: [] = schedule.getAllSubcomponents(this.VEVENT_SELECTOR);
-            if (parsedEvents.length === 0) {
-                throw new ReferenceError("No Events found in file.");
-            }
-            parsedEvents.forEach(event => {
-                allEvents.push(this.createEvent(event));
-            });
-            return allEvents;
+            var icalData = ICAL.parse(icsContent);
+            return new ICAL.Component(icalData);
         } catch (e) {
             throw new Error("Invalid ICS file");
         }
@@ -52,8 +55,15 @@ export class IcsParser {
             let day: string = rules.parts.BYDAY[0];
             // TODO use the db to transform to actual location.
             let fullICSLocation = parsedEvent.getFirstPropertyValue(this.LOCATION_SELECTOR);
-            let location: string = this.getAddress(fullICSLocation.slice());
-            let room: string = this.extractRoom(fullICSLocation.slice());
+            let location: string;
+            let room: string;
+            if(fullICSLocation == null) {
+                location = this.NOT_AVAILABLE;
+                room = this.NOT_AVAILABLE;
+            } else {
+                location = this.getAddress(fullICSLocation.slice());
+                room = this.extractRoom(fullICSLocation.slice());
+            }
             let description: string = parsedEvent.getFirstPropertyValue(this.DESCRIPTION_SELECTOR);
             let startTime: Date = new Date(parsedEvent.getFirstPropertyValue(this.START_DATE_SELECTOR));
             let endTime: Date = new Date(parsedEvent.getFirstPropertyValue(this.END_DATE_SELECTOR));
@@ -61,9 +71,11 @@ export class IcsParser {
             let startDay: Date = new Date(parsedEvent.getFirstPropertyValue(this.START_DATE_SELECTOR));
             let lastDay: Date = new Date(rules.until);
             let frequency: string = rules.freq;
+            if(frequency == null) {
+                throw new Error("Invalid ics file,some event(s) have no frequency.");
+            }
             let recurrence: number = rules.interval;
 
-            console.log(location + '   ' + fullICSLocation);
             return new EVENT.MODEL({
                 summary: summary,
                 day: day,
@@ -82,15 +94,15 @@ export class IcsParser {
         }
     }
 
-    private ROOM_NOT_AVAILABLE: string = "N/A";
+    private NOT_AVAILABLE: string = "N/A";
     private extractRoom(location: string) {
         if (location === null) {
-            return this.ROOM_NOT_AVAILABLE;
+            return this.NOT_AVAILABLE;
         }
         let roomPtrn = new RegExp('Room.*');
         let roomMatches = location.match(roomPtrn);
         if (!roomMatches || roomMatches.length === 0) {
-            return this.ROOM_NOT_AVAILABLE;
+            return this.NOT_AVAILABLE;
         }
         return roomMatches[0];
     }
