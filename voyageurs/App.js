@@ -26,7 +26,7 @@ class LoginScreen extends React.Component {
   }
 
   loginFailedAlert = () => {
-    Alert("Login Failed please try again");
+    Alert.alert("Login Failed please try again");
   }
 
   logIn = async function (view) {
