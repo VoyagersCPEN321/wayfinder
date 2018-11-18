@@ -31,7 +31,7 @@ describe('GET /schedule', () => {
         chai.request(server)
             .get('/schedule')
             .end((err, res) =>{
-                res.should.have.status(200);
+                res.should.have.status(401);
                 //res.body.should.be.;
                 done();
             })
