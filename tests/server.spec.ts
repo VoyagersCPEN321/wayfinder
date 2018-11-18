@@ -1,8 +1,13 @@
-import mongoose from 'mongoose';
-import chai from 'chai';
-import chaiHttp from 'chai-http';
+process.env.NODE_ENV = 'test';
+
+
+import 'mongoose';
+import 'chai';
+import'chai-http';
 import server from '../src/server';
 import SCHEDULE from '../src/models/schedule';
+import chaiHttp = require('chai-http');
+import chai = require('chai');
 
 let should  = chai.should();
 
