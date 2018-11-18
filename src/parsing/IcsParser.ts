@@ -57,7 +57,7 @@ export class IcsParser {
             let fullICSLocation = parsedEvent.getFirstPropertyValue(this.LOCATION_SELECTOR);
             let location: string;
             let room: string;
-            if(fullICSLocation == null) {
+            if (fullICSLocation == null) {
                 location = this.NOT_AVAILABLE;
                 room = this.NOT_AVAILABLE;
             } else {
@@ -71,7 +71,7 @@ export class IcsParser {
             let startDay: Date = new Date(parsedEvent.getFirstPropertyValue(this.START_DATE_SELECTOR));
             let lastDay: Date = new Date(rules.until);
             let frequency: string = rules.freq;
-            if(frequency == null) {
+            if (frequency == null) {
                 throw new Error("Invalid ics file,some event(s) have no frequency.");
             }
             let recurrence: number = rules.interval;
