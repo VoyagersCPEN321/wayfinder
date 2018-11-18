@@ -6,5 +6,5 @@ install:
   - npm install
 script:
   - npm run grunt
-  - npm tests
+  - npm test
 
