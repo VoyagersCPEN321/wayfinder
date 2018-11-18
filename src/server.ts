@@ -14,8 +14,6 @@ import * as mongoose from "mongoose";
 import { ObjectID } from "bson";
 import locationsMap from "./parsing/locationsMap";
 import Authenticator from "./authenticator";
-import * as config from 'config';
-import * as morgan from  'morgan';
 import { CONFIG_FILENAME } from "tslint/lib/configuration";
 
 // TODO revisit error handling to have more
@@ -51,7 +49,6 @@ export class Server {
 
     private config(): void {
         try {
-            this.app.use(morgan('combined'));
             this.app.use(bodyParser.json());
             this.app.use(bodyParser.urlencoded({ extended: false }));
             mongoose.connect("mongodb://localhost/test").then(() => {

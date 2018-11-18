@@ -1,6 +1,3 @@
-process.env.NODE_ENV = 'test';
-
-
 import 'mongoose';
 import 'chai';
 import'chai-http';
@@ -27,7 +24,7 @@ describe ('Clear Schedule',  () => {
  * Test GET 
  */
 describe('GET /schedule', () => {
-    it('it should retrieve the user schedule', (done) => {
+    it('should fail because the there is no schedule', (done) => {
         chai.request(server)
             .get('/schedule')
             .end((err, res) =>{
