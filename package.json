@@ -18,7 +18,7 @@
   "homepage": "https://github.com/VoyagersCPEN321/wayfinder#readme",
   "scripts": {
     "start": "node ./output/app.js",
-    "test": "nyc mocha -r ts-node/register tests/**/*.spec.ts",
+    "test": "nyc mocha",
     "grunt": "grunt"
   },
   "dependencies": {
@@ -58,13 +58,18 @@
     "typescript": "^3.1.1"
   },
   "nyc": {
-    "extension": [
+    "include": [
       "src/**/*.ts",
       "src/**/*.tsx"
     ],
-    "exclude": [
-      "**/*.d.ts, **/*"
+    "extension": [
+      ".ts",
+      ".tsx"
     ],
-    "all": true
+    "require": [
+      "ts-node/register"
+    ],
+    "sourceMap": true,
+    "instrument": true
   }
 }
