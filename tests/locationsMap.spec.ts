@@ -5,7 +5,7 @@ import LocationsMap from '../src/parsing/locationsMap';
 import { IEvent } from '../src/models/event';
 
 
-describe('retrieve addresses', () => {
+describe('valid building name', () => {
 
     it(`should return the expected address mapping for the given building name`, () => {
 
@@ -13,6 +13,10 @@ describe('retrieve addresses', () => {
 
         expect(LocationsMap.getAddress(location)).to.equal("2125 Main Mall");
     });
+
+});
+
+describe('invalid building name', () => {
 
     it(`should return null because the building name is not in the db`, () => {
 
