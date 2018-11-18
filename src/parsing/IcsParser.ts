@@ -18,7 +18,7 @@ export class IcsParser {
     private VEVENT_SELECTOR: string = "vevent";
     public parseICS(icsContent: string): mongoose.Document[] {
         if (icsContent == null) {
-            throw new ReferenceError("null calendar data");
+            throw new ReferenceError("Null calendar data.");
         }
         let schedule = this.getMainComponent(icsContent);
         let allEvents: mongoose.Document[] = [];
@@ -49,56 +49,49 @@ export class IcsParser {
     private END_DATE_SELECTOR: string = "dtend";
 
     private createEvent(parsedEvent: any): mongoose.Document {
-        if (parsedEvent) {
-            let summary: string = parsedEvent.getFirstPropertyValue(this.SUMMARY_SELECTOR);
-            let rules: any = parsedEvent.getFirstPropertyValue(this.RULE_SELECTOR);
-            let day: string = rules.parts.BYDAY[0];
-            // TODO use the db to transform to actual location.
-            let fullICSLocation = parsedEvent.getFirstPropertyValue(this.LOCATION_SELECTOR);
-            let location: string;
-            let room: string;
-            if (fullICSLocation == null) {
-                location = this.NOT_AVAILABLE;
-                room = this.NOT_AVAILABLE;
-            } else {
-                location = this.getAddress(fullICSLocation.slice());
-                room = this.extractRoom(fullICSLocation.slice());
-            }
-            let description: string = parsedEvent.getFirstPropertyValue(this.DESCRIPTION_SELECTOR);
-            let startTime: Date = new Date(parsedEvent.getFirstPropertyValue(this.START_DATE_SELECTOR));
-            let endTime: Date = new Date(parsedEvent.getFirstPropertyValue(this.END_DATE_SELECTOR));
-            // TODO might be a bit redundant since we know the start date from the start time
-            let startDay: Date = new Date(parsedEvent.getFirstPropertyValue(this.START_DATE_SELECTOR));
-            let lastDay: Date = new Date(rules.until);
-            let frequency: string = rules.freq;
-            if (frequency == null) {
-                throw new Error("Invalid ics file,some event(s) have no frequency.");
-            }
-            let recurrence: number = rules.interval;
-
-            return new EVENT.MODEL({
-                summary: summary,
-                day: day,
-                location: location,
-                room: room,
-                description: description,
-                startTime: startTime,
-                endTime: endTime,
-                startDay: startDay,
-                lastDay: lastDay,
-                frequency: frequency,
-                recurrence: recurrence
-            });
+        let summary: string = parsedEvent.getFirstPropertyValue(this.SUMMARY_SELECTOR);
+        let rules: any = parsedEvent.getFirstPropertyValue(this.RULE_SELECTOR);
+        let day: string = rules.parts.BYDAY[0];
+        // TODO use the db to transform to actual location.
+        let fullICSLocation = parsedEvent.getFirstPropertyValue(this.LOCATION_SELECTOR);
+        let location: string;
+        let room: string;
+        if (fullICSLocation == null) {
+            location = this.NOT_AVAILABLE;
+            room = this.NOT_AVAILABLE;
         } else {
-            throw new Error("Null event");
+            location = this.getAddress(fullICSLocation.slice());
+            room = this.extractRoom(fullICSLocation.slice());
         }
+        let description: string = parsedEvent.getFirstPropertyValue(this.DESCRIPTION_SELECTOR);
+        let startTime: Date = new Date(parsedEvent.getFirstPropertyValue(this.START_DATE_SELECTOR));
+        let endTime: Date = new Date(parsedEvent.getFirstPropertyValue(this.END_DATE_SELECTOR));
+        // TODO might be a bit redundant since we know the start date from the start time
+        let startDay: Date = new Date(parsedEvent.getFirstPropertyValue(this.START_DATE_SELECTOR));
+        let lastDay: Date = new Date(rules.until);
+        let frequency: string = rules.freq;
+        if (frequency == null) {
+            throw new Error("Invalid ics file,some event(s) have no frequency.");
+        }
+        let recurrence: number = rules.interval;
+
+        return new EVENT.MODEL({
+            summary: summary,
+            day: day,
+            location: location,
+            room: room,
+            description: description,
+            startTime: startTime,
+            endTime: endTime,
+            startDay: startDay,
+            lastDay: lastDay,
+            frequency: frequency,
+            recurrence: recurrence
+        });
     }
 
     private NOT_AVAILABLE: string = "N/A";
     private extractRoom(location: string) {
-        if (location === null) {
-            return this.NOT_AVAILABLE;
-        }
         let roomPtrn = new RegExp('Room.*');
         let roomMatches = location.match(roomPtrn);
         if (!roomMatches || roomMatches.length === 0) {
@@ -108,11 +101,7 @@ export class IcsParser {
     }
 
     private LOCATION_SPECIFIER: string = ", Vancouver, BC, CA";
-    private ADDRESSES_MAP: string = "locations";
     private getAddress(location: string): string {
-        if (location === null) {
-            return null;
-        }
         let tokens = location.split(',');
         if (tokens.length <= 1) {
             return null;
