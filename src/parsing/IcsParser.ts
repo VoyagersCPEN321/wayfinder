@@ -7,8 +7,6 @@
 import * as ICAL from "ical.js";
 import * as mongoose from "mongoose";
 import EVENT from "../models/event";
-import fs = require('fs');
-import { resolve } from "path";
 import locationsMap from "./locationsMap";
 
 /*
