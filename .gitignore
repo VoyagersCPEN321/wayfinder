@@ -2,3 +2,5 @@ node_modules
 .tscache
 data/db
 output
+.nyc_output
+coverage

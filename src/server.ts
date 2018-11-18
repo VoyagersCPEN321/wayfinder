@@ -14,6 +14,7 @@ import * as mongoose from "mongoose";
 import { ObjectID } from "bson";
 import locationsMap from "./parsing/locationsMap";
 import Authenticator from "./authenticator";
+import { CONFIG_FILENAME } from "tslint/lib/configuration";
 
 // TODO revisit error handling to have more
 // meaningful error handling and error messages
