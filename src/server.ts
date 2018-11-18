@@ -78,15 +78,23 @@ export class Server {
 
     private routes(): void {
         const router = express.Router();
-        router.get("/getSchedule", (req: Request, res: Response) => {
-            console.log("/getSchedule called");
-            try {
-                SCHEDULE.findOne({}, (req, doc) => {
-                    res.status(200).json(doc);
-                });
-            } catch (e) {
-                this.logError(e);
+        router.get("/schedule", Authenticator.validateUserToken, (err: any, req: Request, res: Response) => {
+            console.log("/schedule called");
+            if (err) {
+                res.send(401); // unauthorized error.
+                return;
             }
+            if (!req.user) {
+                res.send(401);
+                return;
+            }
+            SCHEDULE.findOne({userId: req.user.userId }, (req, doc) => {
+                if (!doc) {
+                    res.send(404);
+                    return;
+                }
+                res.status(200).json(doc);
+            });
         });
 
         router.post("/schedule", Authenticator.validateUserToken, (req: Request, res: Response) => {
