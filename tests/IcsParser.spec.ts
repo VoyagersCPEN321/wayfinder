@@ -48,25 +48,24 @@ END:VEVENT` + ICS_FOOTER;
 
     it('should return N/A for room when location has an irregular pattern', () => {
         let weirdLocationIcs = this.validData + `
-        BEGIN:VEVENT
-        DTSTAMP:20181016T013936Z
-        RRULE:FREQ=WEEKLY;WKST=MO;UNTIL=20190405T235959;INTERVAL=1;BYDAY=FR
-        SUMMARY:ELEC 331 T2A
-        LOCATION:MacLeod, Roomieeee 202
-        DESCRIPTION:
-        DTSTAMP:20181016T013936Z
-        UID:12341539653976599abcd263820
-        DTSTART;TZID=America/Vancouver:20190104T100000
-        DTEND;TZID=America/Vancouver:20190104T120000
-        END:VEVENT` + ICS_FOOTER;
+BEGIN:VEVENT
+DTSTAMP:20181016T013936Z
+RRULE:FREQ=WEEKLY;WKST=MO;UNTIL=20190405T235959;INTERVAL=1;BYDAY=FR
+SUMMARY:ELEC 331 T2A
+LOCATION:MacLeod, Romieee 202
+DESCRIPTION:
+DTSTAMP:20181016T013936Z
+UID:12341539653976599abcd263820
+DTSTART;TZID=America/Vancouver:20190104T100000
+DTEND;TZID=America/Vancouver:20190104T120000
+END:VEVENT` + ICS_FOOTER;
 
-        console.log(Parser.parseICS(weirdLocationIcs));
         let targetEvent = Parser.parseICS(weirdLocationIcs).filter((event: IEvent) => {
             return event.room === 'N/A'
         });
         expect(targetEvent).to.have.lengthOf(1);
         expect((targetEvent[0] as IEvent).summary === 'ELEC 331 T2A');
-        expect((targetEvent[1] as IEvent).location === 'Macloed');
+        expect((targetEvent[0] as IEvent).location === 'Macloed');
     });
 });
 

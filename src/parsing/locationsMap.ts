@@ -18,7 +18,7 @@ class LocationsMap {
         return true;
     }
     public getAddress(buildingName: string): string {
-        return this.locations? this.locations[buildingName] : null;
+        return this.locations ? this.locations[buildingName] : null;
     }
 }
 
