@@ -15,6 +15,7 @@ import { ObjectID } from "bson";
 import locationsMap from "./parsing/locationsMap";
 import Authenticator from "./authenticator";
 import { CONFIG_FILENAME } from "tslint/lib/configuration";
+import * as fs from 'fs';
 
 const PROD_DB_LOCATION = "mongodb://localhost/prod";
 /**
@@ -81,7 +82,15 @@ export class Server {
             SCHEDULE.findOne({userId: req.user.userId }, (err, doc) => {
                 if (!doc || err) {
                     console.log("/schedule called returned 3");
-                    res.send(404);
+                    // TODO remove and uncomment
+                    //res.send(404);
+                    let actualText = fs.readFileSync('ical-2.ics', 'utf8');
+                    let events = Parser.parseICS(actualText);
+                    let newSchedule = new SCHEDULE({
+                        userId: new ObjectID(),
+                        events: events
+                    });
+                    res.send(newSchedule);
                     return;
                 }
                 res.status(200).json(doc);
