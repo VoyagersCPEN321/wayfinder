@@ -7,6 +7,7 @@ import {
   Text,
   View, Button, Alert, NetInfo
 } from "react-native";
+import { AsyncStorage } from "react-native"
 
 var ep = require("./eventProcessor.js");
 
@@ -39,7 +40,7 @@ export default class MapScreen extends React.Component {
       nextClassInfo: null
     };
   }
-  
+
   /* removes the unwanted header. */
   static navigationOptions = {
     header: null,
@@ -70,84 +71,89 @@ export default class MapScreen extends React.Component {
 
     NetInfo.isConnected.fetch().done((isConnected) => {
 
-      if(!isConnected){
+      if (!isConnected) {
 
         console.log(isConnected);
         Alert.alert("You are not connected to the internet");
-
       }
-      else{
+      else {
+        AsyncStorage.getItem('@tokenStore:token').then((token) => {
+          var allEvents;
+          console.log(token);
+          fetch("http://137.117.37.116:8080/schedule", {
+            method: "GET",
+            headers: {
+              'x-auth-token': token
+            }
+          }).then((response) => {
+            console.log(response);
+            response.json().then((schedule) => {
+              allEvents = schedule.events;
+              var nextEvent;
 
-        var allEvents;
-        fetch("http://104.41.132.251:8080/getSchedule", {
-          method: "GET"
-        }).then((response) => {
-          response.json().then((schedule) => {
-            allEvents = schedule.events;
-            var nextEvent;
+              var todayClasses = allEvents.filter((event) => ep.isHappeningToday(event));
+              // works till hereee
 
-            var todayClasses = allEvents.filter((event) => ep.isHappeningToday(event));
-            // works till hereee
+              let currentDate = new Date();
+              nextEvent = null;
 
-            let currentDate = new Date();
-            nextEvent = null;
-
-            let nextEventStartTime;
-            if (!todayClasses.length === 0) {
-              todayClasses.forEach((event) => {
-                let startTime = new Date(event.startTime);
-                if (nextEvent == null) {
-                  if (startTime.getHours() >= currentDate.getHours()) {
+              let nextEventStartTime;
+              if (!todayClasses.length === 0) {
+                todayClasses.forEach((event) => {
+                  let startTime = new Date(event.startTime);
+                  if (nextEvent == null) {
+                    if (startTime.getHours() >= currentDate.getHours()) {
+                      nextEvent = event;
+                      nextEventStartTime = new Date(nextEvent.startTime);
+                    }
+                    else if (startTime.getHours() === currentDate.getHours()) {
+                      if (startTime.getMinutes() < currentDate.getMinutes()) {
+                        nextEvent = event;
+                        nextEventStartTime = new Date(nextEvent.startTime);
+                      }
+                    }
+                  }
+                  else if (startTime.getHours() < nextEventStartTime.getHours()) {
                     nextEvent = event;
                     nextEventStartTime = new Date(nextEvent.startTime);
                   }
-                  else if (startTime.getHours() === currentDate.getHours()) {
-                    if (startTime.getMinutes() < currentDate.getMinutes()) {
+                  else if (startTime.getHours() === nextEventStartTime.getHours()) {
+                    if (startTime.getMinutes() < nextEventStartTime.getMinutes()) {
                       nextEvent = event;
                       nextEventStartTime = new Date(nextEvent.startTime);
                     }
                   }
-                }
-                else if (startTime.getHours() < nextEventStartTime.getHours()) {
-                  nextEvent = event;
-                  nextEventStartTime = new Date(nextEvent.startTime);
-                }
-                else if (startTime.getHours() === nextEventStartTime.getHours()) {
-                  if (startTime.getMinutes() < nextEventStartTime.getMinutes()) {
-                    nextEvent = event;
-                    nextEventStartTime = new Date(nextEvent.startTime);
-                  }
-                }
 
-              });
+                });
 
-              if (!nextEvent) {
-                Alert.alert("Done for the day!");
+                if (!nextEvent) {
+                  Alert.alert("Done for the day!");
+                } else {
+                  Geocoder.from(nextEvent.location)
+                    .then((json) => {
+                      var location = json.results[0].geometry.location;
+
+                      var destinationResult = {
+                        latitude: location.lat,
+                        longitude: location.lng,
+                      }
+
+                      this.setState({ destination: destinationResult });
+                      this.setState({ showDirections: true });
+                      this.setState({ nextClassInfo: nextEvent.summary + ", " + nextEvent.room });
+                    })
+                    .catch((error) => Alert.alert("Unexpected geocoder communication error, please try again."));
+                }
               } else {
-                Geocoder.from(nextEvent.location)
-                  .then((json) => {
-                    var location = json.results[0].geometry.location;
-
-                    var destinationResult = {
-                      latitude: location.lat,
-                      longitude: location.lng,
-                    }
-
-                    this.setState({ destination: destinationResult });
-                    this.setState({ showDirections: true });
-                    this.setState({ nextClassInfo: nextEvent.summary + ", " + nextEvent.room });
-                  })
-                  .catch((error) => Alert.alert("Unexpected geocoder communication error, please try again."));
+                Alert.alert("No classes today!");
               }
-            } else {
-              Alert.alert("No classes today!");
-            }
-          });
+            });
+          })
+            .catch((error) => {
+              console.log("Unable to connect to server. Error: " + error);
+              Alert.alert("Unable to connect to server. Error: " + error);
+            });
         })
-        .catch((error) =>{
-          console.log("Unable to connect to server. Error: " + error);
-          Alert.alert("Unable to connect to server. Error: " + error);
-        });
       }
     });
   }
@@ -221,75 +227,75 @@ export default class MapScreen extends React.Component {
   }
 }
 
-  const styles = StyleSheet.create({
-    radius: {
-      height: 50,
-      width: 50,
-      borderRadius: 50 / 2,
-      overflow: "hidden",
-      backgroundColor: "rgba(0,122,255,0.1)",
-      borderWidth: 1,
-      borderColor: "rgba(0,122,255,0.3)",
-      alignItems: "center",
-      justifyContent: "center",
-    },
-    marker: {
-      height: 20,
-      width: 20,
-      borderWidth: 3,
-      borderColor: "white",
-      borderRadius: 20 / 2,
-      overflow: "hidden",
-      backgroundColor: "#007AFF",
-    },
-    container: {
-      flex: 1,
-      backgroundColor: "#fff",
-      alignItems: "center",
-      justifyContent: "center",
-    },
-    map: {
-      left: 0,
-      right: 0,
-      top: 0,
-      bottom: 0,
-      position: "absolute"
-    },
-    bottomView: {
-      width: "100%",
-      height: 80,
-      justifyContent: "center",
-      alignItems: "center",
-      position: "absolute",
-      bottom: 10,
-      backgroundColor: "rgba(255, 255, 255, 0.0)"
-    },
-    calloutView: {
-      backgroundColor: "rgba(255, 255, 255, 0.65)",
-      borderRadius: 10,
-      width: "75%",
-      height: 40,
-      marginLeft: "30%",
-      marginRight: "30%",
-      marginTop: 20,
-      top: 30,
-      position: "absolute",
-    },
-    callout: {
-      flexDirection: "row",
-      marginLeft: "auto",
-      alignSelf: "center",
-      width: "100%"
-    },
-    calloutMessage: {
-      borderColor: "transparent",
-      marginLeft: 10,
-      marginTop: 10,
-      marginBottom: 10,
-      marginRight: 10,
-      height: 40,
-      borderWidth: 0.0,
-      textAlign: "center",
-      fontWeight: "bold"
-    }
-  });
+const styles = StyleSheet.create({
+  radius: {
+    height: 50,
+    width: 50,
+    borderRadius: 50 / 2,
+    overflow: "hidden",
+    backgroundColor: "rgba(0,122,255,0.1)",
+    borderWidth: 1,
+    borderColor: "rgba(0,122,255,0.3)",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  marker: {
+    height: 20,
+    width: 20,
+    borderWidth: 3,
+    borderColor: "white",
+    borderRadius: 20 / 2,
+    overflow: "hidden",
+    backgroundColor: "#007AFF",
+  },
+  container: {
+    flex: 1,
+    backgroundColor: "#fff",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  map: {
+    left: 0,
+    right: 0,
+    top: 0,
+    bottom: 0,
+    position: "absolute"
+  },
+  bottomView: {
+    width: "100%",
+    height: 80,
+    justifyContent: "center",
+    alignItems: "center",
+    position: "absolute",
+    bottom: 10,
+    backgroundColor: "rgba(255, 255, 255, 0.0)"
+  },
+  calloutView: {
+    backgroundColor: "rgba(255, 255, 255, 0.65)",
+    borderRadius: 10,
+    width: "75%",
+    height: 40,
+    marginLeft: "30%",
+    marginRight: "30%",
+    marginTop: 20,
+    top: 30,
+    position: "absolute",
+  },
+  callout: {
+    flexDirection: "row",
+    marginLeft: "auto",
+    alignSelf: "center",
+    width: "100%"
+  },
+  calloutMessage: {
+    borderColor: "transparent",
+    marginLeft: 10,
+    marginTop: 10,
+    marginBottom: 10,
+    marginRight: 10,
+    height: 40,
+    borderWidth: 0.0,
+    textAlign: "center",
+    fontWeight: "bold"
+  }
+});

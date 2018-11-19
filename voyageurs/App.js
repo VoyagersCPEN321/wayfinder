@@ -82,7 +82,7 @@ class LoginScreen extends React.Component {
         return;
       } else {
         this.setState({ token: jsonBody.token })
-        await AsyncStorage.setItem('@tokenStore', jsonBody.token);
+        await AsyncStorage.setItem('@tokenStore:token', jsonBody.token);
         // TODO remove
         console.log("stored user token successfully");
       }
@@ -110,7 +110,7 @@ class LoginScreen extends React.Component {
     fetch("http://40.117.145.64:8080/schedule", {
       method: 'POST',
       headers: {
-        'x-auth-token': await AsyncStorage.getItem('token'),
+        'x-auth-token': await AsyncStorage.getItem('@tokenStore:token'),
       },
       body: data
     }).then(res => {

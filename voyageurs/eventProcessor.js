@@ -35,7 +35,7 @@ function isBeforeDay(a, b) {
 
 function dayToUTCDay(day) {
   switch (day) {
-    case "MU": return 1;
+    case "MO": return 1;
     case "TU": return 2;
     case "WE": return 3;
     case "TH": return 4;
