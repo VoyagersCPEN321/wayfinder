@@ -6,7 +6,6 @@ install:
   - npm install
 script:
   - npm run grunt
-  - ./mongoInit.sh
   - npm test
 services:
   - mongodb
