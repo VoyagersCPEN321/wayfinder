@@ -67,7 +67,7 @@ export class Server {
         const router = express.Router();
         router.get("/schedule", Authenticator.validateUserToken, (req: Request, res: Response) => {
             console.log("/schedule called");
-            if(!req.user) {
+            if (!req.user) {
                 console.log("no user");
                 res.send(401);
                 return;
