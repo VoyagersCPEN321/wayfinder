@@ -53,13 +53,11 @@ class Authenticator implements IAuthenticator {
         /* Init user token validator */
         this.validateUserToken = expressJwt({
             secret: this.APP_SECRET,
-            requestProperty: 'auth-token',
+            requestProperty: 'user',
             getToken: function (req: Request) {
-                console.log(req.headers);
                 if (req.headers['x-auth-token']) {
                     return req.headers['x-auth-token'];
                 }
-                console.log("got here whyyyy\n");
                 return null;
             }
         });
@@ -67,7 +65,7 @@ class Authenticator implements IAuthenticator {
 
     public getUserToken(user: mongoose.Document): string {
         if (user) {
-            return jwt.sign(user.toJSON(), this.APP_SECRET);
+            return jwt.sign(user.toObject(), this.APP_SECRET);
         }
         return null;
     }
