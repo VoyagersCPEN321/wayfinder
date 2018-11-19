@@ -16,15 +16,13 @@ import locationsMap from "./parsing/locationsMap";
 import Authenticator from "./authenticator";
 import { CONFIG_FILENAME } from "tslint/lib/configuration";
 
-// TODO revisit error handling to have more
-// meaningful error handling and error messages
+const PROD_DB_LOCATION = "mongodb://localhost/prod";
 /**
  * The server.
  *
  * @class Server
  */
 export class Server {
-
     public app: express.Application;
     private db: mongoose.Connection;
     /**
@@ -33,12 +31,12 @@ export class Server {
      * @class Server
      * @constructor
      */
-    constructor() {
+    constructor(dbLocation: string) {
         this.app = express();
 
         //configure application
         try {
-            this.config();
+            this.config(dbLocation);
             this.routes();
             this.errorHandler();
             console.log("Server init completed.");
@@ -47,26 +45,13 @@ export class Server {
         }
     }
 
-    private config(): void {
+    private config(dbLocation: string): void {
         try {
             this.app.use(bodyParser.json());
             this.app.use(bodyParser.urlencoded({ extended: false }));
-            mongoose.connect("mongodb://localhost/test").then(() => {
+            mongoose.connect(dbLocation).then(() => {
                 locationsMap.config().then((result) => {
-                    if (result) {
-                        SCHEDULE.findOne((query, doc) => {
-                            if (!doc) {
-                                let events = Parser.parseICS('fakeICS');
-                                let newSchedule = new SCHEDULE({
-                                    userId: new ObjectID(),
-                                    events: events
-                                });
-                                newSchedule.save().then(() => console.log("populatedDB"));
-                            } else {
-                                console.log("DB already populated.");
-                            }
-                        });
-                    } else {
+                    if (!result) {
                         console.log("failed to init locationsMap");
                     }
                 });
@@ -79,23 +64,35 @@ export class Server {
 
     private routes(): void {
         const router = express.Router();
-        router.get("/schedule", Authenticator.validateUserToken, (err: any, req: Request, res: Response) => {
+        router.get("/schedule", Authenticator.validateUserToken, (req: Request, res: Response) => {
             console.log("/schedule called");
-            if (err) {
-                res.send(401); // unauthorized error.
-                return;
-            }
-            if (!req.user) {
+            if(!req.user) {
+                console.log("no user");
                 res.send(401);
                 return;
             }
-            SCHEDULE.findOne({userId: req.user.userId }, (req, doc) => {
-                if (!doc) {
+            if (req.user.err) {
+                console.log("/schedule called returned 2");
+                console.log(req.user);
+                res.sendStatus(401);
+                return;
+            }
+            console.log("Got hwererer iuehfgksdahfbdkjsahfksa \n");
+            SCHEDULE.findOne({userId: req.user.userId }, (err, doc) => {
+                if (!doc || err) {
+                    console.log("/schedule called returned 3");
                     res.send(404);
                     return;
                 }
                 res.status(200).json(doc);
+                return;
             });
+        }, (err, res) => {
+            if (err) {
+                console.log(err);
+                res.status(400).json({ success: false, message: 'Auth failed', err });
+            }
+            return;
         });
 
         router.post("/schedule", Authenticator.validateUserToken, (req: Request, res: Response) => {
@@ -163,23 +160,25 @@ export class Server {
             return;
         });
 
-        router.get("/validate", Authenticator.validateUserToken, (req: Request, res: Response) => {
-            console.log("/validate called");
-            try {
-                SCHEDULE.findOne({}, (req, doc) => {
-                    res.status(200).json(doc);
-                });
-            } catch (e) {
+        // router.get("/validate", Authenticator.validateUserToken, (req: Request, res: Response) => {
+        //     console.log("/validate called");
+        //     try {
+        //         console.log("/validate");
+        //         console.log(req.user);
+        //         // SCHEDULE.findOne({}, (req, doc) => {
+        //         //     res.status(200).json(doc);
+        //         // });
+        //     } catch (e) {
 
-                this.logError(e);
-            }
-        }, (err, res) => {
-            console.log("error here \n");
-            res.status(401).json({
-                success: false,
-                message: 'Auth failed'
-            });
-        });
+        //         this.logError(e);
+        //     }
+        // }, (err, res) => {
+        //     console.log("error here \n");
+        //     res.status(401).json({
+        //         success: false,
+        //         message: 'Auth failed'
+        //     });
+        // });
 
         this.app.use("/", router);
     }
@@ -198,4 +197,4 @@ export class Server {
     }
 }
 
-export default new Server().app;
+export default new Server(PROD_DB_LOCATION).app;
