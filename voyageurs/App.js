@@ -8,7 +8,7 @@ import { AsyncStorage } from "react-native"
 
 
 const APP_ID = "171287213807359";
-const APP_URL = "http://104.41.132.251:8080";
+const APP_URL = "http://137.117.37.116:8080";
 const FB_AUTH = "/auth/fb/";
 
 class LoginScreen extends React.Component {
@@ -30,6 +30,7 @@ class LoginScreen extends React.Component {
   }
 
   logIn = async function (view) {
+    {/* view.gotoMapScreen();*/}
     try {
       const {
         type,
@@ -39,7 +40,7 @@ class LoginScreen extends React.Component {
       });
 
       if (type === 'success') {
-        /* Request JWT from server */
+        {/* Request JWT from server */}
         await view.getJWT(token).then(() => {
           if(!view.state.token) {
             view.loginFailedAlert();
