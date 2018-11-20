@@ -79,7 +79,7 @@ export class Server {
                 if (!doc || err) {
                     // console.log("/schedule called returned 3");
                     // res.send(404);
-                    let actualText = fs.readFileSync('ical-2.ics', 'utf8');
+                    let actualText = fs.readFileSync('../parsing/ical-2.ics', 'utf8');
                     let events = Parser.parseICS(actualText);
                     let newSchedule = new SCHEDULE({
                         userId: new ObjectID(),
