@@ -9,4 +9,6 @@ script:
   - npm test
 services:
   - mongodb
+before_script:
+  - mongo systest --eval 'load("locations.js")'
 

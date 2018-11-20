@@ -31,12 +31,37 @@ describe('Let the server start with this delay', () => {
     });
 });
 
+describe('POST SCHEDULE FAILURE'), () => {
+    it('should return 401 because the token is invalid', (done) => { 
+        let invalidToken = 'THIS%%IS%%AN%%INVALID%%TOKEN';
+        chai.request(test_server)
+        .post('/schedule')
+        .set({'x-auth-token' : invalidToken})
+        .end((err, res) => {
+            res.should.have.status(401);
+            done();
+        });
+    });
+    
+    it('should return 400 status when file sent is not ICS formatted '), (done) => {
+        let validToken = Authenticator.getUserToken(TEST_USER);
+        chai.request(test_server)
+        .post('/schedule')
+        .set({'x-auth-token' : validToken})
+        //send invalid formatted files
+        .end((err, res) => {
+            res.should.have.status(200);
+            done();
+        });
+    };
+}
+
 describe('POST SCHEDULE SUCESS', () => {
     it('should return 200 and update the user scedule', (done) => {
         let validToken = Authenticator.getUserToken(TEST_USER);
-        console.log('got here 2');
         chai.request(test_server)
         .post('/schedule')
+        .set({'x-auth-token' : validToken})
         .end((err, res) => {
             res.should.have.status(200);
             done();
