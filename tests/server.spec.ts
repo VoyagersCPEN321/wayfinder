@@ -109,7 +109,7 @@ describe('facebook auth', () => {
         .post('/auth/fb')
         .set({'Authorization': 'Bearer ' + FB_TEST_USER_TOKEN + `gibberish` })
         .end((err, res) => {
-            res.should.have.status(200);
+            res.should.have.status(400);
             expect(res.body.token).to.not.be.null;
             done();
         });
@@ -132,7 +132,7 @@ describe('bad headers', () => {
         .post('/auth/fb')
         .set({'AuthorizationYOYOYO': 'Bearer ' + FB_TEST_USER_TOKEN})
         .end((err, res) => {
-            res.should.have.status(200);
+            res.should.have.status(401);
             done();
         });
     });
@@ -142,7 +142,7 @@ describe('bad headers', () => {
             .get('/schedule')
             .set({'x-auth-tokenssssss': VALID_TOKEN})
             .end((err, res) => {
-                res.should.have.status(404);
+                res.should.have.status(401);
                 done();
             });
     });
@@ -156,7 +156,7 @@ describe('Server with bad DB param', () => {
         .get('/schedule')
         .set({'x-auth-tokenssssss': VALID_TOKEN})
         .end((err, res) => {
-            res.should.have.status(404);
+            res.should.have.status(401);
             done();
         });
     });
