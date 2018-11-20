@@ -34,7 +34,7 @@ describe('Let the server start with this delay', () => {
     });
 });
 
-describe('POST SCHEDULE FAILURE'), () => {
+describe('POST SCHEDULE FAILURE', () => {
     it('should return 401 because the token is invalid', (done) => { 
         let invalidToken = 'THIS%%IS%%AN%%INVALID%%TOKEN';
         chai.request(test_server)
@@ -57,7 +57,7 @@ describe('POST SCHEDULE FAILURE'), () => {
             done();
         });
     };
-}
+})
 
 describe('POST SCHEDULE SUCESS', () => {
     it('should return 200 and update the user scedule', (done) => {
