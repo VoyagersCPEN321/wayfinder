@@ -8,7 +8,7 @@ import { AsyncStorage } from "react-native"
 
 
 const APP_ID = "171287213807359";
-const APP_URL = "http://137.117.37.116:8080";
+const APP_URL = "http://104.211.14.232:8080";
 const FB_AUTH = "/auth/fb/";
 
 class LoginScreen extends React.Component {

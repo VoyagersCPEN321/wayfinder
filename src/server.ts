@@ -78,7 +78,6 @@ export class Server {
                 res.sendStatus(401);
                 return;
             }
-            console.log("Got hwererer iuehfgksdahfbdkjsahfksa \n");
             SCHEDULE.findOne({userId: req.user.userId }, (err, doc) => {
                 if (!doc || err) {
                     console.log("/schedule called returned 3");

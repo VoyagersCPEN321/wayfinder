@@ -80,7 +80,7 @@ export default class MapScreen extends React.Component {
         AsyncStorage.getItem('@tokenStore:token').then((token) => {
           var allEvents;
           console.log(token);
-          fetch("http://137.117.37.116:8080/schedule", {
+          fetch("http://104.211.14.232:8080/schedule", {
             method: "GET",
             headers: {
               'x-auth-token': token
