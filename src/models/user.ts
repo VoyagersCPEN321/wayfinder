@@ -3,9 +3,9 @@
 import * as mongoose from "mongoose";
 
 export interface IUser extends mongoose.Document {
-    userId: mongoose.Schema.Types.ObjectId,
-    facebookId: string,
-    name: string
+    userId: mongoose.Schema.Types.ObjectId;
+    facebookId: string;
+    name: string;
 }
 
 class User {
