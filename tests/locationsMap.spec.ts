@@ -14,12 +14,8 @@ describe('valid building name', () => {
 
         console.log(LocationsMap.getAddress(location));
 
-        try{
-            assert(LocationsMap.getAddress(location) === "2125 Main Mall", "incorrect address returned");
-        }
-        catch (e) {
-         
-        } 
+        assert(LocationsMap.getAddress(location) === "2125 Main Mall", "incorrect address returned");
+
     });
 
 });
@@ -32,12 +28,7 @@ describe('invalid building name', () => {
 
         console.log(LocationsMap.getAddress(location));
 
-        try{
-            assert(LocationsMap.getAddress(location) === null, "null not returned");
-        }
-        catch(e){
-
-        }
+        assert(LocationsMap.getAddress(location) === null, "null not returned");
     });
     
 });
