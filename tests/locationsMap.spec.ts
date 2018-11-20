@@ -28,7 +28,7 @@ describe('invalid building name', () => {
 
         console.log(LocationsMap.getAddress(location));
 
-        assert(LocationsMap.getAddress(location) === null, "null not returned");
+        assert(LocationsMap.getAddress(location) == null, "null not returned");
     });
     
 });
