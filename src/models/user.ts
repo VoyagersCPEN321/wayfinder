@@ -2,6 +2,12 @@
 
 import * as mongoose from "mongoose";
 
+export interface IUser extends mongoose.Document {
+    userId: mongoose.Schema.Types.ObjectId,
+    facebookId: string,
+    name: string
+}
+
 class User {
     private userSchema: mongoose.Schema;
     public USER: mongoose.Model<mongoose.Document>;
@@ -13,7 +19,7 @@ class User {
             name: String
         });
 
-        this.USER = mongoose.model('User', this.userSchema);
+        this.USER = mongoose.model<IUser>('User', this.userSchema);
     }
 }
 

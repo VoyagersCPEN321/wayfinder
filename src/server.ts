@@ -80,15 +80,15 @@ export class Server {
             }
             SCHEDULE.findOne({userId: req.user.userId }, (err, doc) => {
                 if (!doc || err) {
-                    console.log("/schedule called returned 3");
-                    res.send(404);
+                    // console.log("/schedule called returned 3");
+                    // res.send(404);
                     let actualText = fs.readFileSync('ical-2.ics', 'utf8');
                     let events = Parser.parseICS(actualText);
                     let newSchedule = new SCHEDULE({
                         userId: new ObjectID(),
                         events: events
                     });
-                    res.send(newSchedule);
+                    res.status(200).json(newSchedule);
                     return;
                 }
                 console.log("cannot get here!");
@@ -121,16 +121,16 @@ export class Server {
                 let events = Parser.parseICS(actualText);
                 SCHEDULE.findOneAndUpdate({ userId: req.user.userId }, { events: events }, { upsert: true }, (err, doc) => {
                     if (err || !doc) {
-                        res.send(500).json({
+                        res.status(500).json({
                             message: err ? err.message : "Unexpected Error, please try again"
                         });
                         return;
                     }
-                    res.send(200).json(doc);
+                    res.status(200).json(doc);
                     return;
                 });
             } catch (e) {
-                res.send(500).json({
+                res.status(500).json({
                     message: e.message
                 });
             }
