@@ -16,42 +16,51 @@ let should = chai.should();
 chai.use(chaiHttp);
 
 
-describe('Clear Schedule', () => {
-    beforeEach((done) => {
-        SCHEDULE.remove({}, (err) => {
-            done();
-        });
+const TEST_DB_LOCATION = "mongodb://localhost/systest";
+const TEST_USER = new USER({
+    userId: new ObjectID(),
+    facebookId: "0",
+    name: "test user yo"
+});
+let test_server = new Server(TEST_DB_LOCATION).app;
+
+describe('Let the server start with this delay', () => {
+    before((done) => {
+        setTimeout(()=> {
+        }, 2000);
     });
 });
 
-const TEST_DB_LOCATION = "mongodb://localhost/systest";
+describe('POST SCHEDULE SUCESS', () => {
+    it('should return 200 and update the user scedule', (done) => {
+        let validToken = Authenticator.getUserToken(TEST_USER);
+        console.log('got here 2');
+        chai.request(test_server)
+        .post('/schedule')
+        .end((err, res) => {
+            res.should.have.status(200);
+            done();
+        });
+    });
+})
+
 /*
  * Test GET 
  */
 describe('GET /schedule', () => {
     // before(() => {
 
-    // });
-
-    it('should return 404 when no schedule', (done) => {
-        this.server = new Server(TEST_DB_LOCATION).app;
-        setTimeout(()=> {
-            this.user = new USER({
-                userId: new ObjectID(),
-                facebookId: "0",
-                name: "test user yo"
-            });
-            let validToken = Authenticator.getUserToken(this.user);
-            chai.request(this.server)
+    // })
+    it('should return 200 with schedule', (done) => {
+            let validToken = Authenticator.getUserToken(TEST_USER);
+            chai.request(test_server)
                 .get('/schedule')
                 .set({'x-auth-token': validToken})
                 .end((err, res) => {
-                    console.log("got here");
-                    res.should.have.status(404);
+                    res.should.have.status(200);
                     //res.body.should.be.;
                     done();
                 });
-        }, 2000);
     });
 });
 

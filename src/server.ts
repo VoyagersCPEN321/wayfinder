@@ -81,8 +81,7 @@ export class Server {
             SCHEDULE.findOne({userId: req.user.userId }, (err, doc) => {
                 if (!doc || err) {
                     console.log("/schedule called returned 3");
-                    // TODO remove and uncomment
-                    //res.send(404);
+                    res.send(404);
                     let actualText = fs.readFileSync('ical-2.ics', 'utf8');
                     let events = Parser.parseICS(actualText);
                     let newSchedule = new SCHEDULE({
@@ -92,6 +91,7 @@ export class Server {
                     res.send(newSchedule);
                     return;
                 }
+                console.log("cannot get here!");
                 res.status(200).json(doc);
                 return;
             });
@@ -104,17 +104,21 @@ export class Server {
         });
 
         router.post("/schedule", Authenticator.validateUserToken, (req: Request, res: Response) => {
+            console.log('got here 2');
             if (!req.user) {
                 res.send(401);
                 return;
             }
             try {
+                console.log('got here 3');
                 // TODO put the ics in here
-                let events = Parser.parseICS('fakeICS');
-                let newSchedule = new SCHEDULE({
-                    userId: req.user.userId,
-                    events: events
-                });
+                // let events = Parser.parseICS('fakeICS');
+                // let newSchedule = new SCHEDULE({
+                //     userId: req.user.userId,
+                //     events: events
+                // });
+                let actualText = fs.readFileSync('ical-2.ics', 'utf8');
+                let events = Parser.parseICS(actualText);
                 SCHEDULE.findOneAndUpdate({ userId: req.user.userId }, { events: events }, { upsert: true }, (err, doc) => {
                     if (err || !doc) {
                         res.send(500).json({
