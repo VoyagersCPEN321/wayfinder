@@ -68,13 +68,10 @@ export class Server {
         router.get("/schedule", Authenticator.validateUserToken, (req: Request, res: Response) => {
             console.log("/schedule called");
             if (!req.user) {
-                console.log("no user");
                 res.send(401);
                 return;
             }
             if (req.user.err) {
-                console.log("/schedule called returned 2");
-                console.log(req.user);
                 res.sendStatus(401);
                 return;
             }
@@ -91,26 +88,23 @@ export class Server {
                     res.status(200).json(newSchedule);
                     return;
                 }
-                console.log("cannot get here!");
                 res.status(200).json(doc);
                 return;
             });
         }, (err, res) => {
             if (err) {
-                console.log(err);
-                res.status(400).json({ success: false, message: 'Auth failed', err });
+                if(!res.headersSent)
+                    res.status(400).json({ success: false, message: 'Auth failed', err });
             }
             return;
         });
 
         router.post("/schedule", Authenticator.validateUserToken, (req: Request, res: Response) => {
-            console.log('got here 2');
             if (!req.user) {
                 res.send(401);
                 return;
             }
             try {
-                console.log('got here 3');
                 // TODO put the ics in here
                 // let events = Parser.parseICS('fakeICS');
                 // let newSchedule = new SCHEDULE({
@@ -137,8 +131,8 @@ export class Server {
 
         }, (err, res) => {
             if (err) {
-                console.log(err);
-                res.status(400).json({ success: false, message: 'Auth failed', err });
+                if(!res.headersSent)
+                    res.status(400).json({ success: false, message: 'Auth failed', err });
             }
             return;
         });
@@ -166,31 +160,11 @@ export class Server {
             }
         }, (err, req, res, next) => {
             if (err) {
-                console.log(err);
-                res.status(400).json({ success: false, message: 'Auth failed', err });
+                if(!res.headersSent)
+                    res.status(400).json({ success: false, message: 'Auth failed', err });
             }
             return;
         });
-
-        // router.get("/validate", Authenticator.validateUserToken, (req: Request, res: Response) => {
-        //     console.log("/validate called");
-        //     try {
-        //         console.log("/validate");
-        //         console.log(req.user);
-        //         // SCHEDULE.findOne({}, (req, doc) => {
-        //         //     res.status(200).json(doc);
-        //         // });
-        //     } catch (e) {
-
-        //         this.logError(e);
-        //     }
-        // }, (err, res) => {
-        //     console.log("error here \n");
-        //     res.status(401).json({
-        //         success: false,
-        //         message: 'Auth failed'
-        //     });
-        // });
 
         this.app.use("/", router);
     }
