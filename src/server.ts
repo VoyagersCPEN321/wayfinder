@@ -92,9 +92,8 @@ export class Server {
                 return;
             });
         }, (err, res) => {
-            if (err) {
-                if(!res.headersSent)
-                    res.status(400).json({ success: false, message: 'Auth failed', err });
+            if (err && !res.headersSent) {
+                res.status(400).json({ success: false, message: 'Auth failed', err });
             }
             return;
         });
@@ -130,9 +129,8 @@ export class Server {
             }
 
         }, (err, res) => {
-            if (err) {
-                if(!res.headersSent)
-                    res.status(400).json({ success: false, message: 'Auth failed', err });
+            if (err && !res.headersSent) {
+                res.status(400).json({ success: false, message: 'Auth failed', err });
             }
             return;
         });
@@ -159,9 +157,8 @@ export class Server {
                 });
             }
         }, (err, req, res, next) => {
-            if (err) {
-                if(!res.headersSent)
-                    res.status(400).json({ success: false, message: 'Auth failed', err });
+            if (err && !res.headersSent) {
+                res.status(400).json({ success: false, message: 'Auth failed', err });
             }
             return;
         });
