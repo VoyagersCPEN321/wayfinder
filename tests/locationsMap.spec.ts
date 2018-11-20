@@ -12,6 +12,8 @@ describe('valid building name', () => {
 
         let location: string = "Neville Scarfe";
 
+        console.log(LocationsMap.getAddress(location));
+
         try{
             expect(LocationsMap.getAddress(location)).to.equal("2125 Main Mall");
         }
