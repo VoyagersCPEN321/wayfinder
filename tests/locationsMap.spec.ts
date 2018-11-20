@@ -1,9 +1,9 @@
 import 'mocha';
-import { expect } from 'chai';
+import { expect, assert } from 'chai';
 import fs = require('fs');
 import LocationsMap from '../src/parsing/locationsMap';
 import { IEvent } from '../src/models/event';
-import { doesNotReject } from 'assert';
+import { doesNotReject, AssertionError } from 'assert';
 
 
 describe('valid building name', () => {
@@ -14,12 +14,14 @@ describe('valid building name', () => {
 
         console.log(LocationsMap.getAddress(location));
 
-        try{
+        assert(LocationsMap.getAddress(location) === "2125 Main Mall", "incorrect address returned");
+
+       /* try{
             expect(LocationsMap.getAddress(location)).to.equal("2125 Main Mall");
         }
         catch (e) {
          
-        }
+        } */
     });
 
 });
@@ -30,12 +32,16 @@ describe('invalid building name', () => {
 
         let location: string = "mcleod";
 
-        try{
+        console.log(LocationsMap.getAddress(location));
+
+        assert(LocationsMap.getAddress(location) === null, "null not returned");
+
+        /*try{
             expect(LocationsMap.getAddress(location)).to.be(null);
         }
         catch (e) {
           
-        }
+        } */
     });
     
 });
