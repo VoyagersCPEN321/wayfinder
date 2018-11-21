@@ -77,16 +77,13 @@ export default class Settings extends Component {
   renderBusyIndicator = () => {
     if(this.state.loading) {
       return (
-      <View style={styles.indicator}>
           <Modal 
             visible={this.state.loading}
-            transparent={false}
+            transparent={true}
             animationType={'none'}
-            onRequestClose = {() => {}}
-            style={styles.modal}>
+            onRequestClose = {() => {}}>
               <ActivityIndicator animating={this.state.loading} size="large" style={styles.busyIndicator}/>
-          </Modal>
-      </View>);
+          </Modal>);
     }
     return null;
   }
@@ -114,10 +111,8 @@ const styles = StyleSheet.create({
     },
     busyIndicator: {
       height: '100%',
-      width: '100%'
-    },
-    modal: {
-      backgroundColor: "rgba(255, 255, 255, 0.1)"
+      width: '100%',
+      backgroundColor: "rgba(255, 255, 255, 0.5)"
     }
   });
   

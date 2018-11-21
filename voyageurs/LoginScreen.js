@@ -5,7 +5,7 @@ import {
   Alert, 
   StyleSheet,
   ActivityIndicator,
-  Header 
+  Modal
 } from 'react-native';
 import { AsyncStorage } from "react-native";
 import * as CONSTANTS from "./constants";
@@ -24,6 +24,7 @@ export default class LoginScreen extends Component {
     let token = await AsyncStorage.getItem(CONSTANTS.TOKEN_LOCATION);
     if (token) {
       this.gotoMapScreen();
+      this.setState({ loading : false});
     } else {
       this.setState({ loading : false});
     }
@@ -50,13 +51,16 @@ export default class LoginScreen extends Component {
         permissions: ['public_profile']
       });
       if (type === 'success') {
+        this.setState({ loading : true});
         /* Request JWT from server */
         await view.getJWT(token).then(() => {
           if(!view.state.token) {
             view.loginFailedAlert();
+            this.setState({ loading : false});
           } else {
             // TODO delete
             view.gotoMapScreen();
+            this.setState({ loading : false});
           }
         });
       } else {
@@ -100,9 +104,13 @@ export default class LoginScreen extends Component {
   renderBusyIndicator = () => {
     if(this.state.loading) {
       return (
-      <View style={styles.indicator}>
-        <ActivityIndicator animating={this.state.loading} size="small"/>
-      </View>);
+      <Modal 
+        visible={this.state.loading}
+        transparent={true}
+        animationType={'none'}
+        onRequestClose = {() => {}}>
+          <ActivityIndicator animating={this.state.loading} size="large" style={styles.busyIndicator}/>
+      </Modal>);
     }
     return null;
   }
@@ -138,6 +146,11 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     bottom: 0
+  },
+  busyIndicator: {
+    height: '100%',
+    width: '100%',
+    backgroundColor: "rgba(255, 255, 255, 0.5)"
   }
 });
 
