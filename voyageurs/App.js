@@ -8,6 +8,7 @@ import { AsyncStorage } from "react-native"
 
 
 const APP_ID = "171287213807359";
+//const APP_URL = "http://128.189.94.150:8080";
 const APP_URL = "http://104.211.14.232:8080";
 const FB_AUTH = "/auth/fb/";
 
@@ -84,39 +85,10 @@ class LoginScreen extends React.Component {
         this.setState({ token: jsonBody.token })
         await AsyncStorage.setItem('@tokenStore:token', jsonBody.token);
         // TODO remove
+        console.log(jsonBody.token);
         console.log("stored user token successfully");
       }
     });
-  }
-
-  pickDocument = async () => {
-    const document = await Expo.DocumentPicker.getDocumentAsync(
-      {
-        type : "text/calendar",
-        copyToCacheDirectory : true,
-      }
-    );
-    console.log('result', document);
-
-    const data = new FormData();
-
-    data.append('name', 'new_calendar'); 
-    data.append('calendar', {
-      uri: document.uri,
-      type: 'text/calendar', 
-      name: 'uploaded_calendar'
-    });
-    
-    fetch("http://40.117.145.64:8080/schedule", {
-      method: 'POST',
-      headers: {
-        'x-auth-token': await AsyncStorage.getItem('@tokenStore:token'),
-      },
-      body: data
-    }).then(res => {
-      console.log(res)
-    });
-
   }
 
   render() {
@@ -135,14 +107,6 @@ class LoginScreen extends React.Component {
           title="Login-with Facebook"
           onPress={() => this.logIn(this)}
         />
-      
-      <Button
-          title="files"
-          onPress={ this.pickDocument }
-      />
-
-    
-
       </View>
     );
   }

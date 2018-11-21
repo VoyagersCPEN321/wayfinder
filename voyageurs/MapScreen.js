@@ -14,7 +14,7 @@ var ep = require("./eventProcessor.js");
 const LATITUDEDELTA = 0.0122;
 const LONGITUDEDELTA = .0221;
 const GOOGLE_MAPS_APIKEY = "AIzaSyCvW9JtKWa3ftr-FD-bGsFqR9EBQMlGn7k";
-
+const APP_URL = "http://128.189.94.150:8080";
 Geocoder.init(GOOGLE_MAPS_APIKEY); // use a valid API key
 
 export default class MapScreen extends React.Component {
@@ -80,7 +80,7 @@ export default class MapScreen extends React.Component {
         AsyncStorage.getItem('@tokenStore:token').then((token) => {
           var allEvents;
           console.log(token);
-          fetch("http://104.211.14.232:8080/schedule", {
+          fetch(APP_URL + "/schedule", {
             method: "GET",
             headers: {
               'x-auth-token': token
@@ -169,6 +169,56 @@ export default class MapScreen extends React.Component {
     return null;
   };
 
+  pickDocument = async () => {
+    const document = await Expo.DocumentPicker.getDocumentAsync(
+      {
+        type : "text/calendar",
+        copyToCacheDirectory : true,
+      }
+    );
+    if(!document.type) {
+      return;
+    }
+
+    let fileData = await Expo.FileSystem.readAsStringAsync(document.uri);
+    fetch(APP_URL+"/schedule", {
+      method: 'POST',
+      headers: {
+        'x-auth-token': await AsyncStorage.getItem('@tokenStore:token'),
+        Accept: 'application/json',
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        icsData: fileData
+      })
+    }).then(async res => {
+      console.log(await res.json())
+    });
+
+    // const data = new FormData();
+
+    // data.append('name', 'new_calendar'); 
+    // data.append('calendar', {
+    //   uri: document.uri,
+    //   type: 'text/calendar', 
+    //   name: document.name
+    // });
+    // //auigasvkoj_1542432127@tfbnw.net
+    // console.log("Send file");
+    // console.log(data);
+
+    // fetch(APP_URL+"/schedule", {
+    //   method: 'POST',
+    //   headers: {
+    //     'x-auth-token': await AsyncStorage.getItem('@tokenStore:token'),
+    //   },
+    //   body: data
+    // }).then(res => {
+    //   console.log(res)
+    // });
+
+  }
+
   renderDirections = () => {
     if (this.state.showDirections) {
       return (
@@ -217,6 +267,10 @@ export default class MapScreen extends React.Component {
           {this.renderMarkers()}
         </MapView>
         <View style={styles.bottomView}>
+          <Button
+            title="files"
+            onPress={ this.pickDocument }
+          />
           <Button
             title="Get Next Class"
             onPress={this.getDestination} />

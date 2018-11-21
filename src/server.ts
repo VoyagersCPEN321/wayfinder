@@ -5,17 +5,15 @@
 
 "use strict";
 
-import Parser from "./parsing/IcsParser";
+
 import SCHEDULE from "./models/schedule";
 import * as express from "express";
 import * as bodyParser from "body-parser";
 import { Request, Response } from "express";
 import * as mongoose from "mongoose";
-import { ObjectID } from "bson";
 import locationsMap from "./parsing/locationsMap";
 import Authenticator from "./authenticator";
-import { CONFIG_FILENAME } from "tslint/lib/configuration";
-import * as fs from 'fs';
+import IcsFileHandler from "./parsing/icsFileHandler";
 
 const PROD_DB_LOCATION = "mongodb://localhost/prod";
 /**
@@ -77,15 +75,7 @@ export class Server {
             }
             SCHEDULE.findOne({userId: req.user.userId }, (err, doc) => {
                 if (!doc || err) {
-                    // console.log("/schedule called returned 3");
-                    // res.send(404);
-                    let actualText = fs.readFileSync('ical-2.ics', 'utf8');
-                    let events = Parser.parseICS(actualText);
-                    let newSchedule = new SCHEDULE({
-                        userId: new ObjectID(),
-                        events: events
-                    });
-                    res.status(200).json(newSchedule);
+                    res.sendStatus(404);
                     return;
                 }
                 res.status(200).json(doc);
@@ -99,35 +89,8 @@ export class Server {
         });
 
         router.post("/schedule", Authenticator.validateUserToken, (req: Request, res: Response) => {
-            if (!req.user) {
-                res.send(401);
-                return;
-            }
-            try {
-                // TODO put the ics in here
-                // let events = Parser.parseICS('fakeICS');
-                // let newSchedule = new SCHEDULE({
-                //     userId: req.user.userId,
-                //     events: events
-                // });
-                let actualText = fs.readFileSync('ical-2.ics', 'utf8');
-                let events = Parser.parseICS(actualText);
-                SCHEDULE.findOneAndUpdate({ userId: req.user.userId }, { events: events }, { upsert: true }, (err, doc) => {
-                    if (err || !doc) {
-                        res.status(500).json({
-                            message: err ? err.message : "Unexpected Error, please try again"
-                        });
-                        return;
-                    }
-                    res.status(200).json(doc);
-                    return;
-                });
-            } catch (e) {
-                res.status(500).json({
-                    message: e.message
-                });
-            }
-
+            console.log("got hereeeeeeeeeeeeeeee");
+            IcsFileHandler.handleRequest(req, res);
         }, (err, res) => {
             if (err && !res.headersSent) {
                 res.status(400).json({ success: false, message: 'Auth failed', err });

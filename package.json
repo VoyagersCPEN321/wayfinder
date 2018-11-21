@@ -17,7 +17,7 @@
   },
   "homepage": "https://github.com/VoyagersCPEN321/wayfinder#readme",
   "scripts": {
-    "start": "node ./output/app.js",
+    "start": "npm install && npm run grunt && node ./output/app.js",
     "test": "nyc mocha --exit --timeout 10000",
     "grunt": "grunt"
   },
