@@ -37,6 +37,7 @@ export class IcsFileHandler implements IFileUploadHandler {
         });
         SCHEDULE.findOneAndUpdate({ userId: req.user.userId }, {userId: req.user.id, events: events}, { upsert: true }, (err, doc) => {
             if (err) {
+                console.log(req.user);
                 this.handleError(err, res);
                 return;
             } else if (!doc) {
@@ -60,6 +61,7 @@ export class IcsFileHandler implements IFileUploadHandler {
     }
 
     private handleError(err: any, res: Response) {
+        console.log(err);
         res.status(500).json({
             message: err ? err.message : "Unexpected Error, please try again"
         });
