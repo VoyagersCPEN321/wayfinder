@@ -70,7 +70,7 @@ export class Server {
                 return;
             }
             if (req.user.err) {
-                console.log(err);
+                console.log(req.user.err);
                 res.sendStatus(401);
                 return;
             }
