@@ -70,12 +70,14 @@ export class Server {
                 return;
             }
             if (req.user.err) {
+                console.log(err);
                 res.sendStatus(401);
                 return;
             }
             /* Don't return userId */
             SCHEDULE.findOne({userId: req.user.userId }, {userId: 0}, (err, doc) => {
                 if (err) {
+                    console.log(err);
                     res.status(500).json({
                         message: err
                     });
@@ -97,6 +99,7 @@ export class Server {
         router.post("/schedule", Authenticator.validateUserToken, (req: Request, res: Response) => {
             IcsFileHandler.handleRequest(req, res);
         }, (err, res) => {
+            console.log(err);
             if (err && !res.headersSent) {
                 res.status(400).json({ success: false, message: 'Auth failed', err });
             }
@@ -125,6 +128,7 @@ export class Server {
                 });
             }
         }, (err, req, res, next) => {
+            console.log(err);
             if (err && !res.headersSent) {
                 res.status(400).json({ success: false, message: 'Auth failed', err });
             }
@@ -140,6 +144,7 @@ export class Server {
 
     private errorHandler(): void {
         this.app.use((err: any, req: Request, res: Response, next: any) => {
+            console.log(err);
             if (err.name === 'UnauthorizedError') {
                 Authenticator.unauthorizedHandler(err, req, res, next);
             }

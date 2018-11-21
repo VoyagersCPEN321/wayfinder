@@ -1,4 +1,4 @@
-import React, {Component} from "react";
+import React, { Component } from "react";
 import MapView, { Callout } from "react-native-maps";
 import Geocoder from "react-native-geocoding";
 import MapViewDirections from "react-native-maps-directions";
@@ -89,66 +89,7 @@ export default class MapScreen extends Component {
             headers: {
               'x-auth-token': token
             }
-          }).then((response) => {
-            response.json().then((schedule) => {
-              let allEvents = schedule.events;
-              var nextEvent;
-              let today = new Date();
-              var todayClasses = allEvents.filter((event) => ep.isHappeningOnDay(event, today));
-              console.log(todayClasses);
-              let currentDate = new Date();
-              nextEvent = null;
-              let nextEventStartTime;
-              if (todayClasses.length !== 0) {
-                todayClasses.forEach((event) => {
-                  let startTime = new Date(event.startTime);
-                  if (nextEvent == null) {
-                    if (startTime.getHours() >= currentDate.getHours()) {
-                      nextEvent = event;
-                      nextEventStartTime = new Date(nextEvent.startTime);
-                    }
-                    else if (startTime.getHours() === currentDate.getHours()) {
-                      if (startTime.getMinutes() < currentDate.getMinutes()) {
-                        nextEvent = event;
-                        nextEventStartTime = new Date(nextEvent.startTime);
-                      }
-                    }
-                  }
-                  else if (startTime.getHours() < nextEventStartTime.getHours()) {
-                    nextEvent = event;
-                    nextEventStartTime = new Date(nextEvent.startTime);
-                  }
-                  else if (startTime.getHours() === nextEventStartTime.getHours()) {
-                    if (startTime.getMinutes() < nextEventStartTime.getMinutes()) {
-                      nextEvent = event;
-                      nextEventStartTime = new Date(nextEvent.startTime);
-                    }
-                  }
-
-                });
-                if (!nextEvent) {
-                  Alert.alert("Done for the day!");
-                } else {
-                  Geocoder.from(nextEvent.location)
-                    .then((json) => {
-                      var location = json.results[0].geometry.location;
-
-                      var destinationResult = {
-                        latitude: location.lat,
-                        longitude: location.lng,
-                      }
-
-                      this.setState({ destination: destinationResult });
-                      this.setState({ showDirections: true });
-                      this.setState({ nextClassInfo: nextEvent.summary + ", " + nextEvent.room });
-                    })
-                    .catch((error) => Alert.alert("Unexpected geocoder communication error, please try again."));
-                }
-              } else {
-                Alert.alert("No classes today!");
-              }
-            });
-          })
+          }).then(this.handleResponse)
             .catch((error) => {
               console.log("Unable to connect to server. Error: " + error);
               Alert.alert("Unable to connect to server. Error: " + error);
@@ -158,6 +99,71 @@ export default class MapScreen extends Component {
     });
   }
 
+  handleResponse = (response) => {
+    if (response.status == 200) {
+      response.json().then((schedule) => {
+        let allEvents = schedule.events;
+        var nextEvent;
+        let today = new Date();
+        var todayClasses = allEvents.filter((event) => ep.isHappeningOnDay(event, today));
+        let currentDate = new Date();
+        nextEvent = null;
+        let nextEventStartTime;
+        if (todayClasses.length > 0) {
+          todayClasses.forEach((event) => {
+            let startTime = new Date(event.startTime);
+            if (nextEvent == null) {
+              if (startTime.getHours() >= currentDate.getHours()) {
+                nextEvent = event;
+                nextEventStartTime = new Date(nextEvent.startTime);
+              }
+              else if (startTime.getHours() === currentDate.getHours()) {
+                if (startTime.getMinutes() < currentDate.getMinutes()) {
+                  nextEvent = event;
+                  nextEventStartTime = new Date(nextEvent.startTime);
+                }
+              }
+            }
+            else if (startTime.getHours() < nextEventStartTime.getHours()) {
+              nextEvent = event;
+              nextEventStartTime = new Date(nextEvent.startTime);
+            }
+            else if (startTime.getHours() === nextEventStartTime.getHours()) {
+              if (startTime.getMinutes() < nextEventStartTime.getMinutes()) {
+                nextEvent = event;
+                nextEventStartTime = new Date(nextEvent.startTime);
+              }
+            }
+
+          });
+          if (!nextEvent) {
+            Alert.alert("Done for the day!");
+          } else {
+            Geocoder.from(nextEvent.location)
+              .then((json) => {
+                var location = json.results[0].geometry.location;
+
+                var destinationResult = {
+                  latitude: location.lat,
+                  longitude: location.lng,
+                }
+
+                this.setState({ destination: destinationResult });
+                this.setState({ showDirections: true });
+                this.setState({ nextClassInfo: nextEvent.summary + ", " + nextEvent.room });
+              })
+              .catch((error) => Alert.alert("Unexpected geocoder communication error, please try again."));
+          }
+        } else {
+          Alert.alert("No classes today!");
+        }
+      });
+    } else if (response.status == 404) {
+      Alert.alert("Please upload your schedule.");
+    } else {
+      Alert.alert("Unexpected Error please try again.");
+    }
+  }
   renderMarkers = () => {
     if (this.state.showDirections) {
       return (
@@ -200,19 +206,19 @@ export default class MapScreen extends Component {
   }
 
   renderMap = () => {
-    if(!this.state.loading) {
+    if (!this.state.loading) {
       return (
         <MapView
           style={styles.map}
           region={this.state.initialPosition}
           showUserLocation={true}
           followsUserLocation={true}  >
-            <MapView.Marker
-              coordinate={this.state.markerPosition}>
-              <View style={styles.radius}>
-                <View style={styles.marker} />
-              </View>
-            </MapView.Marker>
+          <MapView.Marker
+            coordinate={this.state.markerPosition}>
+            <View style={styles.radius}>
+              <View style={styles.marker} />
+            </View>
+          </MapView.Marker>
           {this.renderDirections()}
           {this.renderMarkers()}
         </MapView>
@@ -225,8 +231,8 @@ export default class MapScreen extends Component {
     return (
       <View style={styles.bottomView}>
         <Button
-            title="Get Next Class"
-            onPress={this.getDestination} />
+          title="Get Next Class"
+          onPress={this.getDestination} />
       </View>
     );
   }
