@@ -170,56 +170,6 @@ export default class MapScreen extends Component {
     return null;
   };
 
-  pickDocument = async () => {
-    const document = await Expo.DocumentPicker.getDocumentAsync(
-      {
-        type : "text/calendar",
-        copyToCacheDirectory : true,
-      }
-    );
-    if(!document.type) {
-      return;
-    }
-
-    let fileData = await Expo.FileSystem.readAsStringAsync(document.uri);
-    fetch(APP_URL+"/schedule", {
-      method: 'POST',
-      headers: {
-        'x-auth-token': await AsyncStorage.getItem('@tokenStore:token'),
-        Accept: 'application/json',
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        icsData: fileData
-      })
-    }).then(async res => {
-      console.log(await res.json())
-    });
-
-    // const data = new FormData();
-
-    // data.append('name', 'new_calendar'); 
-    // data.append('calendar', {
-    //   uri: document.uri,
-    //   type: 'text/calendar', 
-    //   name: document.name
-    // });
-    // //auigasvkoj_1542432127@tfbnw.net
-    // console.log("Send file");
-    // console.log(data);
-
-    // fetch(APP_URL+"/schedule", {
-    //   method: 'POST',
-    //   headers: {
-    //     'x-auth-token': await AsyncStorage.getItem('@tokenStore:token'),
-    //   },
-    //   body: data
-    // }).then(res => {
-    //   console.log(res)
-    // });
-
-  }
-
   renderDirections = () => {
     if (this.state.showDirections) {
       return (
@@ -268,10 +218,6 @@ export default class MapScreen extends Component {
           {this.renderMarkers()}
         </MapView>
         <View style={styles.bottomView}>
-          <Button
-            title="files"
-            onPress={ this.pickDocument }
-          />
           <Button
             title="Get Next Class"
             onPress={this.getDestination} />

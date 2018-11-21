@@ -6,7 +6,8 @@ import MapScreen from './MapScreen';
 import { AsyncStorage } from "react-native"
 
 const APP_ID = "171287213807359";
-const APP_URL = "http://104.211.14.232:8080";
+//const APP_URL = "http://104.211.14.232:8080";
+const APP_URL = "http://128.189.94.150:8080";
 const FB_AUTH = "/auth/fb/";
 
 export default class LoginScreen extends Component {
@@ -19,10 +20,8 @@ export default class LoginScreen extends Component {
     title: 'UBC WayFinder',
   };
 
-  goToNavigationScreen = () => {
+  gotoMapScreen = () => {
    this.props.navigation.navigate('MapScreen');
-  
-  
   }
 
   loginFailedAlert = () => {
@@ -30,17 +29,15 @@ export default class LoginScreen extends Component {
   }
 
   logIn = async function (view) {
-   view.goToNavigationScreen();
-    {/*try {
+    try {
       const {
         type,
         token
       } = await Expo.Facebook.logInWithReadPermissionsAsync(APP_ID, {
         permissions: ['public_profile']
       });
-
       if (type === 'success') {
-        {/* Request JWT from server *
+        /* Request JWT from server */
         await view.getJWT(token).then(() => {
           if(!view.state.token) {
             view.loginFailedAlert();
@@ -55,7 +52,6 @@ export default class LoginScreen extends Component {
     } catch (e) {
       alert(`Facebook Login Error: ` + e);
     }
-  */}
   }
 
   getJWT = async (fbToken) => {
@@ -84,44 +80,11 @@ export default class LoginScreen extends Component {
       } else {
         this.setState({ token: jsonBody.token })
         await AsyncStorage.setItem('@tokenStore:token', jsonBody.token);
-        // TODO remove
-        console.log("stored user token successfully");
       }
     });
-  }
-
-  static pickDocument = async () => {
-    const document = await Expo.DocumentPicker.getDocumentAsync(
-      {
-        type : "text/calendar",
-        copyToCacheDirectory : true,
-      }
-    );
-    console.log('result', document);
-
-    const data = new FormData();
-
-    data.append('name', 'new_calendar'); 
-    data.append('calendar', {
-      uri: document.uri,
-      type: 'text/calendar', 
-      name: 'uploaded_calendar'
-    });
-    
-    fetch("http://40.117.145.64:8080/schedule", {
-      method: 'POST',
-      headers: {
-        'x-auth-token': await AsyncStorage.getItem('@tokenStore:token'),
-      },
-      body: data
-    }).then(res => {
-      console.log(res)
-    });
-
   }
 
   render() {
-    //const { navigate } = this.props.navigation;
     return (
       <View style={{
         width: "100%",
@@ -136,14 +99,6 @@ export default class LoginScreen extends Component {
           title="Login-with Facebook"
           onPress={() => this.logIn(this)}
         />
-      
-      <Button
-          title="files"
-          onPress={ LoginScreen.pickDocument }
-      />
-
-    
-
       </View>
     );
   }
