@@ -93,7 +93,8 @@ export default class MapScreen extends Component {
             response.json().then((schedule) => {
               let allEvents = schedule.events;
               var nextEvent;
-              var todayClasses = allEvents.filter((event) => ep.isHappeningToday(event));
+              let today = new Date();
+              var todayClasses = allEvents.filter((event) => ep.isHappeningOnDay(event, today));
               console.log(todayClasses);
               let currentDate = new Date();
               nextEvent = null;

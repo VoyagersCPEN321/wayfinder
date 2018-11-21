@@ -46,8 +46,7 @@ function dayToUTCDay(day) {
   }
 }
 
-export function isHappeningToday(event) {
-  let today = new Date();
+export function isHappeningOnDay(event, date) {
   if (!event) {
     throw new Error("null event");
   }
@@ -55,16 +54,16 @@ export function isHappeningToday(event) {
   var startDay = new Date(event.startDay);
   var lastDay = new Date(event.lastDay);
 
-  if (isBeforeDay(today, startDay)) {
+  if (isBeforeDay(date, startDay)) {
     return false;
   }
   /* Check if the event's last occurrence already passed */
-  if (isBeforeDay(lastDay, today)) {
+  if (isBeforeDay(lastDay, date)) {
     return false;
   }
 
   /* We know the event is within its ocurrence range */
-  if (today.getDay() !== dayToUTCDay(event.day)) {
+  if (date.getDay() !== dayToUTCDay(event.day)) {
     return false;
   }
   // TODO check for non weekly recurrence, for now assume all events are weekly
