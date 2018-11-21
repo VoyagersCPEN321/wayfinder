@@ -73,7 +73,8 @@ export class Server {
                 res.sendStatus(401);
                 return;
             }
-            SCHEDULE.findOne({userId: req.user.userId }, (err, doc) => {
+            /* Don't return userId */
+            SCHEDULE.findOne({userId: req.user.userId }, {userId: 0}, (err, doc) => {
                 if (err) {
                     res.status(500).json({
                         message: err

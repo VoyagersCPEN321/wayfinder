@@ -35,27 +35,40 @@ export class IcsFileHandler implements IFileUploadHandler {
             userId: req.user.id,
             events: events
         });
-        SCHEDULE.findOneAndUpdate({ userId: req.user.userId }, {userId: req.user.userId, events: events}, { upsert: true }, (err, doc) => {
+        SCHEDULE.findOne({ userId: req.user.userId }, (err, doc) => {
             if (err) {
                 console.log(req.user);
                 this.handleError(err, res);
                 return;
             } else if (!doc) {
-                console.log("upsert schedule didn't return doc");
-                console.log("didn't found doc: " + req.user);
+                console.log("didn't find doc: " + req.user);
                 let newSchedule = new SCHEDULE({
                     userId: req.user.userId,
                     events: events
                 });
                 newSchedule.save().then((doc) => {
-                    res.status(200).json(doc);
+                    res.status(200).json({ events: events });
                     return;
-                }, err => this.handleError(err, res));
+                }, (err) => this.handleError(err, res));
             } else {
-                console.log("found doc: " + req.user);
-                console.log(doc);
-                res.status(200).json(doc);
-                return;
+                SCHEDULE.update({ userId: req.user.userId }, {
+                    $set: {
+                        events: events
+                    }
+                },
+                    (err, doc) => {
+                        if (err) {
+                            this.handleError(err, res);
+                            return;
+                        } else if (doc) {
+                            res.status(200).json({ events: events });
+                            return;
+                        } else {
+                            res.status(500).json({
+                                messsage: "Unexpected error 301A"
+                            });
+                        }
+                    });
             }
         });
     }
