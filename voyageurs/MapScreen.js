@@ -5,10 +5,13 @@ import MapViewDirections from "react-native-maps-directions";
 import {
   StyleSheet,
   Text,
-  View, Button, Alert, NetInfo
+  View, Button, Alert, NetInfo,
+  TouchableOpacity,
+  Modal, ActivityIndicator
 } from "react-native";
 import { AsyncStorage } from "react-native";
 import * as CONSTANTS from "./constants";
+import Icon from 'react-native-vector-icons/Ionicons'
 
 var ep = require("./eventProcessor.js");
 
@@ -75,12 +78,13 @@ export default class MapScreen extends Component {
 
     NetInfo.isConnected.addEventListener('connectionChange', Function.prototype);
 
+    this.setState({loading: true});
     NetInfo.isConnected.fetch().done((isConnected) => {
 
       if (!isConnected) {
-
         console.log(isConnected);
         Alert.alert("You are not connected to the internet");
+        this.setState({loading: false});
       }
       else {
         AsyncStorage.getItem(CONSTANTS.TOKEN_LOCATION).then((token) => {
@@ -93,6 +97,7 @@ export default class MapScreen extends Component {
             .catch((error) => {
               console.log("Unable to connect to server. Error: " + error);
               Alert.alert("Unable to connect to server. Error: " + error);
+              this.setState({loading: false});
             });
         })
       }
@@ -163,7 +168,9 @@ export default class MapScreen extends Component {
     } else {
       Alert.alert("Unexpected Error please try again.");
     }
+    this.setState({loading: false});
   }
+  
   renderMarkers = () => {
     if (this.state.showDirections) {
       return (
@@ -205,6 +212,70 @@ export default class MapScreen extends Component {
     return null;
   }
 
+  pickDocument = async () => {
+    let token = await AsyncStorage.getItem(CONSTANTS.TOKEN_LOCATION);
+    if (!token) {
+      Alert.alert("Please login!");
+      this.goToLoginScreen();
+    }
+
+    const document = await Expo.DocumentPicker.getDocumentAsync(
+      {
+        type : "text/calendar",
+        copyToCacheDirectory : true,
+      }
+    );
+
+    if(document.type !== "success") {
+      return;
+    }
+
+    this.setState({loading: true});
+    let fileData = await Expo.FileSystem.readAsStringAsync(document.uri);
+    fetch(CONSTANTS.APP_URL+"/schedule", {
+      method: 'POST',
+      headers: {
+        'x-auth-token': token,
+        Accept: 'application/json',
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        icsData: fileData
+      })
+    }).then(async (res) => {
+      if(res.status == 200) {
+        let events = (await res.json()).events;
+        await AsyncStorage.setItem(CONSTANTS.SCHEDULE_LOCATION, JSON.stringify(events));
+        Alert.alert("File upload successful!");
+      } else {
+        let message = (await res.json()).message;
+        Alert.alert(message);
+      }
+      this.setState({loading: false});
+    }).catch((err) => {
+      this.setState({loading: false});
+      console.log(err);
+      Alert.alert("Oops, something went wrong. Please try again.");
+    });
+  }
+
+  renderBusyIndicator = () => {
+    if(this.state.loading) {
+      return (
+          <Modal 
+            visible={this.state.loading}
+            transparent={true}
+            animationType={'none'}
+            onRequestClose = {() => {}}>
+              <ActivityIndicator animating={this.state.loading} size="large" style={styles.busyIndicator}/>
+          </Modal>);
+    }
+    return null;
+  }
+
+  renderMarker = () => {
+
+  }
   renderMap = () => {
     if (!this.state.loading) {
       return (
@@ -237,10 +308,23 @@ export default class MapScreen extends Component {
     );
   }
 
+  renderUploadButton = () => {
+    return (<TouchableOpacity 
+              style={styles.uploadButton}
+              onPress={this.pickDocument}>
+      <Icon name="ios-cloud-upload" size={30} color="#fff" />
+      <Text style={styles.uploadMessage}>
+              Upload
+            </Text>
+    </TouchableOpacity>);
+  }
+
   render() {
     return (
       <View style={styles.container}>
+        {this.renderBusyIndicator()}
         {this.renderMap()}
+        {this.renderUploadButton()}
         {this.renderGoToNextClass()}
         {this.renderMessage()}
       </View>
@@ -319,14 +403,29 @@ const styles = StyleSheet.create({
     textAlign: "center",
     fontWeight: "bold"
   },
-  indicator: {
-    flex: 1,
+  uploadButton: {
+    borderWidth: 1,
+    borderColor: 'rgba(0,0,0,1)',
     alignItems: 'center',
     justifyContent: 'center',
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0
+    width: 50,
+    height: 50,
+    borderRadius: 40,
+    position: "absolute",
+    top: 30,
+    right: 10,
+    backgroundColor: "#f4511e"
+  },
+  uploadMessage: {
+    borderColor: "transparent",
+    borderWidth: 0.0,
+    textAlign: "center",
+    fontSize: 8,
+    color: "#fff"
+  },
+  busyIndicator: {
+    height: '100%',
+    width: '100%',
+    backgroundColor: "rgba(255, 255, 255, 0.3)"
   }
 });

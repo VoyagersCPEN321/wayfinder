@@ -56,11 +56,8 @@ export default class Settings extends Component {
       })
     }).then(async (res) => {
       if(res.status == 200) {
-        console.log(res);
         let events = (await res.json()).events;
         await AsyncStorage.setItem(CONSTANTS.SCHEDULE_LOCATION, JSON.stringify(events));
-        console.log("got here       ");
-        console.log(await AsyncStorage.getItem(CONSTANTS.SCHEDULE_LOCATION));
         Alert.alert("File upload successful!");
       } else {
         let message = (await res.json()).message;
@@ -70,7 +67,7 @@ export default class Settings extends Component {
     }).catch((err) => {
       this.setState({loading: false});
       console.log(err);
-      Alert.alert("error");
+      Alert.alert("Oops, something went wrong. Please try again.");
     });
   }
 
@@ -96,7 +93,6 @@ export default class Settings extends Component {
           title="Upload Schedule"
           onPress={ this.pickDocument }
         />
-
       </View>
 
     );

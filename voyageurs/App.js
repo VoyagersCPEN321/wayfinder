@@ -26,17 +26,17 @@ const tabBarNavigation =  createBottomTabNavigator({
       headerVisible: false,
     }
   },
-  Settings: {
-    screen: Settings,
-    navigationOptions: {
-      tabBarLabel: 'Settings',
-      tabBarVisible: true,
-      tabBarIcon: ({ tintColor }) => (
-        <Icon name="ios-settings" color={tintColor} size={24} />
-      ),
-      headerVisible: false
-    }
-  },
+  // Settings: {
+  //   screen: Settings,
+  //   navigationOptions: {
+  //     tabBarLabel: 'Settings',
+  //     tabBarVisible: true,
+  //     tabBarIcon: ({ tintColor }) => (
+  //       <Icon name="ios-settings" color={tintColor} size={24} />
+  //     ),
+  //     headerVisible: false
+  //   }
+  // },
   Calendar: {
     screen: CalendarScreen,
     navigationOptions: {
@@ -51,7 +51,7 @@ const tabBarNavigation =  createBottomTabNavigator({
 
 }, {//router config
     initialRouteName: 'MapScreen',
-    order: ['MapScreen', 'Calendar', 'Settings'],
+    order: ['MapScreen', 'Calendar'],
     //navigation for complete tab navigator
 
     tabBarOptions: {
