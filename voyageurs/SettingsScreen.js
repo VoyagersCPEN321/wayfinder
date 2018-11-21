@@ -51,7 +51,11 @@ export default class Settings extends Component {
         icsData: fileData
       })
     }).then(async (res) => {
-      await AsyncStorage.setItem(CONSTANTS.SCHEDULE_LOCATION, await res.json());
+      let events = await res.json();
+      console.log(events);
+      await AsyncStorage.setItem(CONSTANTS.SCHEDULE_LOCATION, JSON.stringify(events));
+      console.log("got here       ");
+      console.log(await AsyncStorage.getItem(CONSTANTS.SCHEDULE_LOCATION));
     });
   }
   render() {

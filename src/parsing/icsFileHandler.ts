@@ -31,11 +31,16 @@ export class IcsFileHandler implements IFileUploadHandler {
     }
 
     private upsertSchedule(req: Request, res: Response, events: mongoose.Document[]) {
-        SCHEDULE.findOneAndUpdate({ userId: req.user.userId }, { events: events }, { upsert: true }, (err, doc) => {
+        let updatedSchedule = new SCHEDULE({
+            userId: req.user.id,
+            events: events
+        });
+        SCHEDULE.findOneAndUpdate({ userId: req.user.userId }, updatedSchedule, { upsert: true }, (err, doc) => {
             if (err) {
                 this.handleError(err, res);
                 return;
             } else if (!doc) {
+                console.log("upsert schedule didn't return doc");
                 let newSchedule = new SCHEDULE({
                     userId: req.user.userId,
                     events: events
