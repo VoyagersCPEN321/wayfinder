@@ -75,7 +75,9 @@ export class Server {
             }
             SCHEDULE.findOne({userId: req.user.userId }, (err, doc) => {
                 if (err) {
-                    res.sendStatus(500);
+                    res.status(500).json({
+                        message: err
+                    });
                 } else if (!doc) {
                     res.status(404).json({
                         message: "No Schedule found, Please upload your schedule!"
