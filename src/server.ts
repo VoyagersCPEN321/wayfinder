@@ -74,21 +74,15 @@ export class Server {
                 return;
             }
             SCHEDULE.findOne({userId: req.user.userId }, (err, doc) => {
-                if (!doc || err) {
-                    res.sendStatus(404);
-                    // console.log("/schedule called returned 3");
-                    // res.send(404);
-                    let actualText = fs.readFileSync('../parsing/ical-2.ics', 'utf8');
-                    let events = Parser.parseICS(actualText);
-                    let newSchedule = new SCHEDULE({
-                        userId: new ObjectID(),
-                        events: events
+                if (err) {
+                    res.sendStatus(500);
+                } else if (!doc) {
+                    res.status(404).json({
+                        message: "No Schedule found, Please upload your schedule!"
                     });
-                    res.status(200).json(newSchedule);
-                    return;
+                } else {
+                    res.status(200).json(doc);
                 }
-                res.status(200).json(doc);
-                return;
             });
         }, (err, res) => {
             if (err && !res.headersSent) {
@@ -98,7 +92,6 @@ export class Server {
         });
 
         router.post("/schedule", Authenticator.validateUserToken, (req: Request, res: Response) => {
-            console.log("got hereeeeeeeeeeeeeeee");
             IcsFileHandler.handleRequest(req, res);
         }, (err, res) => {
             if (err && !res.headersSent) {
