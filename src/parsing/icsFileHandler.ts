@@ -41,6 +41,7 @@ export class IcsFileHandler implements IFileUploadHandler {
                 return;
             } else if (!doc) {
                 console.log("upsert schedule didn't return doc");
+                console.log("didn't found doc: "+ req.user);
                 let newSchedule = new SCHEDULE({
                     userId: req.user.userId,
                     events: events
@@ -50,6 +51,8 @@ export class IcsFileHandler implements IFileUploadHandler {
                     return;
                 }, err => this.handleError(err, res));
             } else {
+                console.log("found doc: "+ req.user);
+                console.log(doc);
                 res.status(200).json(doc);
                 return;
             }
