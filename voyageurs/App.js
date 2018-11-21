@@ -10,25 +10,11 @@ import CalendarScreen from './CalendarScreen.js';
 import LoginScreen from './LoginScreen.js'
 import { createBottomTabNavigator } from 'react-navigation'
 import Icon from 'react-native-vector-icons/Ionicons'
+import { createStackNavigator } from 'react-navigation'
 
 import { NavigationActions } from 'react-navigation';
 
-
-export default  createBottomTabNavigator({
-
-
-  LoginScreen: {
-    screen: LoginScreen,
-    navigationOptions: {
-      tabBarLabel: 'Login',
-      tabBarVisible: false,
-      tabBarIcon: ({ tintColor }) => (
-        <Icon name="ios-home" color={tintColor} size={24} />
-      )
-    }
-  },
-
-
+const tabBarNavigation =  createBottomTabNavigator({
   MapScreen: {
     screen: MapScreen,
     navigationOptions: {
@@ -36,7 +22,8 @@ export default  createBottomTabNavigator({
       tabBarVisible: true,
       tabBarIcon: ({ tintColor }) => (
         <Icon name="ios-map" color={tintColor} size={24} />
-      )
+      ),
+      headerVisible: false,
     }
   },
   Settings: {
@@ -46,7 +33,8 @@ export default  createBottomTabNavigator({
       tabBarVisible: true,
       tabBarIcon: ({ tintColor }) => (
         <Icon name="ios-settings" color={tintColor} size={24} />
-      )
+      ),
+      headerVisible: false
     }
   },
   Calendar: {
@@ -56,18 +44,23 @@ export default  createBottomTabNavigator({
       tabBarVisible: true,
       tabBarIcon: ({ tintColor }) => (
         <Icon name="ios-calendar" color={tintColor} size={24} />
-      )
+      ),
+      headerVisible: false
     }
   }
 
 }, {//router config
-    initialRouteName: 'LoginScreen',
-    order: ['LoginScreen','MapScreen', 'Calendar', 'Settings'],
+    initialRouteName: 'MapScreen',
+    order: ['MapScreen', 'Calendar', 'Settings'],
     //navigation for complete tab navigator
 
     tabBarOptions: {
       activeTintColor: 'red',
-      inactiveTintColor: 'grey'
+      inactiveTintColor: 'grey',
+    },
+    headerMode: 'none',
+    navigationOptions: {
+      headerVisible: false,
     }
   });
 
@@ -76,5 +69,24 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center'
+  }
+});
+
+export default createStackNavigator({
+  LoginScreen: { screen: LoginScreen },
+  MainScreen: tabBarNavigation
+}, {
+    initialRouteName: 'LoginScreen',
+  //   headerMode: 'none',
+    navigationOptions:  {
+      headerLeft: null,
+      title: 'Home',
+      headerStyle: {
+        backgroundColor: '#f4511e',
+      },
+      headerTintColor: '#fff',
+      headerTitleStyle: {
+        fontWeight: 'bold',
+      }
   }
 });

@@ -7,20 +7,19 @@ import {
   Text,
   View, Button, Alert, NetInfo
 } from "react-native";
-import { AsyncStorage } from "react-native"
+import { AsyncStorage } from "react-native";
+import * as CONSTANTS from "./constants";
 
 var ep = require("./eventProcessor.js");
 
 const LATITUDEDELTA = 0.0122;
 const LONGITUDEDELTA = .0221;
 const GOOGLE_MAPS_APIKEY = "AIzaSyCvW9JtKWa3ftr-FD-bGsFqR9EBQMlGn7k";
-const APP_URL = "http://128.189.94.150:8080";
 Geocoder.init(GOOGLE_MAPS_APIKEY); // use a valid API key
 
 export default class MapScreen extends Component {
   constructor(props) {
     super(props);
-
     this.state = {
       initialPosition: {
         latitude: 0,
@@ -37,8 +36,15 @@ export default class MapScreen extends Component {
         longitude: -123.253,
       },
       showDirections: false,
-      nextClassInfo: null
+      nextClassInfo: null,
+      loading: false
     };
+  }
+
+  goToLoginScreen = () => {
+    console.log("called gotologin");
+    console.log(this.props.navigation.navigate);
+    this.props.navigation.navigate("LoginScreen");
   }
 
   /* removes the unwanted header. */
@@ -77,29 +83,22 @@ export default class MapScreen extends Component {
         Alert.alert("You are not connected to the internet");
       }
       else {
-        AsyncStorage.getItem('@tokenStore:token').then((token) => {
-          var allEvents;
-          console.log(token);
-          fetch(APP_URL + "/schedule", {
+        AsyncStorage.getItem(CONSTANTS.TOKEN_LOCATION).then((token) => {
+          fetch(CONSTANTS.APP_URL + "/schedule", {
             method: "GET",
             headers: {
               'x-auth-token': token
             }
           }).then((response) => {
-            console.log(response);
             response.json().then((schedule) => {
-              allEvents = schedule.events;
+              let allEvents = schedule.events;
               var nextEvent;
-
               var todayClasses = allEvents.filter((event) => ep.isHappeningToday(event));
-              // works till hereee
-              console.log(JSON.stringify(todayClasses) + "\n" );
-
+              console.log(todayClasses);
               let currentDate = new Date();
               nextEvent = null;
-
               let nextEventStartTime;
-              if (!todayClasses.length === 0) {
+              if (todayClasses.length !== 0) {
                 todayClasses.forEach((event) => {
                   let startTime = new Date(event.startTime);
                   if (nextEvent == null) {
@@ -126,7 +125,6 @@ export default class MapScreen extends Component {
                   }
 
                 });
-
                 if (!nextEvent) {
                   Alert.alert("Done for the day!");
                 } else {
@@ -200,28 +198,43 @@ export default class MapScreen extends Component {
     return null;
   }
 
-  render() {
-    return (
-      <View style={styles.container}>
+  renderMap = () => {
+    if(!this.state.loading) {
+      return (
         <MapView
           style={styles.map}
           region={this.state.initialPosition}
           showUserLocation={true}
           followsUserLocation={true}  >
-          <MapView.Marker
-            coordinate={this.state.markerPosition}>
-            <View style={styles.radius}>
-              <View style={styles.marker} />
-            </View>
-          </MapView.Marker>
+            <MapView.Marker
+              coordinate={this.state.markerPosition}>
+              <View style={styles.radius}>
+                <View style={styles.marker} />
+              </View>
+            </MapView.Marker>
           {this.renderDirections()}
           {this.renderMarkers()}
         </MapView>
-        <View style={styles.bottomView}>
-          <Button
+      );
+    }
+    return null;
+  }
+
+  renderGoToNextClass = () => {
+    return (
+      <View style={styles.bottomView}>
+        <Button
             title="Get Next Class"
             onPress={this.getDestination} />
-        </View>
+      </View>
+    );
+  }
+
+  render() {
+    return (
+      <View style={styles.container}>
+        {this.renderMap()}
+        {this.renderGoToNextClass()}
         {this.renderMessage()}
       </View>
     );
@@ -298,5 +311,15 @@ const styles = StyleSheet.create({
     borderWidth: 0.0,
     textAlign: "center",
     fontWeight: "bold"
+  },
+  indicator: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0
   }
 });

@@ -7,6 +7,10 @@ import {
 } from "react-native";
 
 export default class Settings extends Component {
+  static navigationOptions = {
+    title: 'Calendar'
+  };
+
   render() {
     return (
       <View style={styles.container}>

@@ -1,27 +1,40 @@
 import React, {Component} from 'react';
-import { View, Text, Button, Alert } from 'react-native';
-import { createStackNavigator } from 'react-navigation';
-import DirectionsView from './MapScreen';
-import MapScreen from './MapScreen';
-import { AsyncStorage } from "react-native"
+import { 
+  View,
+  Button,
+  Alert, 
+  StyleSheet,
+  ActivityIndicator,
+  Header 
+} from 'react-native';
+import { AsyncStorage } from "react-native";
+import * as CONSTANTS from "./constants";
 
 const APP_ID = "171287213807359";
-//const APP_URL = "http://104.211.14.232:8080";
-const APP_URL = "http://128.189.94.150:8080";
 const FB_AUTH = "/auth/fb/";
 
 export default class LoginScreen extends Component {
   constructor(props) {
     super(props);
-    this.state = { email: 'Test@test.com', password: '123456', error: '', loading: false, token: null };
+    this.init();
+    this.state = { email: 'Test@test.com', password: '123456', error: '', loading: true, token: null };
+  }
+
+  init = async () => {
+    let token = await AsyncStorage.getItem(CONSTANTS.TOKEN_LOCATION);
+    if (token) {
+      this.gotoMapScreen();
+    } else {
+      this.setState({ loading : false});
+    }
   }
 
   static navigationOptions = {
-    title: 'UBC WayFinder',
+    title: 'UBC WayFinder'
   };
 
   gotoMapScreen = () => {
-   this.props.navigation.navigate('MapScreen');
+   this.props.navigation.navigate('MainScreen');
   }
 
   loginFailedAlert = () => {
@@ -55,7 +68,7 @@ export default class LoginScreen extends Component {
   }
 
   getJWT = async (fbToken) => {
-    return fetch(APP_URL + FB_AUTH, {
+    return fetch(CONSTANTS.APP_URL + FB_AUTH, {
       method: "POST",
       headers: new Headers({
         'Authorization': 'Bearer ' + fbToken
@@ -79,9 +92,19 @@ export default class LoginScreen extends Component {
         return;
       } else {
         this.setState({ token: jsonBody.token })
-        await AsyncStorage.setItem('@tokenStore:token', jsonBody.token);
+        await AsyncStorage.setItem(CONSTANTS.TOKEN_LOCATION, jsonBody.token);
       }
     });
+  }
+
+  renderBusyIndicator = () => {
+    if(this.state.loading) {
+      return (
+      <View style={styles.indicator}>
+        <ActivityIndicator animating={this.state.loading} size="small"/>
+      </View>);
+    }
+    return null;
   }
 
   render() {
@@ -95,6 +118,7 @@ export default class LoginScreen extends Component {
         bottom: 300,
         backgroundColor: "rgba(255, 255, 255, 0.0)"
       }}>
+        {this.renderBusyIndicator()}
         <Button testID="loginButton" 
           title="Login-with Facebook"
           onPress={() => this.logIn(this)}
@@ -104,10 +128,16 @@ export default class LoginScreen extends Component {
   }
 }
 
-const App = createStackNavigator({
-  LoginScreen: { screen: LoginScreen },
-  MapScreen: { screen: MapScreen },
-}, {
-    initialRouteName: 'LoginScreen',
-  });
+const styles = StyleSheet.create({
+  indicator: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0
+  }
+});
 

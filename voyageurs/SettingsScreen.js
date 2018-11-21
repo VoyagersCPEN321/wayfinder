@@ -1,27 +1,28 @@
 import React, { Component } from "react";
 import {
   View,
-  Text,
   StyleSheet,
   Button,
   Alert
 } from "react-native";
-import LoginScreen from './LoginScreen.js';
 import { AsyncStorage } from "react-native"
+import * as CONSTANTS from "./constants";
 
-const APP_URL = "http://128.189.94.150:8080";
-//const APP_URL = "http://104.211.14.232:8080";
 export default class Settings extends Component {
   constructor(props) {
     super(props);
   }
+
+  static navigationOptions = {
+    title: 'Settings'
+  };
 
   goToLoginScreen = () => {
     this.props.navigation.navigate('LoginScreen');
   }
 
   pickDocument = async () => {
-    let token = await AsyncStorage.getItem('@tokenStore:token');
+    let token = await AsyncStorage.getItem(CONSTANTS.TOKEN_LOCATION);
     if (!token) {
       Alert.alert("Please login!");
       this.goToLoginScreen();
@@ -33,12 +34,13 @@ export default class Settings extends Component {
         copyToCacheDirectory : true,
       }
     );
-    if(!document.type) {
+
+    if(document.type !== "success") {
       return;
     }
 
     let fileData = await Expo.FileSystem.readAsStringAsync(document.uri);
-    fetch(APP_URL+"/schedule", {
+    fetch(CONSTANTS.APP_URL+"/schedule", {
       method: 'POST',
       headers: {
         'x-auth-token': token,
@@ -48,8 +50,8 @@ export default class Settings extends Component {
       body: JSON.stringify({
         icsData: fileData
       })
-    }).then(async res => {
-      console.log(await res.json())
+    }).then(async (res) => {
+      await AsyncStorage.setItem(CONSTANTS.SCHEDULE_LOCATION, await res.json());
     });
   }
   render() {
