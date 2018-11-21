@@ -1,4 +1,4 @@
-import React from "react";
+import React, {Component} from "react";
 import MapView, { Callout } from "react-native-maps";
 import Geocoder from "react-native-geocoding";
 import MapViewDirections from "react-native-maps-directions";
@@ -17,7 +17,7 @@ const GOOGLE_MAPS_APIKEY = "AIzaSyCvW9JtKWa3ftr-FD-bGsFqR9EBQMlGn7k";
 const APP_URL = "http://128.189.94.150:8080";
 Geocoder.init(GOOGLE_MAPS_APIKEY); // use a valid API key
 
-export default class MapScreen extends React.Component {
+export default class MapScreen extends Component {
   constructor(props) {
     super(props);
 
@@ -93,6 +93,7 @@ export default class MapScreen extends React.Component {
 
               var todayClasses = allEvents.filter((event) => ep.isHappeningToday(event));
               // works till hereee
+              console.log(JSON.stringify(todayClasses) + "\n" );
 
               let currentDate = new Date();
               nextEvent = null;

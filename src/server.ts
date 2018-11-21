@@ -76,6 +76,15 @@ export class Server {
             SCHEDULE.findOne({userId: req.user.userId }, (err, doc) => {
                 if (!doc || err) {
                     res.sendStatus(404);
+                    // console.log("/schedule called returned 3");
+                    // res.send(404);
+                    let actualText = fs.readFileSync('../parsing/ical-2.ics', 'utf8');
+                    let events = Parser.parseICS(actualText);
+                    let newSchedule = new SCHEDULE({
+                        userId: new ObjectID(),
+                        events: events
+                    });
+                    res.status(200).json(newSchedule);
                     return;
                 }
                 res.status(200).json(doc);

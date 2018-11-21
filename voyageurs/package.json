@@ -22,7 +22,8 @@
     "react-native-file-selector": "0.0.6",
     "react-native-geocoding": "^0.3.0",
     "react-native-maps-directions": "^1.6.0",
-    "react-navigation": "^2.18.2"
+    "react-navigation": "^2.18.2",
+    "react-navigation-tabs": "^1.0.0"
   },
   "devDependencies": {
     "detox": "^9.1.2",
