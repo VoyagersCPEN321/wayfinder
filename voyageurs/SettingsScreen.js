@@ -58,10 +58,10 @@ export default class Settings extends Component {
       if(res.status == 200) {
         console.log(res);
         let events = (await res.json()).events;
-        console.log(events);
         await AsyncStorage.setItem(CONSTANTS.SCHEDULE_LOCATION, JSON.stringify(events));
         console.log("got here       ");
         console.log(await AsyncStorage.getItem(CONSTANTS.SCHEDULE_LOCATION));
+        Alert.alert("File upload successful!");
       } else {
         let message = (await res.json()).message;
         Alert.alert(message);
