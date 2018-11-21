@@ -35,7 +35,7 @@ export class IcsFileHandler implements IFileUploadHandler {
             userId: req.user.id,
             events: events
         });
-        SCHEDULE.findOneAndUpdate({ userId: req.user.userId }, updatedSchedule, { upsert: true }, (err, doc) => {
+        SCHEDULE.findOneAndUpdate({ userId: req.user.userId }, {userId: req.user.id, events: events}, { upsert: true }, (err, doc) => {
             if (err) {
                 this.handleError(err, res);
                 return;
