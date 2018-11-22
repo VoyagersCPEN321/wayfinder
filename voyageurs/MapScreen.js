@@ -40,14 +40,28 @@ export default class MapScreen extends Component {
       },
       showDirections: false,
       nextClassInfo: null,
-      loading: false
+      loading: true,
+      events: []
     };
+    this.init();
+    NetInfo.isConnected.addEventListener('connectionChange', Function.prototype);
   }
 
   goToLoginScreen = () => {
     console.log("called gotologin");
     console.log(this.props.navigation.navigate);
     this.props.navigation.navigate("LoginScreen");
+  }
+
+  init = async () => {
+    await AsyncStorage.removeItem(CONSTANTS.SCHEDULE_LOCATION);
+    let events = JSON.parse(await AsyncStorage.getItem(CONSTANTS.SCHEDULE_LOCATION));
+    if (events) {
+      this.setState({ events: events });
+    } else {
+      await this.fetchSchedule();
+    }
+    this.setState({ loading: false });
   }
 
   /* removes the unwanted header. */
@@ -74,21 +88,33 @@ export default class MapScreen extends Component {
   }
 
 
-  getDestination = () => {
+  getDestination = async () => {
+    this.setState({ loading: true });
+    try {
+      if (this.state.events.length > 0) {
+        await this.getToNextClass();
+      } else {
+        this.setState({ loading: false });
+        Alert.alert("Please upload your schedule.");
+        return;
+      }
+    } catch (e) {
+      Alert.alert("Oops, something went wrong please try again.");
+    }
+    this.setState({ loading: false });
+  }
 
-    NetInfo.isConnected.addEventListener('connectionChange', Function.prototype);
-
-    this.setState({loading: true});
-    NetInfo.isConnected.fetch().done((isConnected) => {
-
+  fetchSchedule = async () => {
+    return NetInfo.isConnected.fetch().then(async (isConnected) => {
       if (!isConnected) {
         console.log(isConnected);
         Alert.alert("You are not connected to the internet");
-        this.setState({loading: false});
+        this.setState({ loading: false });
       }
       else {
-        AsyncStorage.getItem(CONSTANTS.TOKEN_LOCATION).then((token) => {
-          fetch(CONSTANTS.APP_URL + "/schedule", {
+        let token = await AsyncStorage.getItem(CONSTANTS.TOKEN_LOCATION);
+        if (token) {
+          await fetch(CONSTANTS.APP_URL + "/schedule", {
             method: "GET",
             headers: {
               'x-auth-token': token
@@ -97,33 +123,24 @@ export default class MapScreen extends Component {
             .catch((error) => {
               console.log("Unable to connect to server. Error: " + error);
               Alert.alert("Unable to connect to server. Error: " + error);
-              this.setState({loading: false});
+              this.setState({ loading: false });
             });
-        })
+        } else {
+          this.setState({ loading: false });
+          this.goToLoginScreen();
+        }
       }
     });
   }
 
-  handleResponse = (response) => {
+  handleResponse = async (response) => {
     if (response.status == 200) {
-      response.json().then((schedule) => {
-        let allEvents = schedule.events;
-        let today = new Date();
-        var todayClasses = allEvents.filter((event) => ep.isHappeningOnDay(event, today));
-        console.log(todayClasses);
-        if (todayClasses.length > 0) {
-          try{
-            let nextEvent = ep.getNextClass(todayClasses);
-            if (!nextEvent) {
-              Alert.alert("Done for the day!");
-            } else {
-              this.updateEventGeoLocation(nextEvent);
-            }
-          } catch (e) {
-            Alert.alert(e.message);
-          }
+      await response.json().then(async (schedule) => {
+        if (schedule && schedule.events) {
+          await AsyncStorage.setItem(CONSTANTS.SCHEDULE_LOCATION, JSON.stringify(schedule.events));
+          this.setState({ events: schedule.events.slice() });
         } else {
-          Alert.alert("No classes today!");
+          Alert.alert("Unexpected Error, Please try again.");
         }
       });
     } else if (response.status == 404) {
@@ -131,27 +148,51 @@ export default class MapScreen extends Component {
     } else {
       Alert.alert("Unexpected Error please try again.");
     }
-    this.setState({loading: false});
+    this.setState({ loading: false });
   }
 
-  updateEventGeoLocation = (nextEvent) => {
-    if(!nextEvent || !nextEvent.location || nextEvent.location === NOT_AVAILABLE) {
-      Alert.alert("Event doesn't have a valid location check your calendar for event details.");
-    } else {    
-      Geocoder.from(nextEvent.location)
-      .then((json) => {
-        var location = json.results[0].geometry.location;
-  
-        var destinationResult = {
-          latitude: location.lat,
-          longitude: location.lng,
+  getToNextClass = async () => {
+    let allEvents = this.state.events;
+    let today = new Date();
+    var todayClasses = allEvents.filter((event) => ep.isHappeningOnDay(event, today));
+    if (todayClasses.length > 0) {
+      try {
+        let nextEvent = ep.getNextClass(todayClasses);
+        if (!nextEvent) {
+          Alert.alert("Done for the day!");
+        } else {
+          await this.updateEventGeoLocation(nextEvent);
         }
-  
-        this.setState({ destination: destinationResult });
-        this.setState({ showDirections: true });
-        this.setState({ nextClassInfo: nextEvent.summary + ", " + nextEvent.room });
-      })
-      .catch((error) => Alert.alert("Unexpected geocoder communication error, please try again."));
+      } catch (e) {
+        Alert.alert(e.message);
+      }
+    } else {
+      Alert.alert("No classes today!");
+    }
+  }
+
+  updateEventGeoLocation = async (nextEvent) => {
+    if (!nextEvent || !nextEvent.location || nextEvent.location === NOT_AVAILABLE) {
+      Alert.alert("Event doesn't have a valid location check your calendar for event details.");
+      return;
+    } else {
+      return Geocoder.from(nextEvent.location)
+        .then((json) => {
+          var location = json.results[0].geometry.location;
+
+          var destinationResult = {
+            latitude: location.lat,
+            longitude: location.lng,
+          }
+
+          this.setState({ destination: destinationResult });
+          this.setState({ showDirections: true });
+          this.setState({ nextClassInfo: nextEvent.summary + ", " + nextEvent.room });
+        })
+        .catch((error) => {
+          Alert.alert("Unexpected geocoder communication error, please try again.");
+          return;
+        });
     }
   }
 
@@ -205,18 +246,18 @@ export default class MapScreen extends Component {
 
     const document = await Expo.DocumentPicker.getDocumentAsync(
       {
-        type : "text/calendar",
-        copyToCacheDirectory : true,
+        type: "text/calendar",
+        copyToCacheDirectory: true,
       }
     );
 
-    if(document.type !== "success") {
+    if (document.type !== "success") {
       return;
     }
 
-    this.setState({loading: true});
+    this.setState({ loading: true });
     let fileData = await Expo.FileSystem.readAsStringAsync(document.uri);
-    fetch(CONSTANTS.APP_URL+"/schedule", {
+    fetch(CONSTANTS.APP_URL + "/schedule", {
       method: 'POST',
       headers: {
         'x-auth-token': token,
@@ -227,7 +268,7 @@ export default class MapScreen extends Component {
         icsData: fileData
       })
     }).then(async (res) => {
-      if(res.status == 200) {
+      if (res.status == 200) {
         let events = (await res.json()).events;
         await AsyncStorage.setItem(CONSTANTS.SCHEDULE_LOCATION, JSON.stringify(events));
         Alert.alert("File upload successful!");
@@ -235,33 +276,42 @@ export default class MapScreen extends Component {
         let message = (await res.json()).message;
         Alert.alert(message);
       }
-      this.setState({loading: false});
+      this.setState({ loading: false });
     }).catch((err) => {
-      this.setState({loading: false});
+      this.setState({ loading: false });
       console.log(err);
       Alert.alert("Oops, something went wrong. Please try again.");
     });
   }
 
   renderBusyIndicator = () => {
-    if(this.state.loading) {
+    if (this.state.loading) {
       return (
-          <Modal 
-            visible={this.state.loading}
-            transparent={true}
-            animationType={'none'}
-            onRequestClose = {() => {}}>
-              <ActivityIndicator animating={this.state.loading} size="large" style={styles.busyIndicator}/>
-          </Modal>);
+        <Modal
+          visible={this.state.loading}
+          transparent={true}
+          animationType={'none'}
+          onRequestClose={() => { }}>
+          <ActivityIndicator animating={this.state.loading} size="large" style={styles.busyIndicator} />
+        </Modal>);
     }
     return null;
   }
 
-  renderMarker = () => {
+  // renderMarkers = (events) => {
+  //   // const markers = events.map((event) => {
+  //   //   <MapView.Marker
+  //   //     coordinate={this.state.markerPosition}>
+  //   //     <View style={styles.radius}>
+  //   //       <View style={styles.marker} />
+  //   //     </View>
+  //   //   </MapView.Marker>
+  //   // });
+  // }
 
-  }
   renderMap = () => {
     if (!this.state.loading) {
+      console.log(this.state.markerPosition);
       return (
         <MapView
           style={styles.map}
@@ -293,12 +343,12 @@ export default class MapScreen extends Component {
   }
 
   renderUploadButton = () => {
-    return (<TouchableOpacity 
-              style={styles.uploadButton}
-              onPress={this.pickDocument}>
+    return (<TouchableOpacity
+      style={styles.uploadButton}
+      onPress={this.pickDocument}>
       <Icon name="ios-cloud-upload" size={30} color="#fff" />
       <Text style={styles.uploadMessage}>
-              Upload
+        Upload
             </Text>
     </TouchableOpacity>);
   }
