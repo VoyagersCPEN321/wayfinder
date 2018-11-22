@@ -319,7 +319,6 @@ export default class MapScreen extends Component {
 
   renderMap = () => {
     if (!this.state.loading) {
-      console.log(this.state.markerPosition);
       return (
         <MapView
           style={styles.map}
