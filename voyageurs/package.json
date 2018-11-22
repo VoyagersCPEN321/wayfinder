@@ -18,6 +18,7 @@
     "immutable": "^3.8.2",
     "react": "16.3.1",
     "react-native": "https://github.com/expo/react-native/archive/sdk-30.0.0.tar.gz",
+    "react-native-calendars": "^1.21.0",
     "react-native-document-picker": "^2.1.0",
     "react-native-file-selector": "0.0.6",
     "react-native-geocoding": "^0.3.0",
