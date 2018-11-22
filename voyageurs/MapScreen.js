@@ -43,8 +43,17 @@ export default class MapScreen extends Component {
       loading: true,
       events: []
     };
+
+    NetInfo.isConnected.addEventListener('connectionChange', this.handleFirstConnectivityChange);
     this.init();
-    NetInfo.isConnected.addEventListener('connectionChange', Function.prototype);
+  }
+
+  handleFirstConnectivityChange = (connectionInfo) => {
+    console.log('First change, type: ' + connectionInfo.type + ', effectiveType: ' + connectionInfo.effectiveType);
+    NetInfo.removeEventListener(
+      'connectionChange',
+      handleFirstConnectivityChange
+    );
   }
 
   goToLoginScreen = () => {
@@ -86,7 +95,6 @@ export default class MapScreen extends Component {
     }, (error) => alert(JSON.stringify(error)),
       { enableHighAccuracy: true, maximumAge: 1000 });
   }
-
 
   getDestination = async () => {
     this.setState({ loading: true });
