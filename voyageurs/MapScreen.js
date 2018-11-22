@@ -19,7 +19,7 @@ const LATITUDEDELTA = 0.0122;
 const LONGITUDEDELTA = .0221;
 const GOOGLE_MAPS_APIKEY = "AIzaSyCvW9JtKWa3ftr-FD-bGsFqR9EBQMlGn7k";
 Geocoder.init(GOOGLE_MAPS_APIKEY); // use a valid API key
-
+const NOT_AVAILABLE = "N/A";
 export default class MapScreen extends Component {
   constructor(props) {
     super(props);
@@ -112,11 +112,15 @@ export default class MapScreen extends Component {
         var todayClasses = allEvents.filter((event) => ep.isHappeningOnDay(event, today));
         console.log(todayClasses);
         if (todayClasses.length > 0) {
-          let nextEvent = ep.getNextClass(todayClasses);
-          if (!nextEvent) {
-            Alert.alert("Done for the day!");
-          } else {
-            this.updateEventGeoLocation(nextEvent);
+          try{
+            let nextEvent = ep.getNextClass(todayClasses);
+            if (!nextEvent) {
+              Alert.alert("Done for the day!");
+            } else {
+              this.updateEventGeoLocation(nextEvent);
+            }
+          } catch (e) {
+            Alert.alert(e.message);
           }
         } else {
           Alert.alert("No classes today!");
@@ -131,20 +135,24 @@ export default class MapScreen extends Component {
   }
 
   updateEventGeoLocation = (nextEvent) => {
-    Geocoder.from(nextEvent.location)
-    .then((json) => {
-      var location = json.results[0].geometry.location;
-
-      var destinationResult = {
-        latitude: location.lat,
-        longitude: location.lng,
-      }
-
-      this.setState({ destination: destinationResult });
-      this.setState({ showDirections: true });
-      this.setState({ nextClassInfo: nextEvent.summary + ", " + nextEvent.room });
-    })
-    .catch((error) => Alert.alert("Unexpected geocoder communication error, please try again."));
+    if(!nextEvent || !nextEvent.location || nextEvent.location === NOT_AVAILABLE) {
+      Alert.alert("Event doesn't have a valid location check your calendar for event details.");
+    } else {    
+      Geocoder.from(nextEvent.location)
+      .then((json) => {
+        var location = json.results[0].geometry.location;
+  
+        var destinationResult = {
+          latitude: location.lat,
+          longitude: location.lng,
+        }
+  
+        this.setState({ destination: destinationResult });
+        this.setState({ showDirections: true });
+        this.setState({ nextClassInfo: nextEvent.summary + ", " + nextEvent.room });
+      })
+      .catch((error) => Alert.alert("Unexpected geocoder communication error, please try again."));
+    }
   }
 
   renderMarkers = () => {
