@@ -63,7 +63,6 @@ export default class MapScreen extends Component {
   }
 
   init = async () => {
-    await AsyncStorage.removeItem(CONSTANTS.SCHEDULE_LOCATION);
     let events = JSON.parse(await AsyncStorage.getItem(CONSTANTS.SCHEDULE_LOCATION));
     if (events) {
       this.setState({ events: events });
