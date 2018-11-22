@@ -75,11 +75,17 @@ export default class MapScreen extends Component {
 
 
   getDestination = () => {
-
-    NetInfo.isConnected.addEventListener('connectionChange', Function.prototype);
+    function handleFirstConnectivityChange(connectionInfo) {
+      console.log('First change, type: ' + connectionInfo.type + ', effectiveType: ' + connectionInfo.effectiveType);
+      NetInfo.removeEventListener(
+        'connectionChange',
+        handleFirstConnectivityChange
+      );
+    }
+    NetInfo.isConnected.addEventListener('connectionChange', handleFirstConnectivityChange);
 
     this.setState({loading: true});
-    NetInfo.isConnected.fetch().done((isConnected) => {
+    NetInfo.getConnectionInfo().then((isConnected) => {
 
       if (!isConnected) {
         console.log(isConnected);
@@ -97,8 +103,8 @@ export default class MapScreen extends Component {
             .catch((error) => {
               console.log("Unable to connect to server. Error: " + error);
               Alert.alert("Unable to connect to server. Error: " + error);
-              this.setState({loading: false});
             });
+            this.setState({loading: false});
         })
       }
     });
