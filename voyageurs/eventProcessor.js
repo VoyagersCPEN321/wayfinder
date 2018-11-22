@@ -1,20 +1,16 @@
 // TODO add a frontend model class to match IEvent on the backend
 function isBeforeYear(a, b) {
-  if (b.getFullYear() > a.getFullYear) {
+  if (b.getFullYear() > a.getFullYear()) {
     return true;
   }
-  if (b.getFullYear() < a.getFullYear) {
-    return false;
-  }
+  return false;
 }
 
 function isBeforeMonth(a, b) {
   if (b.getMonth() > a.getMonth()) {
     return true;
   }
-  if (b.getMonth() < a.getMonth()) {
-    return false;
-  }
+  return false;
 }
 
 /*
@@ -68,4 +64,73 @@ export function isHappeningOnDay(event, date) {
   }
   // TODO check for non weekly recurrence, for now assume all events are weekly
   return true;
+}
+
+/* Assumes that the event has already been checked to be happening today. */
+function isHappeningRightNow(event) {
+  let currentDate = new Date();
+  let currentHour = currentDate.getHours();
+
+  let eventStartTime = new Date(event.startTime);
+  let eventStartHour = eventStartTime.getHours();
+
+  let eventEndTime = new Date(event.endTime);
+  let eventEndHour = eventEndTime.getHours();
+
+  if (eventStartHour == currentHour || eventEndHour == currentHour) {
+    let currentMinutes = currentDate.getMinutes();
+    /* event's duration is less than or equal 1hr. */
+    if(eventStartHour === eventEndHour) {
+      return currentMinutes >= eventStartTime.getMinutes()
+      && currentMinutes < eventEndTime.getMinutes();
+    } else {
+      /* Event duration is more than 1 hr. */
+      return currentHour === eventStartHour && currentMinutes >= eventStartTime.getMinutes()
+      || currentHour === eventEndHour && currentMinutes < eventEndTime.getMinutes();
+    }
+  }
+  return false;
+}
+
+export function getNextClass(events) {
+  let nextEvent = null;
+  let nextEventStartTime;
+  let currentDate = new Date();
+  let eventsGoingOnRightNow = events.filter(event => isHappeningRightNow(event));
+  if(eventsGoingOnRightNow.length == 1) {
+    return eventsGoingOnRightNow[0];
+  } else if(eventsGoingOnRightNow.length > 1) {
+    console.log("Multiple events happening at the same time ....");
+    let eventsNames = ''; 
+    eventsGoingOnRightNow.forEach(event => {
+      eventsNames += event.summary + "\n";
+    });
+    throw Error("You have multiple events right now:\n" + eventsNames);
+  }
+  events.forEach((event) => {
+    let startTime = new Date(event.startTime);
+    if (nextEvent == null) {
+      if (startTime.getHours() >= currentDate.getHours()) {
+        nextEvent = event;
+        nextEventStartTime = new Date(nextEvent.startTime);
+      }
+      else if (startTime.getHours() === currentDate.getHours()) {
+        if (startTime.getMinutes() <= currentDate.getMinutes()) {
+          nextEvent = event;
+          nextEventStartTime = new Date(nextEvent.startTime);
+        }
+      }
+    }
+    else if (startTime.getHours() < nextEventStartTime.getHours()) {
+      nextEvent = event;
+      nextEventStartTime = new Date(nextEvent.startTime);
+    }
+    else if (startTime.getHours() === nextEventStartTime.getHours()) {
+      if (startTime.getMinutes() < nextEventStartTime.getMinutes()) {
+        nextEvent = event;
+        nextEventStartTime = new Date(nextEvent.startTime);
+      }
+    }
+  });
+  return nextEvent;
 }

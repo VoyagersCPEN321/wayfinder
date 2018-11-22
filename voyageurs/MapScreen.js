@@ -108,56 +108,15 @@ export default class MapScreen extends Component {
     if (response.status == 200) {
       response.json().then((schedule) => {
         let allEvents = schedule.events;
-        var nextEvent;
         let today = new Date();
         var todayClasses = allEvents.filter((event) => ep.isHappeningOnDay(event, today));
-        let currentDate = new Date();
-        nextEvent = null;
-        let nextEventStartTime;
+        console.log(todayClasses);
         if (todayClasses.length > 0) {
-          todayClasses.forEach((event) => {
-            let startTime = new Date(event.startTime);
-            if (nextEvent == null) {
-              if (startTime.getHours() >= currentDate.getHours()) {
-                nextEvent = event;
-                nextEventStartTime = new Date(nextEvent.startTime);
-              }
-              else if (startTime.getHours() === currentDate.getHours()) {
-                if (startTime.getMinutes() < currentDate.getMinutes()) {
-                  nextEvent = event;
-                  nextEventStartTime = new Date(nextEvent.startTime);
-                }
-              }
-            }
-            else if (startTime.getHours() < nextEventStartTime.getHours()) {
-              nextEvent = event;
-              nextEventStartTime = new Date(nextEvent.startTime);
-            }
-            else if (startTime.getHours() === nextEventStartTime.getHours()) {
-              if (startTime.getMinutes() < nextEventStartTime.getMinutes()) {
-                nextEvent = event;
-                nextEventStartTime = new Date(nextEvent.startTime);
-              }
-            }
-
-          });
+          let nextEvent = ep.getNextClass(todayClasses);
           if (!nextEvent) {
             Alert.alert("Done for the day!");
           } else {
-            Geocoder.from(nextEvent.location)
-              .then((json) => {
-                var location = json.results[0].geometry.location;
-
-                var destinationResult = {
-                  latitude: location.lat,
-                  longitude: location.lng,
-                }
-
-                this.setState({ destination: destinationResult });
-                this.setState({ showDirections: true });
-                this.setState({ nextClassInfo: nextEvent.summary + ", " + nextEvent.room });
-              })
-              .catch((error) => Alert.alert("Unexpected geocoder communication error, please try again."));
+            this.updateEventGeoLocation(nextEvent);
           }
         } else {
           Alert.alert("No classes today!");
@@ -170,7 +129,24 @@ export default class MapScreen extends Component {
     }
     this.setState({loading: false});
   }
-  
+
+  updateEventGeoLocation = (nextEvent) => {
+    Geocoder.from(nextEvent.location)
+    .then((json) => {
+      var location = json.results[0].geometry.location;
+
+      var destinationResult = {
+        latitude: location.lat,
+        longitude: location.lng,
+      }
+
+      this.setState({ destination: destinationResult });
+      this.setState({ showDirections: true });
+      this.setState({ nextClassInfo: nextEvent.summary + ", " + nextEvent.room });
+    })
+    .catch((error) => Alert.alert("Unexpected geocoder communication error, please try again."));
+  }
+
   renderMarkers = () => {
     if (this.state.showDirections) {
       return (
