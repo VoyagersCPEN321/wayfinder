@@ -278,6 +278,7 @@ export default class MapScreen extends Component {
       if (res.status == 200) {
         let events = (await res.json()).events;
         await AsyncStorage.setItem(CONSTANTS.SCHEDULE_LOCATION, JSON.stringify(events));
+        this.setState({ events: events.slice() });
         Alert.alert("File upload successful!");
       } else {
         let message = (await res.json()).message;
