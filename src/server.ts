@@ -16,6 +16,7 @@ import Authenticator from "./authenticator";
 import IcsFileHandler from "./parsing/icsFileHandler";
 
 const PROD_DB_LOCATION = "mongodb://localhost/prod";
+const UNAUTHORIZED = 'UnauthorizedError';
 /**
  * The server.
  *
@@ -77,7 +78,7 @@ export class Server {
             /* Don't return userId */
             SCHEDULE.findOne({userId: req.user.userId }, {userId: 0}, (err, doc) => {
                 if (err) {
-                    console.log(err);
+                    this.logError(err);
                     res.status(500).json({
                         message: err
                     });
@@ -89,21 +90,10 @@ export class Server {
                     res.status(200).json(doc);
                 }
             });
-        }, (err, res) => {
-            if (err && !res.headersSent) {
-                res.status(400).json({ success: false, message: 'Auth failed', err });
-            }
-            return;
         });
 
         router.post("/schedule", Authenticator.validateUserToken, (req: Request, res: Response) => {
             IcsFileHandler.handleRequest(req, res);
-        }, (err, res) => {
-            console.log(err);
-            if (err && !res.headersSent) {
-                res.status(400).json({ success: false, message: 'Auth failed', err });
-            }
-            return;
         });
 
 
@@ -127,28 +117,23 @@ export class Server {
                     message: 'Auth failed'
                 });
             }
-        }, (err, req, res, next) => {
-            console.log(err);
-            if (err && !res.headersSent) {
-                res.status(400).json({ success: false, message: 'Auth failed', err });
-            }
-            return;
         });
 
         this.app.use("/", router);
     }
 
     private logError(e: Error): void {
-        console.log("Encountered Error : " + e);
+        console.log("Encountered Error : " + e + "\n"+ e.stack);
     }
 
     private errorHandler(): void {
         this.app.use((err: any, req: Request, res: Response, next: any) => {
-            console.log(err);
-            if (err.name === 'UnauthorizedError') {
+            if (err.name === UNAUTHORIZED) {
                 Authenticator.unauthorizedHandler(err, req, res, next);
+            } else if(!res.headersSent) {
+                this.logError(err);
+                res.status(500).json({ success: false, message: err.message });
             }
-            return;
         });
     }
 }

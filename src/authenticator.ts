@@ -71,7 +71,7 @@ class Authenticator implements IAuthenticator {
     }
 
     public unauthorizedHandler(err: any, req: Request, res: Response, next: any) {
-        if (err.name === 'UnauthorizedError') {
+        if (err.name === 'UnauthorizedError' && !res.headersSent) {
             // TODO add a meaningful error message
             res.status(401).send('Please Login.');
             return;

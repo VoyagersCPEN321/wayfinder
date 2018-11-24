@@ -12,7 +12,7 @@ describe('valid building name', () => {
 
         let location: string = "Neville Scarfe";
 
-        console.log(LocationsMap.getAddress(location));
+        //console.log(LocationsMap.getAddress(location));
 
         assert(LocationsMap.getAddress(location) === "2125 Main Mall", "incorrect address returned");
 
@@ -26,7 +26,7 @@ describe('invalid building name', () => {
 
         let location: string = "mcleod";
 
-        console.log(LocationsMap.getAddress(location));
+        //console.log(LocationsMap.getAddress(location));
 
         assert(LocationsMap.getAddress(location) == null, "null not returned");
     });
