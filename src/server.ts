@@ -123,14 +123,14 @@ export class Server {
     }
 
     private logError(e: Error): void {
-        console.log("Encountered Error : " + e + "\n"+ e.stack);
+        console.log("Encountered Error : " + e + "\n" + e.stack);
     }
 
     private errorHandler(): void {
         this.app.use((err: any, req: Request, res: Response, next: any) => {
             if (err.name === UNAUTHORIZED) {
                 Authenticator.unauthorizedHandler(err, req, res, next);
-            } else if(!res.headersSent) {
+            } else if (!res.headersSent) {
                 this.logError(err);
                 res.status(500).json({ success: false, message: err.message });
             }
