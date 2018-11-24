@@ -3,6 +3,7 @@ import MapView, { Callout } from "react-native-maps";
 import Geocoder from "react-native-geocoding";
 import MapViewDirections from "react-native-maps-directions";
 import {
+  Platform,
   StyleSheet,
   Text,
   View, Button, Alert, NetInfo,
@@ -12,6 +13,7 @@ import {
 import { AsyncStorage } from "react-native";
 import * as CONSTANTS from "./constants";
 import Icon from 'react-native-vector-icons/Ionicons'
+import Expo from 'expo'
 
 var ep = require("./eventProcessor.js");
 
@@ -77,6 +79,20 @@ export default class MapScreen extends Component {
     header: null,
   };
 
+  _createNotificationAsync = (eventSummarys) => {
+    return function(){
+      Expo.Notifications.presentLocalNotificationAsync({
+        title: 'Reminder',
+        body: 'Next class : ' + eventSummary + 'is in 20 minutes.' ,
+        android: {
+          priority: 'max',
+          vibrate: [0, 250, 250, 250],
+          color: '#FF0000',
+        },
+      });
+    }
+  } 
+
   componentDidMount() {
     navigator.geolocation.getCurrentPosition((position) => {
       var lat = parseFloat(position.coords.latitude);
@@ -93,6 +109,13 @@ export default class MapScreen extends Component {
       this.setState({ markerPosition: initialRegion });
     }, (error) => alert(JSON.stringify(error)),
       { enableHighAccuracy: true, maximumAge: 1000 });
+
+      if (Platform.OS === 'android') {
+        Expo.Notifications.createChannelAndroidAsync('chat-messages', {
+          name: 'Chat messages',
+          sound: true,
+        });
+      }
   }
 
   getDestination = async () => {
@@ -145,6 +168,14 @@ export default class MapScreen extends Component {
       await response.json().then(async (schedule) => {
         if (schedule && schedule.events) {
           await AsyncStorage.setItem(CONSTANTS.SCHEDULE_LOCATION, JSON.stringify(schedule.events));
+          //set timeouts for notifications here !
+          let today = new Date();
+          schedule.events.filter((event) => ep.isHappeningOnDay(today)).forEach((event) => {
+            setTimeout(() => {
+              //create Notificaition here
+              _createNotificationAsync(event.summary);
+            }, today.getTime() - (1200000 /* 2O minutes */ + event.startTime.getDate());
+          });
           this.setState({ events: schedule.events.slice() });
         } else {
           Alert.alert("Unexpected Error, Please try again.");
