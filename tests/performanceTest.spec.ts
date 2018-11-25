@@ -19,7 +19,8 @@ describe('Performance Test', () => {
 
     before((done) => {
         let schedule = fs.readFileSync('./ical-2.ics', 'utf-8');
-        this.expectedEvents = Parser.parseICS(schedule);
+        this.allEvents = Parser.parseICS(schedule);
+        this.expectedEvents = [this.allEvents[0], this.allEvents[1]];
         const TEST_DB_LOCATION = "mongodb://localhost/systest";
         this.TEST_SERVER = new Server(TEST_DB_LOCATION).app;
         let that = this;
@@ -59,12 +60,12 @@ describe('Performance Test', () => {
             .get('/schedule')
             .set({'x-auth-token': this.VALID_TOKEN})
             .end((err, res) => {
-                console.log(res.body);
-                //res.should.have.status(200);
+                res.should.have.status(200);
                 let endTime = new Date().getTime();
                 let _3Secs = 3000;
                 let actualTimeElapsed = endTime - startTime;
-                //expect(actualTimeElapsed).to.be.lessThan(_3Secs);
+                expect(actualTimeElapsed).to.be.lessThan(_3Secs);
+                expect(res.body.events.length).to.be.equal(this.expectedEvents.length);
                 console.log("Actual time elapsed: " + actualTimeElapsed);
                 done();
             });
