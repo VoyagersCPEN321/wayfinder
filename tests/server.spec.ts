@@ -145,7 +145,7 @@ describe('System Level tests', ()=> {
             .set({'Authorization': 'Bearer ' + FB_TEST_USER_TOKEN})
             .end((err, res) => {
                 // TODO change to 200
-                res.should.have.status(401);
+                res.should.have.status(500);
                 done();
             });
         });
@@ -161,7 +161,7 @@ describe('System Level tests', ()=> {
                 done();
             });
         });
-    
+
         it('get schedule should fail with malformed headers', (done) => {
             chai.request(TEST_SERVER)
                 .get('/schedule')
