@@ -5,7 +5,6 @@
 
 "use strict";
 
-
 import SCHEDULE from "./models/schedule";
 import * as express from "express";
 import * as bodyParser from "body-parser";
@@ -14,6 +13,7 @@ import * as mongoose from "mongoose";
 import locationsMap from "./parsing/locationsMap";
 import Authenticator from "./authenticator";
 import IcsFileHandler from "./parsing/icsFileHandler";
+import PushController from "./pushController";
 
 const PROD_DB_LOCATION = "mongodb://localhost/prod";
 const UNAUTHORIZED = 'UnauthorizedError';
@@ -105,6 +105,7 @@ export class Server {
                     error: req.user.err
                 });
             } else if (req.user) {
+                PushController.getUserPushToken(req);
                 res.status(200).json({
                     success: true,
                     message: 'Enjoy your token!',
