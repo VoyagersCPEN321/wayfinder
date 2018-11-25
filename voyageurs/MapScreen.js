@@ -168,14 +168,6 @@ export default class MapScreen extends Component {
       await response.json().then(async (schedule) => {
         if (schedule && schedule.events) {
           await AsyncStorage.setItem(CONSTANTS.SCHEDULE_LOCATION, JSON.stringify(schedule.events));
-          //set timeouts for notifications here !
-          let today = new Date();
-          schedule.events.filter((event) => ep.isHappeningOnDay(today)).forEach((event) => {
-            setTimeout(() => {
-              //create Notificaition here
-              _createNotificationAsync(event.summary);
-            }, today.getTime() - (1200000 /* 2O minutes */ + event.startTime.getDate());
-          });
           this.setState({ events: schedule.events.slice() });
         } else {
           Alert.alert("Unexpected Error, Please try again.");
