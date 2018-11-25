@@ -4,10 +4,15 @@ import {
   Text,
   StyleSheet,
   Button,
-  AsyncStorage
+  AsyncStorage,
+  Alert
 } from "react-native";
 import {Agenda } from 'react-native-calendars';
 import * as CONSTANTS from "./constants";
+
+var ep = require("./eventProcessor.js");
+
+var dateFormat = require('dateformat');
 
 export default class CalendarScreen extends Component {
   constructor(props) {
@@ -16,18 +21,28 @@ export default class CalendarScreen extends Component {
       items: {
         '2018-11-23': [{name: 'CPEN 311', time: '12:30 - 2:00', location: "McLeod 202"},
                        {name: 'ELEC 221', time: '3:30 - 5:00', location: "Kaiser 451"}]
-      }
+      },
+      events: []
     };
+
+    this.init();
   }
 
   static navigationOptions = {
     title: 'Calendar'
   };
 
-  render() {
-    console.log(new Date());
-    this.getSchedule();
+  init = async () => {
+    let events = JSON.parse(await AsyncStorage.getItem(CONSTANTS.SCHEDULE_LOCATION));
+    if (events) {
+      this.setState({ events: events });
+    } else {
+      await this.fetchSchedule();
+    }
+    this.setState({ loading: false });
+  }
 
+  render() {
     return (
       <Agenda
         items={this.state.items}
@@ -41,30 +56,69 @@ export default class CalendarScreen extends Component {
   }
 
   loadItems(day) {
-    setTimeout(() => {
-      for (let i = -15; i < 85; i++) {
-        const time = day.timestamp + i * 24 * 60 * 60 * 1000;
-        const strTime = this.timeToString(time);
-        console.log(strTime);
-        if (!this.state.items[strTime]) {
-          this.state.items[strTime] = [];
-          const numItems = Math.floor(Math.random() * 5);
-          for (let j = 0; j < numItems; j++) {
-            this.state.items[strTime].push({
-              name: 'Item for ' + strTime,
-              height: Math.max(50, Math.floor(Math.random() * 150))
-            });
-          }
-        }
-      }
-      //console.log(this.state.items);
-      const newItems = {};
-      Object.keys(this.state.items).forEach(key => {newItems[key] = this.state.items[key];});
-      this.setState({
-        items: newItems
+    this.fetchSchedule();
+    
+    let currentDay = new Date();
+    let today = new Date();
+
+    for (let i = -10; i < 10; i++) {
+      //const time = day.timestamp + i * 24 * 60 * 60 * 1000;
+      currentDay.setDate(today.getDate() + i);
+
+      const strTime = dateFormat(currentDay, "yyyy-mm-dd");
+      //console.log("strTime: " + strTime);
+      //console.log("currentDay: " + currentDay);
+      //console.log("currentDayFormatted: " + dateFormat(currentDay, "yyyy-mm-dd"));
+      
+      this.state.items[strTime] = [];
+
+      let allEvents = this.state.events;
+
+      var currentDayClasses = allEvents.filter((event) => ep.isHappeningOnDay(event, currentDay));
+
+      currentDayClasses.forEach((event) => {
+
+        //let month = today.getUTCMonth() + 1; //months from 1-12
+        //let day = today.getUTCDate();
+        //let year = today.getUTCFullYear();
+        //console.log("date: " + year + "-" + month + "-" + day);
+
+        let eventStartTime = new Date(event.startTime);
+        let eventStartTimeFormatted = eventStartTime.getUTCHours() + ":" + eventStartTime.getUTCMinutes();
+        //console.log("todays event start: " + eventStartTimeFormatted);
+
+        let eventEndTime = new Date(event.endTime);
+        let eventEndTimeFormatted = eventEndTime.getUTCHours() + ":" + eventEndTime.getUTCMinutes();
+        //console.log("todays event end: " + eventEndTimeFormatted);
+
+        this.state.items[strTime].push({
+          //name: 'Class for ' + strTime,
+          name: event.summary,
+          time: eventStartTimeFormatted + " - " + eventEndTimeFormatted,
+          location: event.location
+        })
+
       });
-    }, 1000);
-    // console.log(`Load Items for ${day.year}-${day.month}`);
+
+
+    }
+    
+    const emptyTime = day.timestamp;
+    const emptyStrTime = this.timeToString(emptyTime);
+    if (!this.state.items[emptyStrTime]) {
+      this.state.items[emptyStrTime] = [];
+      this.state.items[emptyStrTime].push({
+        name: 'Nothing today!',
+        time: '',
+        location: ''
+      });
+    }
+
+    const newItems = {};
+    Object.keys(this.state.items).forEach(key => {newItems[key] = this.state.items[key];});
+    this.setState({
+      items: newItems
+    });
   }
 
   renderItem(item) {
@@ -90,21 +144,17 @@ export default class CalendarScreen extends Component {
     return date.toISOString().split('T')[0];
   }
 
-  getSchedule = () => {
-
-    //NetInfo.isConnected.addEventListener('connectionChange', Function.prototype);
-
-    //this.setState({loading: true});
-    //NetInfo.isConnected.fetch().done((isConnected) => {
-
-      // if (!isConnected) {
-      //   console.log(isConnected);
-      //   Alert.alert("You are not connected to the internet");
-      //   this.setState({loading: false});
-      //}
-      //else {
-        AsyncStorage.getItem(CONSTANTS.TOKEN_LOCATION).then((token) => {
-          fetch(CONSTANTS.APP_URL + "/schedule", {
+  fetchSchedule = async () => {
+   /* return NetInfo.isConnected.fetch().then(async (isConnected) => {
+      if (!isConnected) {
+        console.log(isConnected);
+        Alert.alert("You are not connected to the internet");
+        this.setState({ loading: false });
+      }
+      else { */
+        let token = await AsyncStorage.getItem(CONSTANTS.TOKEN_LOCATION);
+        if (token) {
+          await fetch(CONSTANTS.APP_URL + "/schedule", {
             method: "GET",
             headers: {
               'x-auth-token': token
@@ -113,84 +163,36 @@ export default class CalendarScreen extends Component {
             .catch((error) => {
               console.log("Unable to connect to server. Error: " + error);
               Alert.alert("Unable to connect to server. Error: " + error);
-              this.setState({loading: false});
+              this.setState({ loading: false });
             });
-        })
+        } else {
+          this.setState({ loading: false });
+          this.goToLoginScreen();
+        }
     //  }
     //});
   }
 
-  handleResponse = (response) => {
+  handleResponse = async (response) => {
     if (response.status == 200) {
-      response.json().then((schedule) => {
-        let allEvents = schedule.events;
-        //console.log(allEvents);
-        /*
-
-        var nextEvent;
-        let today = new Date();
-        var todayClasses = allEvents.filter((event) => ep.isHappeningOnDay(event, today));
-        let currentDate = new Date();
-        nextEvent = null;
-        let nextEventStartTime;
-        if (todayClasses.length > 0) {
-          todayClasses.forEach((event) => {
-            let startTime = new Date(event.startTime);
-            if (nextEvent == null) {
-              if (startTime.getHours() >= currentDate.getHours()) {
-                nextEvent = event;
-                nextEventStartTime = new Date(nextEvent.startTime);
-              }
-              else if (startTime.getHours() === currentDate.getHours()) {
-                if (startTime.getMinutes() < currentDate.getMinutes()) {
-                  nextEvent = event;
-                  nextEventStartTime = new Date(nextEvent.startTime);
-                }
-              }
-            }
-            else if (startTime.getHours() < nextEventStartTime.getHours()) {
-              nextEvent = event;
-              nextEventStartTime = new Date(nextEvent.startTime);
-            }
-            else if (startTime.getHours() === nextEventStartTime.getHours()) {
-              if (startTime.getMinutes() < nextEventStartTime.getMinutes()) {
-                nextEvent = event;
-                nextEventStartTime = new Date(nextEvent.startTime);
-              }
-            }
-
-          });
-          if (!nextEvent) {
-            Alert.alert("Done for the day!");
-          } else {
-            Geocoder.from(nextEvent.location)
-              .then((json) => {
-                var location = json.results[0].geometry.location;
-
-                var destinationResult = {
-                  latitude: location.lat,
-                  longitude: location.lng,
-                }
-
-                this.setState({ destination: destinationResult });
-                this.setState({ showDirections: true });
-                this.setState({ nextClassInfo: nextEvent.summary + ", " + nextEvent.room });
-              })
-              .catch((error) => Alert.alert("Unexpected geocoder communication error, please try again."));
-          }
+      await response.json().then(async (schedule) => {
+        if (schedule && schedule.events) {
+          await AsyncStorage.setItem(CONSTANTS.SCHEDULE_LOCATION, JSON.stringify(schedule.events));
+          this.setState({ events: schedule.events.slice() });
         } else {
-          Alert.alert("No classes today!");
-        } */
+          Alert.alert("Unexpected Error, Please try again.");
+        }
       });
     } else if (response.status == 404) {
       Alert.alert("Please upload your schedule.");
     } else {
       Alert.alert("Unexpected Error please try again.");
     }
-    this.setState({loading: false});
+    this.setState({ loading: false });
+
   }
 
-}
+} 
 
 const styles = StyleSheet.create({
   item: {
