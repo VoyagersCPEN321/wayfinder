@@ -5,70 +5,43 @@ import USER, { IUser } from "./models/user";
 import SCHEDULE from "./models/schedule";
 import { execFile } from 'child_process';
 import * as scheduler from 'node-schedule';
-import EVENT, {IEvent} from "./models/event";
+import EVENT, { IEvent } from "./models/event";
 
 let ep = require("../voyageurs/eventProcessor");
 
 export class PushController {
-    private serverKey: String;
+  private serverKey: String;
 
-    public getUserPushToken(req: Request){
-      if(req.body.pushToken){
-        USER.update({
-            facebookId : req.user.facebookId,
-        }, 
+  public getUserPushToken(req: Request) {
+    if (req.body.pushToken) {
+      USER.update({
+        facebookId: req.user.facebookId,
+      },
         {
-            $set: { expoPushToken : req.body.pushToken },
-        },(err, res)=>{
-          if(err){
+          $set: { expoPushToken: req.body.pushToken },
+        }, (err, res) => {
+          if (err) {
             this.handleError(err, res);
             return;
           }
         });
     }
-    };
-    private handleError(err: any, res: Response) {
-      console.log(err);
-      res.status(500).json({
-          message: err ? err.message : "Unexpected Error, please try again"
-      });
-    }
-    
-    public setupDailyPushNotifications(){
-      USER.find({}, (err, users) => {
-        if(err){
-          console.log("Error retrieving users from DB");
-          return;
-        }
-        if(!users){
-          console.log("No users retrieved from DB");
-        }
-        else{
-          users.forEach((user) => {
-              SCHEDULE.find({userId : (user as IUser).userId}, 'events', (err, eventsList) => {
-                if(err){
-                  console.log("error retrieving user schedules. Cannot send notifications today.");
-                  return;
-                }
-                if(eventsList){
-                  let today = new Date();
-                  let eventsHappeningToday = eventsList.filter((event) => ep.isHappeningOnDay(event, today));
-                  eventsHappeningToday.forEach( (event) => {
-                    let eventTime = new Date((event as IEvent).startTime);
-                    setTimeout(sendPushNotificationToUser((user as IUser).expoPushToken, event), eventTime.getMinutes() - (today.getMinutes() + 1200000));
-                  })
-                }
-              })
-          });
-        }
-      })
-    };
+  }
+  private handleError(err: any, res: Response) {
+    console.log(err);
+    res.status(500).json({
+      message: err ? err.message : "Unexpected Error, please try again"
+    });
+  }
 
-    public sendPushNotificationtoUser(token, event){
-      if(token == null){
+  public sendPushNotificationtoUser(token: String, event: IEvent) {
+    return (token, event) => {
+      let expo = new Expo();
+      let messages = [];
+      if (token == null) {
         return;
       }
-      if(Expo.isExpoPushToken(token)){
+      if (Expo.isExpoPushToken(token)) {
         console.error(`Push token ${token} is not a valid Expo push token`);
         return;
       }
@@ -78,8 +51,62 @@ export class PushController {
         sound: 'default',
         body: `Your class ${event.summary} happening in 20 mins`,
         data: { withSome: 'data' },
-      })
+      });
+
+      let chunks = expo.chunkPushNotifications(messages);
+      let tickets = [];
+      (async () => {
+        // Send the chunks to the Expo push notification service. There are
+        // different strategies you could use. A simple one is to send one chunk at a
+        // time, which nicely spreads the load out over time:
+        for (let chunk of chunks) {
+          try {
+            let ticketChunk = await expo.sendPushNotificationsAsync(chunk);
+            console.log(ticketChunk);
+
+            // NOTE: If a ticket contains an error code in ticket.details.error, you
+            // must handle it appropriately. The error codes are listed in the Expo
+            // documentation:
+            // https://docs.expo.io/versions/latest/guides/push-notifications#response-format
+          } catch (error) {
+            console.error(error);
+          }
+        }
+      })();
     };
+  }
+
+  public setupDailyPushNotifications() {
+    USER.find({}, (err, users) => {
+      if (err) {
+        console.log("Error retrieving users from DB");
+        return;
+      }
+      if (!users) {
+        console.log("No users retrieved from DB");
+      } else {
+        users.forEach((user) => {
+          SCHEDULE.find({ userId: (user as IUser).userId }, 'events', (err, eventsList) => {
+            if (err) {
+              console.log("error retrieving user schedules. Cannot send notifications today.");
+              return;
+            }
+            if (eventsList) {
+              let today = new Date();
+              let eventsHappeningToday = eventsList.filter((event) => ep.isHappeningOnDay(event, today));
+              eventsHappeningToday.forEach((event) => {
+                let eventTime = new Date((event as IEvent).startTime);
+                setTimeout(
+                  this.sendPushNotificationtoUser((user as IUser).expoPushToken, event as IEvent),
+                  eventTime.getMinutes() - (today.getMinutes() + 1200000)
+                  );
+              });
+            }
+          });
+        });
+      }
+    });
+  }
 }
 
 export default new PushController();
@@ -123,11 +150,11 @@ export default new PushController();
 //     try {
 //       let ticketChunk = await expo.sendPushNotificationsAsync(chunk);
 //       console.log(ticketChunk);
-//       tickets.push(...ticketChunk);
+//
 //       // NOTE: If a ticket contains an error code in ticket.details.error, you
 //       // must handle it appropriately. The error codes are listed in the Expo
 //       // documentation:
-//       // https://docs.expo.io/versions/latest/guides/push-notifications#response-format 
+//       // https://docs.expo.io/versions/latest/guides/push-notifications#response-format
 //     } catch (error) {
 //       console.error(error);
 //     }
@@ -177,7 +204,7 @@ export default new PushController();
 //           console.error(`There was an error sending a notification: ${receipt.message}`);
 //           if (receipt.details && receipt.details.error) {
 //             // The error codes are listed in the Expo documentation:
-//             // https://docs.expo.io/versions/latest/guides/push-notifications#response-format 
+//             // https://docs.expo.io/versions/latest/guides/push-notifications#response-format
 //             // You must handle the errors appropriately.
 //             console.error(`The error code is ${receipt.details.error}`);
 //           }
