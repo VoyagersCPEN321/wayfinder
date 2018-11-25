@@ -31,7 +31,8 @@ export default class LoginScreen extends Component {
   }
 
   static navigationOptions = {
-    title: 'UBC WayFinder'
+    title: 'UBC WayFinder',
+    headerRight: null
   };
 
   gotoMapScreen = () => {

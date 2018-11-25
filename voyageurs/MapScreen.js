@@ -46,6 +46,7 @@ export default class MapScreen extends Component {
 
     NetInfo.isConnected.addEventListener('connectionChange', this.handleFirstConnectivityChange);
     this.init();
+    CONSTANTS.MapScreenRef.actualInstance = this;
   }
 
   handleFirstConnectivityChange = (connectionInfo) => {
@@ -244,6 +245,26 @@ export default class MapScreen extends Component {
     return null;
   }
 
+   static LogOut = async () => {
+    let token = await AsyncStorage.getItem(CONSTANTS.TOKEN_LOCATION);
+    if(token){ /* token was found */
+      let error = await AsyncStorage.removeItem(CONSTANTS.TOKEN_LOCATION);
+      if(error){
+        console.log(error);
+      }
+    }
+
+    let schedule = await AsyncStorage.getItem(CONSTANTS.SCHEDULE_LOCATION);
+    if(schedule){ /* Schedule was found */
+      let error = await AsyncStorage.removeItem(CONSTANTS.SCHEDULE_LOCATION);
+      if(error){
+        console.log(error);
+      }
+    }
+
+    CONSTANTS.MapScreenRef.actualInstance.goToLoginScreen();
+  }
+
   pickDocument = async () => {
     let token = await AsyncStorage.getItem(CONSTANTS.TOKEN_LOCATION);
     if (!token) {
@@ -251,6 +272,7 @@ export default class MapScreen extends Component {
       this.goToLoginScreen();
     }
 
+    
     const document = await Expo.DocumentPicker.getDocumentAsync(
       {
         type: "text/calendar",
@@ -360,6 +382,18 @@ export default class MapScreen extends Component {
     </TouchableOpacity>);
   }
 
+
+  renderLogOutButton = () => {
+    return (<TouchableOpacity
+      style={styles.LogOut}
+      onPress={this.LogOut}>
+      <Icon name="ios-home" size={30} color="#fff" />
+      <Text style={styles.uploadMessage}>
+        Log Out
+            </Text>
+    </TouchableOpacity>);
+  }
+
   render() {
     return (
       <View style={styles.container}>
@@ -463,6 +497,19 @@ const styles = StyleSheet.create({
     textAlign: "center",
     fontSize: 8,
     color: "#fff"
+  },
+  LogOut: {
+    borderWidth: 1,
+    borderColor: 'rgba(0,0,0,1)',
+    alignItems: 'center',
+    justifyContent: 'center',
+    width: 50,
+    height: 50,
+    borderRadius: 40,
+    position: "absolute",
+    top: 0,
+    right: 10,
+    backgroundColor: "#f4511e"
   },
   busyIndicator: {
     height: '100%',
