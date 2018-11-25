@@ -18,7 +18,7 @@ class User {
             userId: mongoose.Schema.Types.ObjectId,
             facebookId: { type: String, unique: true },
             name: String,
-            expoPushToken : {type:String, default: null},
+            expoPushToken: { type: String, default: null },
         });
 
         this.USER = mongoose.model<IUser>('User', this.userSchema);
