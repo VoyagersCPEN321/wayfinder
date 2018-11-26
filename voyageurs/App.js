@@ -2,17 +2,17 @@ import React, { Component } from "react";
 import {
   View,
   Text,
-  StyleSheet
+  StyleSheet, TouchableOpacity,
 } from "react-native";
+
 import MapScreen from './MapScreen.js';
-import Settings from './SettingsScreen.js';
 import CalendarScreen from './CalendarScreen.js';
 import LoginScreen from './LoginScreen.js'
 import { createBottomTabNavigator } from 'react-navigation'
 import Icon from 'react-native-vector-icons/Ionicons'
 import { createStackNavigator } from 'react-navigation'
-
-import { NavigationActions } from 'react-navigation';
+import FontAwesome from 'react-native-vector-icons/FontAwesome';
+const icon = (<FontAwesome name={'comments'} />);
 
 const tabBarNavigation =  createBottomTabNavigator({
   MapScreen: {
@@ -69,6 +69,10 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center'
+  },
+  LogOut: {
+    marginRight: 15
+
   }
 });
 
@@ -80,6 +84,13 @@ export default createStackNavigator({
   //   headerMode: 'none',
     navigationOptions:  {
       headerLeft: null,
+      headerRight: (
+        <TouchableOpacity
+          style={styles.LogOut}
+          onPress={MapScreen.LogOut}>
+          <FontAwesome name={'sign-out'} size={30} color="#fff" />
+        </TouchableOpacity>
+      ),
       title: 'Home',
       headerStyle: {
         backgroundColor: '#f4511e',
