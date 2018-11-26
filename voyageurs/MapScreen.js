@@ -11,7 +11,8 @@ import {
 } from "react-native";
 import { AsyncStorage } from "react-native";
 import * as CONSTANTS from "./constants";
-import Icon from 'react-native-vector-icons/Ionicons'
+import Icon from 'react-native-vector-icons/Ionicons';
+import FontAwesome from 'react-native-vector-icons/FontAwesome';
 
 var ep = require("./eventProcessor.js");
 
@@ -429,6 +430,20 @@ export default class MapScreen extends Component {
     return null;
   }
 
+  renderWalkingDistance() {
+    // if (this.state.showDirections) {
+    //   return (
+    //     <View style={styles.distanceView} >
+    //       {/* <Callout> */}
+    //         <FontAwesome name={'walking'} size={30} color="#f4511e" />
+    //         <Text style={styles.calloutMessage}>
+    //           {this.state.distanceInfo.time}
+    //         </Text>
+    //       {/* </Callout> */}
+    //     </View>);
+    // }
+    return null;
+  }
   renderGoToNextClass = () => {
     return (
       <View style={styles.bottomView}>
@@ -450,18 +465,6 @@ export default class MapScreen extends Component {
     </TouchableOpacity>);
   }
 
-
-  renderLogOutButton = () => {
-    return (<TouchableOpacity
-      style={styles.LogOut}
-      onPress={this.LogOut}>
-      <Icon name="ios-home" size={30} color="#fff" />
-      <Text style={styles.uploadMessage}>
-        Log Out
-            </Text>
-    </TouchableOpacity>);
-  }
-
   render() {
     return (
       <View style={styles.container}>
@@ -470,6 +473,7 @@ export default class MapScreen extends Component {
         {this.renderUploadButton()}
         {this.renderGoToNextClass()}
         {this.renderMessage()}
+        {this.renderWalkingDistance()}
         <Button
           title="Get distance Class"
           onPress={this.getDistance} />
@@ -530,7 +534,7 @@ const styles = StyleSheet.create({
     marginRight: "30%",
     marginTop: 20,
     top: 30,
-    position: "absolute",
+    position: "absolute"
   },
   callout: {
     flexDirection: "row",
@@ -586,5 +590,15 @@ const styles = StyleSheet.create({
     height: '100%',
     width: '100%',
     backgroundColor: "rgba(255, 255, 255, 0.3)"
-  }
+  },
+  distanceView: {
+    backgroundColor: "rgba(255, 255, 255, 0.65)",
+    width: "75%",
+    height: 40,
+    // marginLeft: "30%",
+    // marginRight: "30%",
+    marginTop: 20,
+    top: 30,
+    position: "absolute"
+  },
 });

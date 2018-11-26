@@ -86,7 +86,7 @@ export function isHappeningOnDay(event, date) {
 /* Assumes that the event has already been checked to be happening today. */
 function isHappeningRightNow(event) {
   let currentDate = moment().tz(VANCOUVER_TZ).toDate();
-  let currentHour = currentDate.getHours();
+  let currentHour = currentDate.getUTCHours();
 
   let eventStartTime = convertToLocalDate(event.startTime);
   let eventStartHour = eventStartTime.getUTCHours();
@@ -124,26 +124,26 @@ export function getNextClass(events) {
 
   let nextEvent = null;
   let nextEventStartTime;
-  let currentDate = new Date();
+  let currentDate = moment().tz(VANCOUVER_TZ).toDate();
   events.forEach((event) => {
     let startTime = convertToLocalDate(event.startTime);
     if (nextEvent == null) {
-      if (startTime.getHours() >= currentDate.getHours()) {
+      if (startTime.getUTCHours() >= currentDate.getHours()) {
         nextEvent = event;
         nextEventStartTime = convertToLocalDate(nextEvent.startTime);
       }
-      else if (startTime.getHours() === currentDate.getHours()) {
+      else if (startTime.getUTCHours() === currentDate.getHours()) {
         if (startTime.getMinutes() <= currentDate.getMinutes()) {
           nextEvent = event;
           nextEventStartTime = convertToLocalDate(nextEvent.startTime);
         }
       }
     }
-    else if (startTime.getHours() < nextEventStartTime.getHours()) {
+    else if (startTime.getUTCHours() < nextEventStartTime.getUTCHours()) {
       nextEvent = event;
       nextEventStartTime = convertToLocalDate(nextEvent.startTime);
     }
-    else if (startTime.getHours() === nextEventStartTime.getHours()) {
+    else if (startTime.getUTCHours() === nextEventStartTime.getUTCHours()) {
       if (startTime.getMinutes() < nextEventStartTime.getMinutes()) {
         nextEvent = event;
         nextEventStartTime = convertToLocalDate(nextEvent.startTime);

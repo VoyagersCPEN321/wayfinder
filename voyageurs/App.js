@@ -12,7 +12,6 @@ import { createBottomTabNavigator } from 'react-navigation'
 import Icon from 'react-native-vector-icons/Ionicons'
 import { createStackNavigator } from 'react-navigation'
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
-const icon = (<FontAwesome name={'comments'} />);
 
 const tabBarNavigation =  createBottomTabNavigator({
   MapScreen: {
