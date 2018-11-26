@@ -69,7 +69,6 @@ export class PushController {
             console.log('sending ' + chunk);
             let ticketChunk = await expo.sendPushNotificationsAsync(chunk);
             console.log(ticketChunk);
-            
             // NOTE: If a ticket contains an error code in ticket.details.error, you
             // must handle it appropriately. The error codes are listed in the Expo
             // documentation:
