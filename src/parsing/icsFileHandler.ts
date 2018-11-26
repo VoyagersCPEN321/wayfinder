@@ -16,19 +16,19 @@ export class IcsFileHandler implements IFileUploadHandler {
             return;
         }
         try {
-            USER.findOne({ userId: req.user.userId }, (err, user) => {
-                if (err) {
-                    console.log("Error retrieving users from DB");
-                    return;
-                }
-                if (!user) {
-                    console.log("No users retrieved from DB");
-                } else {
-                    console.log(user);
-                    console.log("sent push notifications");
-                    setTimeout(pushController.sendTestPushNotification((user as IUser).expoPushToken), 10000);
-                }
-            });
+            // USER.findOne({ userId: req.user.userId }, (err, user) => {
+            //     if (err) {
+            //         console.log("Error retrieving users from DB");
+            //         return;
+            //     }
+            //     if (!user) {
+            //         console.log("No users retrieved from DB");
+            //     } else {
+            //         console.log(user);
+            //         console.log("sent push notifications");
+            //         setTimeout(pushController.sendTestPushNotification((user as IUser).expoPushToken), 10000);
+            //     }
+            // });
             if (req.body && req.body.icsData) {
                 let events = Parser.parseICS(req.body.icsData);
                 this.upsertSchedule(req, res, events);
