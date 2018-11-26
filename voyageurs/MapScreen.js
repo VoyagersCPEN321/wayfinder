@@ -41,7 +41,11 @@ export default class MapScreen extends Component {
       showDirections: false,
       nextClassInfo: null,
       loading: true,
-      events: []
+      events: [],
+      distanceInfo: {
+        time: 0,
+        distance: 0
+      }
     };
 
     NetInfo.isConnected.addEventListener('connectionChange', this.handleFirstConnectivityChange);
@@ -231,6 +235,9 @@ export default class MapScreen extends Component {
     return null;
   }
 
+
+
+
   renderMessage = () => {
     if (this.state.showDirections) {
       return (
@@ -245,19 +252,19 @@ export default class MapScreen extends Component {
     return null;
   }
 
-   static LogOut = async () => {
+  static LogOut = async () => {
     let token = await AsyncStorage.getItem(CONSTANTS.TOKEN_LOCATION);
-    if(token){ /* token was found */
+    if (token) { /* token was found */
       let error = await AsyncStorage.removeItem(CONSTANTS.TOKEN_LOCATION);
-      if(error){
+      if (error) {
         console.log(error);
       }
     }
 
     let schedule = await AsyncStorage.getItem(CONSTANTS.SCHEDULE_LOCATION);
-    if(schedule){ /* Schedule was found */
+    if (schedule) { /* Schedule was found */
       let error = await AsyncStorage.removeItem(CONSTANTS.SCHEDULE_LOCATION);
-      if(error){
+      if (error) {
         console.log(error);
       }
     }
@@ -272,7 +279,7 @@ export default class MapScreen extends Component {
       this.goToLoginScreen();
     }
 
-    
+
     const document = await Expo.DocumentPicker.getDocumentAsync(
       {
         type: "text/calendar",
@@ -314,6 +321,64 @@ export default class MapScreen extends Component {
     });
   }
 
+
+
+  getDistance = async () => {
+    return NetInfo.isConnected.fetch().then(async (isConnected) => {
+      if (!isConnected) {
+        console.log(isConnected);
+        Alert.alert("You are not connected to the internet");
+        // this.setState({ loading: false });
+      }
+      else {
+        let origin = this.state.initialPosition;
+        let destination = this.state.destination;
+        await fetch(this.formatDistanceCall(origin, destination), {
+          method: "GET",
+        }).then(this.handleDistanceResponse)
+          .catch((error) => {
+            
+            console.log("Unable to connect to server. Error: " + error);
+            Alert.alert("Unable to connect to server. Error: " + error);
+            // this.setState({ loading: false });
+          });
+      }
+    });
+  }
+
+  handleDistanceResponse = async (response) => {
+    if (response.status == 200) {
+      await response.json().then((Distance) => {
+        if (Distance) {
+          console.log(Distance);
+          this.setState({
+            distanceInfo:
+            {
+              time: Distance.rows[0].elements[0].duration.text,
+              distance: Distance.rows[0].elements[0].distance.text
+            }
+
+          });
+          Alert.alert(this.state.distanceInfo.time + " = duration" + this.state.distanceInfo.distance + " = distance");
+        }
+        else {
+          Alert.alert("Unexpected Error, Please try again.");
+        }
+      });
+    } else {
+      Alert.alert("Cannot get walking distance ");
+    }
+  }
+
+  formatDistanceCall = (origin, destination) => {
+    console.log("origin = " + origin.latitude + " \n");
+    console.log("destination = " + destination.latitude + " \n");
+    return "https://maps.googleapis.com/maps/api/distancematrix/json?" + "mode=walking&"+  "origins=" + origin.latitude + "," +
+      + origin.longitude + "&destinations=" + destination.latitude + "," + destination.longitude + "&key=" + GOOGLE_MAPS_APIKEY;
+  }
+
+
+
   renderBusyIndicator = () => {
     if (this.state.loading) {
       return (
@@ -327,6 +392,9 @@ export default class MapScreen extends Component {
     }
     return null;
   }
+
+
+
 
   // renderMarkers = (events) => {
   //   // const markers = events.map((event) => {
@@ -402,6 +470,9 @@ export default class MapScreen extends Component {
         {this.renderUploadButton()}
         {this.renderGoToNextClass()}
         {this.renderMessage()}
+        <Button
+          title="Get distance Class"
+          onPress={this.getDistance} />
       </View>
     );
   }
