@@ -18,13 +18,13 @@ function isBeforeMonth(a, b) {
  * Checks if a is before b in a day level comparison.
  */
 function isBeforeDay(a, b) {
-  if (b.getFullYear() !== a.getFullYear) {
+  if (b.getFullYear() !== a.getFullYear()) {
     return isBeforeYear(a, b);
   }
   if (b.getMonth() !== a.getMonth()) {
     return isBeforeMonth(a, b);
   }
-  if (b.getDay() > a.getDay()) {
+  if (b.getDate() > a.getDate()) {
     return true;
   }
   return false;
@@ -50,20 +50,36 @@ export function isHappeningOnDay(event, date) {
   /* Check if the event's first occurence hasn't occurred yet. */
   var startDay = convertToLocalDate(event.startDay);
   var lastDay = convertToLocalDate(event.lastDay);
-
   if (isBeforeDay(date, startDay)) {
+    if(event.summary == "CPSC 320 202") {
+      console.log("CPSC:    isBeforeDay : true");
+    }
     return false;
   }
   /* Check if the event's last occurrence already passed */
   if (isBeforeDay(lastDay, date)) {
+    if(event.summary == "CPSC 320 202") {
+      console.log("CPSC:    isBeforeDay2 : true");
+    }
     return false;
   }
 
   /* We know the event is within its ocurrence range */
   if (date.getDay() !== dayToUTCDay(event.day)) {
+    if(event.summary == "CPSC 320 202") {
+      console.log("CPSC:    not equal day : true");
+    }
     return false;
   }
   // TODO check for non weekly recurrence, for now assume all events are weekly
+  if(event.summary == "CPSC 320 202") {
+    console.log("CPSC: -----passsed");
+    console.log("Start day: "+event.summary+ "  " + startDay);
+    console.log("Last day: "+event.summary+ "  " + lastDay);
+    console.log(startDay.getDay());
+    console.log(startDay.getMonth());
+    console.log(startDay.getYear());
+  }
   return true;
 }
 
@@ -95,7 +111,6 @@ function isHappeningRightNow(event) {
 
 export function getNextClass(events) {
   let eventsGoingOnRightNow = events.filter(event => isHappeningRightNow(event));
-  console.log(eventsGoingOnRightNow);
   if(eventsGoingOnRightNow.length == 1) {
     return eventsGoingOnRightNow[0];
   } else if(eventsGoingOnRightNow.length > 1) {
@@ -139,6 +154,6 @@ export function getNextClass(events) {
 }
 
 const VANCOUVER_TZ = "America/Vancouver";
-function convertToLocalDate(timeString) {
+export function convertToLocalDate(timeString) {
   return moment(timeString).tz(VANCOUVER_TZ).toDate();//new Date(timeString);
 }
