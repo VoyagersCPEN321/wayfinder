@@ -39,7 +39,7 @@ export class PushController {
   }
 
   public sendTestPushNotification(token : String) {
-    return (function(token: String) {
+    return (function() {
      console.log('got here');
       let expo = new Expo();
       let messages = [];
