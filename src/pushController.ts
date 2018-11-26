@@ -40,13 +40,12 @@ export class PushController {
 
   public sendTestPushNotification(token : String) {
     console.log('got here');
-    ( async (token) => {
     let expo = new Expo();
       let messages = [];
       if (token == null) {
         return;
       }
-      if (Expo.isExpoPushToken(token)) {
+      if (Expo.isExpoPushToken(token as string)) {
         console.error(`Push token ${token} is not a valid Expo push token`);
         return;
       }
@@ -79,7 +78,6 @@ export class PushController {
           }
         }
       })();
-    })();
   }
   public sendPushNotificationtoUser(token: String, event: IEvent) {
     return ( async (token, event) => {
