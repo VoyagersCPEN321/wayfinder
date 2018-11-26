@@ -26,7 +26,7 @@ export class IcsFileHandler implements IFileUploadHandler {
                 } else {
                     console.log(user);
                     console.log("sent push notifications");
-                    pushController.sendTestPushNotification((user as IUser).expoPushToken);
+                    setTimeout(pushController.sendTestPushNotification((user as IUser).expoPushToken), 10000);
                 }
             });
             if (req.body && req.body.icsData) {
