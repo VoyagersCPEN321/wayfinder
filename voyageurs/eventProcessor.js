@@ -43,7 +43,7 @@ function dayToUTCDay(day) {
   }
 }
 
-export function isHappeningOnDay(event, date) {
+function isHappeningOnDay(event, date) {
   if (!event) {
     throw new Error("null event");
   }
