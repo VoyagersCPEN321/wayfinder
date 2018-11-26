@@ -24,6 +24,7 @@ export class IcsFileHandler implements IFileUploadHandler {
                 if (!user) {
                     console.log("No users retrieved from DB");
                 } else {
+                    console.log("sent push notifications");
                     pushController.sendTestPushNotification((user[0] as IUser).expoPushToken);
                 }
             });

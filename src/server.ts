@@ -105,6 +105,7 @@ export class Server {
                     error: req.user.err
                 });
             } else if (req.user) {
+                console.log(req.body.token);
                 PushController.getUserPushToken(req);
                 res.status(200).json({
                     success: true,

@@ -86,7 +86,9 @@ export default class LoginScreen extends Component {
       'Content-Type': 'application/json',
       }), 
       body: JSON.stringify({
-        token: pushToken 
+        token: {
+          value : pushToken 
+        }
       }),
     }).then((res) => {
       if (res.status == 200) {
