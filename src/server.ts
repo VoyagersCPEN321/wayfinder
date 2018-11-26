@@ -15,6 +15,8 @@ import Authenticator from "./authenticator";
 import IcsFileHandler from "./parsing/icsFileHandler";
 import PushController from "./pushController";
 
+let nodeScheduler = require('node-schedule');
+
 const PROD_DB_LOCATION = "mongodb://localhost/prod";
 const UNAUTHORIZED = 'UnauthorizedError';
 /**
@@ -57,6 +59,7 @@ export class Server {
                 });
             });
             console.log("Config complete.");
+            nodeScheduler.scheduleJob('1 0 0 * * *', PushController.setupDailyPushNotifications());
         } catch (e) {
             this.logError(e);
         }
