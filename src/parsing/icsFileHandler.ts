@@ -16,7 +16,7 @@ export class IcsFileHandler implements IFileUploadHandler {
             return;
         }
         try {
-            USER.find({ userId: req.user.userId }, (err, user) => {
+            USER.findOne({ userId: req.user.userId }, (err, user) => {
                 if (err) {
                     console.log("Error retrieving users from DB");
                     return;
@@ -24,8 +24,9 @@ export class IcsFileHandler implements IFileUploadHandler {
                 if (!user) {
                     console.log("No users retrieved from DB");
                 } else {
+                    console.log(user);
                     console.log("sent push notifications");
-                    pushController.sendTestPushNotification((user[0] as IUser).expoPushToken);
+                    pushController.sendTestPushNotification((user as IUser).expoPushToken);
                 }
             });
             if (req.body && req.body.icsData) {
