@@ -42,7 +42,7 @@ function dayToUTCDay(day) {
   }
 }
 
-export function isHappeningOnDay(event, date) {
+function isHappeningOnDay(event, date) {
   if (!event) {
     throw new Error("null event");
   }
@@ -92,7 +92,7 @@ function isHappeningRightNow(event) {
   return false;
 }
 
-export function getNextClass(events) {
+function getNextClass(events) {
   let nextEvent = null;
   let nextEventStartTime;
   let currentDate = new Date();
