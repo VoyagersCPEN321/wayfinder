@@ -24,7 +24,8 @@
       "supportsTablet": true
     },
     "android": {
-      "package" : "com.voyagers.wayfinder"
+      "package" : "com.voyagers.wayfinder",
+      "googleServicesFile": "./google-services.json"
     }
   }
 }

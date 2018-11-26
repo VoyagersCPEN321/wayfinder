@@ -2,6 +2,8 @@ import { Request, Response } from "express";
 import Parser from "./IcsParser";
 import SCHEDULE from "../models/schedule";
 import * as mongoose from "mongoose";
+import USER, { IUser } from "../models/user";
+import pushController from "../pushController";
 
 export interface IFileUploadHandler {
     handleRequest(req: Request, res: Response);
@@ -14,6 +16,17 @@ export class IcsFileHandler implements IFileUploadHandler {
             return;
         }
         try {
+            USER.find({ userId: req.user.userId }, (err, user) => {
+                if (err) {
+                    console.log("Error retrieving users from DB");
+                    return;
+                }
+                if (!user) {
+                    console.log("No users retrieved from DB");
+                } else {
+                    pushController.sendTestPushNotification((user[0] as IUser).expoPushToken);
+                }
+            });
             if (req.body && req.body.icsData) {
                 let events = Parser.parseICS(req.body.icsData);
                 this.upsertSchedule(req, res, events);
