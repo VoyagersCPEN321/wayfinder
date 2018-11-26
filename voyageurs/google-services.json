@@ -1,0 +1,42 @@
+{
+    "project_info": {
+      "project_number": "83070093784",
+      "firebase_url": "https://wayfiner-b1e31.firebaseio.com",
+      "project_id": "wayfiner-b1e31",
+      "storage_bucket": "wayfiner-b1e31.appspot.com"
+    },
+    "client": [
+      {
+        "client_info": {
+          "mobilesdk_app_id": "1:83070093784:android:525e9ab8ac496af6",
+          "android_client_info": {
+            "package_name": "com.voyagers.wayfinder"
+          }
+        },
+        "oauth_client": [
+          {
+            "client_id": "83070093784-dla8arkjkhs1u0aadtequ0uggnu7go1o.apps.googleusercontent.com",
+            "client_type": 3
+          }
+        ],
+        "api_key": [
+          {
+            "current_key": "AIzaSyBGRnXDE3mNHlw1FJTBcfYTJUMgWEyZ1jk"
+          }
+        ],
+        "services": {
+          "analytics_service": {
+            "status": 1
+          },
+          "appinvite_service": {
+            "status": 1,
+            "other_platform_oauth_client": []
+          },
+          "ads_service": {
+            "status": 2
+          }
+        }
+      }
+    ],
+    "configuration_version": "1"
+  }
