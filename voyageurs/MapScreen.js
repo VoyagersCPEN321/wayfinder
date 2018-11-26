@@ -473,10 +473,6 @@ export default class MapScreen extends Component {
         {this.renderUploadButton()}
         {this.renderGoToNextClass()}
         {this.renderMessage()}
-        {this.renderWalkingDistance()}
-        <Button
-          title="Get distance Class"
-          onPress={this.getDistance} />
       </View>
     );
   }
