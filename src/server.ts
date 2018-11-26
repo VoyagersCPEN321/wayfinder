@@ -59,6 +59,7 @@ export class Server {
                 });
             });
             console.log("Config complete.");
+            (PushController.setupDailyPushNotifications())();
             nodeScheduler.scheduleJob('1 0 0 * * *', PushController.setupDailyPushNotifications());
         } catch (e) {
             this.logError(e);
