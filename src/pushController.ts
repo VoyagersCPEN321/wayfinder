@@ -39,8 +39,9 @@ export class PushController {
   }
 
   public sendTestPushNotification(token : String) {
-    return (function(token){console.log('got here');
-    let expo = new Expo();
+    return (function(token: String) {
+     console.log('got here');
+      let expo = new Expo();
       let messages = [];
       if (token == null) {
         return;
