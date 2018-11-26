@@ -18,6 +18,7 @@
     "expo-detox-hook": "^1.0.10",
     "google-distance-matrix": "^1.1.1",
     "immutable": "^3.8.2",
+    "moment-timezone": "^0.5.23",
     "react": "16.3.1",
     "react-native": "https://github.com/expo/react-native/archive/sdk-30.0.0.tar.gz",
     "react-native-calendars": "^1.21.0",
