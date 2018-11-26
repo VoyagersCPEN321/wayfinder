@@ -45,7 +45,7 @@ export class PushController {
       if (token == null) {
         return;
       }
-      if (Expo.isExpoPushToken(token as string)) {
+      if (!Expo.isExpoPushToken(token as string)) {
         console.error(`Push token ${token} is not a valid Expo push token`);
         return;
       }
