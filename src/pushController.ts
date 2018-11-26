@@ -57,6 +57,7 @@ export class PushController {
         data: { withSome: 'data' },
       });
 
+      console.log(messages);
       let chunks = expo.chunkPushNotifications(messages);
       let tickets = [];
       (async () => {
@@ -65,9 +66,10 @@ export class PushController {
         // time, which nicely spreads the load out over time:
         for (let chunk of chunks) {
           try {
+            console.log('sending ' + chunk);
             let ticketChunk = await expo.sendPushNotificationsAsync(chunk);
             console.log(ticketChunk);
-
+            
             // NOTE: If a ticket contains an error code in ticket.details.error, you
             // must handle it appropriately. The error codes are listed in the Expo
             // documentation:

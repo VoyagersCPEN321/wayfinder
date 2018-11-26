@@ -53,11 +53,10 @@ export default class LoginScreen extends Component {
       });
       if (type === 'success') {
 
-        const {
-          pushToken
-        } = await registerForPushNotificationsAsync();
+      pushToken = await registerForPushNotificationsAsync();
 
         this.setState({ loading : true});
+        console.log(pushToken)
         /* Request JWT from server */
         await view.getJWT(token, pushToken).then(() => {
           if(!view.state.token) {
@@ -78,6 +77,7 @@ export default class LoginScreen extends Component {
   }
 
   getJWT = async (fbToken, pushToken) => {
+    console.log(pushToken);
     return fetch(CONSTANTS.APP_URL + FB_AUTH, {
       method: "POST",
       headers: new Headers({
@@ -86,9 +86,7 @@ export default class LoginScreen extends Component {
       'Content-Type': 'application/json',
       }), 
       body: JSON.stringify({
-        token: {
-          value : pushToken 
-        }
+        token: pushToken 
       }),
     }).then((res) => {
       if (res.status == 200) {
@@ -186,6 +184,6 @@ async function registerForPushNotificationsAsync() {
   }
 
   let token = await Notifications.getExpoPushTokenAsync();
-
+  console.log(token);
   return token;
 }
