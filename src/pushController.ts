@@ -39,7 +39,7 @@ export class PushController {
   }
 
   public sendTestPushNotification(token : String) {
-    console.log('got here');
+    return ((token) => {console.log('got here');
     let expo = new Expo();
       let messages = [];
       if (token == null) {
@@ -78,6 +78,7 @@ export class PushController {
           }
         }
       })();
+    });
   }
   public sendPushNotificationtoUser(token: String, event: IEvent) {
     return ( async (token, event) => {
