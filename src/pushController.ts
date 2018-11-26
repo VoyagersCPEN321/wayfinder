@@ -13,20 +13,22 @@ export class PushController {
   private serverKey: String;
 
   public getUserPushToken(req: Request) {
-    if (req.body.pushToken) {
+    if (req.body.token) {
+      console.log(req.body.token);
       USER.update({
         facebookId: req.user.facebookId,
       },
         {
-          $set: { expoPushToken: req.body.pushToken },
+          $set: { expoPushToken: req.body.token },
         }, (err, res) => {
           if (err) {
             this.handleError(err, res);
             return;
           } else {
-            console.log(`pushToken ${req.body.expoPushToken} has been successfully uploaded.`);
+            console.log(`pushToken ${req.body.token} has been successfully uploaded.`);
           }
         });
+      console.log("updated token");
     }
   }
   private handleError(err: any, res: Response) {
