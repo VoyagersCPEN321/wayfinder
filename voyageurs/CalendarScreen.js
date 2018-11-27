@@ -55,9 +55,7 @@ export default class CalendarScreen extends Component {
     );
   }
 
-  loadItems(day) {
-    this.fetchSchedule();
-    
+  loadItems(day) {    
     let currentDay = new Date();
     let today = new Date();
 

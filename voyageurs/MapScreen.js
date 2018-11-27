@@ -12,7 +12,6 @@ import {
 import { AsyncStorage } from "react-native";
 import * as CONSTANTS from "./constants";
 import Icon from 'react-native-vector-icons/Ionicons';
-import FontAwesome from 'react-native-vector-icons/FontAwesome';
 
 var ep = require("./eventProcessor.js");
 
@@ -44,8 +43,8 @@ export default class MapScreen extends Component {
       loading: true,
       events: [],
       distanceInfo: {
-        time: 0,
-        distance: 0
+        time: null,
+        distance: null
       }
     };
 
@@ -189,7 +188,7 @@ export default class MapScreen extends Component {
       Alert.alert("Event doesn't have a valid location check your calendar for event details.");
       return;
     } else {
-      return Geocoder.from(nextEvent.location)
+      await Geocoder.from(nextEvent.location)
         .then((json) => {
           var location = json.results[0].geometry.location;
 
@@ -206,6 +205,7 @@ export default class MapScreen extends Component {
           Alert.alert("Unexpected geocoder communication error, please try again.");
           return;
         });
+      await this.getDistance();
     }
   }
 
@@ -235,9 +235,6 @@ export default class MapScreen extends Component {
     }
     return null;
   }
-
-
-
 
   renderMessage = () => {
     if (this.state.showDirections) {
@@ -350,7 +347,7 @@ export default class MapScreen extends Component {
   handleDistanceResponse = async (response) => {
     if (response.status == 200) {
       await response.json().then((Distance) => {
-        if (Distance) {
+        if (this.validateDistance(Distance)) {
           console.log(Distance);
           this.setState({
             distanceInfo:
@@ -360,15 +357,18 @@ export default class MapScreen extends Component {
             }
 
           });
-          Alert.alert(this.state.distanceInfo.time + " = duration" + this.state.distanceInfo.distance + " = distance");
-        }
-        else {
-          Alert.alert("Unexpected Error, Please try again.");
         }
       });
-    } else {
-      Alert.alert("Cannot get walking distance ");
     }
+  }
+
+  validateDistance = (Distance) => {
+    return Distance && Distance.rows &&
+     Distance.rows.length && Distance.rows[0]
+     && Distance.rows[0].elements 
+     && Distance.rows[0].elements.length 
+     && Distance.rows[0].elements[0].duration
+     && Distance.rows[0].elements[0].distance;
   }
 
   formatDistanceCall = (origin, destination) => {
@@ -394,20 +394,6 @@ export default class MapScreen extends Component {
     return null;
   }
 
-
-
-
-  // renderMarkers = (events) => {
-  //   // const markers = events.map((event) => {
-  //   //   <MapView.Marker
-  //   //     coordinate={this.state.markerPosition}>
-  //   //     <View style={styles.radius}>
-  //   //       <View style={styles.marker} />
-  //   //     </View>
-  //   //   </MapView.Marker>
-  //   // });
-  // }
-
   renderMap = () => {
     if (!this.state.loading) {
       return (
@@ -431,17 +417,15 @@ export default class MapScreen extends Component {
   }
 
   renderWalkingDistance() {
-    // if (this.state.showDirections) {
-    //   return (
-    //     <View style={styles.distanceView} >
-    //       {/* <Callout> */}
-    //         <FontAwesome name={'walking'} size={30} color="#f4511e" />
-    //         <Text style={styles.calloutMessage}>
-    //           {this.state.distanceInfo.time}
-    //         </Text>
-    //       {/* </Callout> */}
-    //     </View>);
-    // }
+    if (this.state.showDirections && this.state.distanceInfo.time) {
+      return (
+        <View style={styles.distanceView} >
+          <Icon style={styles.walkIcon} name={'md-walk'} size={30} color="#fff" />
+          <Text style={styles.distanceText}>
+              {this.state.distanceInfo.time}
+          </Text>
+        </View>);
+    }
     return null;
   }
   renderGoToNextClass = () => {
@@ -473,6 +457,7 @@ export default class MapScreen extends Component {
         {this.renderUploadButton()}
         {this.renderGoToNextClass()}
         {this.renderMessage()}
+        {this.renderWalkingDistance()}
       </View>
     );
   }
@@ -529,7 +514,7 @@ const styles = StyleSheet.create({
     marginLeft: "30%",
     marginRight: "30%",
     marginTop: 20,
-    top: 30,
+    top: "5%",
     position: "absolute"
   },
   callout: {
@@ -558,7 +543,7 @@ const styles = StyleSheet.create({
     height: 50,
     borderRadius: 40,
     position: "absolute",
-    top: 30,
+    top: "7%",
     right: 10,
     backgroundColor: "#f4511e"
   },
@@ -588,13 +573,30 @@ const styles = StyleSheet.create({
     backgroundColor: "rgba(255, 255, 255, 0.3)"
   },
   distanceView: {
-    backgroundColor: "rgba(255, 255, 255, 0.65)",
-    width: "75%",
-    height: 40,
-    // marginLeft: "30%",
-    // marginRight: "30%",
+    backgroundColor: "#f4511e",
     marginTop: 20,
-    top: 30,
-    position: "absolute"
+    top: "2%",
+    left: 0,
+    position: "absolute",
+    flex: 1,
+    flexDirection: 'column',
+    alignItems: 'center',
+    justifyContent: 'flex-start',
+    paddingLeft: 10,
+    paddingTop: 10,
+    paddingBottom: 5,
+    paddingRight: 20,
+    borderBottomRightRadius: 50,
+    borderTopRightRadius: 50,
   },
+  distanceText: {
+    borderColor: "transparent",
+    height: 'auto',
+    width: 'auto',
+    borderWidth: 0.0,
+    textAlign: "center",
+    fontWeight: "bold",
+    flex: 1,
+    color: "#fff"
+  }
 });

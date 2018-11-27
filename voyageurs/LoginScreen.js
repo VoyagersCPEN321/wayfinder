@@ -66,9 +66,11 @@ export default class LoginScreen extends Component {
         });
       } else {
         view.loginFailedAlert();
+        this.setState({ loading : false});
       }
     } catch (e) {
       alert(`Facebook Login Error: ` + e);
+      this.setState({ loading : false});
     }
   }
 
