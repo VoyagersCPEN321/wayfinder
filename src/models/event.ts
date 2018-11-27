@@ -7,6 +7,7 @@ export interface IEvent extends mongoose.Document {
     day: String;
     location: String;
     room: String;
+    building: String;
     description: String;
     startTime: Date;
     endTime: Date;
@@ -31,6 +32,7 @@ export class Event {
             },
             location: { type: String, required: true },
             room: {type: String, required: true },
+            building: { type: String, required: true },
             description: String,
             startTime: { type: Date, required: true },
             endTime: { type: Date, required: true },
