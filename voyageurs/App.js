@@ -71,7 +71,7 @@ renderHeaderButtons = () => {
       <TouchableOpacity
         style={styles.uploadButton}
         onPress={MapScreen.pickDocument}>
-        <Icon name="ios-cloud-upload" size={35} color="#fff" />
+        <FontAwesome name="cloud-upload" size={35} color="#fff" />
       </TouchableOpacity>
       <TouchableOpacity
         style={styles.logOutButton}
