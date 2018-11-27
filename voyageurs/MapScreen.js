@@ -1,5 +1,5 @@
 import React, { Component } from "react";
-import MapView, { Callout } from "react-native-maps";
+import MapView from "react-native-maps";
 import Geocoder from "react-native-geocoding";
 import MapViewDirections from "react-native-maps-directions";
 import {
@@ -47,23 +47,23 @@ export default class MapScreen extends Component {
         distance: null
       }
     };
-    
+
     NetInfo.isConnected.addEventListener('connectionChange', this.handleFirstConnectivityChange);
     this.init();
     CONSTANTS.MapScreenRef.actualInstance = this;
   }
 
 
-componentWillMount(){
-  BackHandler.addEventListener('hardwareBackPress', function() {
-    BackHandler.exitApp();
-    return true;
-  });
-}
+  componentWillMount() {
+    BackHandler.addEventListener('hardwareBackPress', function () {
+      BackHandler.exitApp();
+      return true;
+    });
+  }
 
-componentWillUnmount() {
-  BackHandler.removeEventListener('hardwareBackPress', this.handleBackPress);
-}
+  componentWillUnmount() {
+    BackHandler.removeEventListener('hardwareBackPress', this.handleBackPress);
+  }
 
 
 
@@ -213,14 +213,19 @@ componentWillUnmount() {
           }
 
           this.setState({ destination: destinationResult });
-          this.setState({ showDirections: true });
-          this.setState({ nextClassInfo: nextEvent.summary + ", " + nextEvent.room });
         })
         .catch((error) => {
           Alert.alert("Unexpected geocoder communication error, please try again.");
           return;
         });
       await this.getDistance();
+      this.setState({ showDirections: true });
+      this.setState({
+        nextClassInfo: {
+          summary: nextEvent.summary,
+          room: nextEvent.room
+        }
+      });
     }
   }
 
@@ -247,20 +252,6 @@ componentWillUnmount() {
           strokeColor={"red"}
         />
       );
-    }
-    return null;
-  }
-
-  renderMessage = () => {
-    if (this.state.showDirections) {
-      return (
-        <View style={styles.calloutView} >
-          <Callout>
-            <Text style={styles.calloutMessage}>
-              {this.state.nextClassInfo}
-            </Text>
-          </Callout>
-        </View>);
     }
     return null;
   }
@@ -351,7 +342,7 @@ componentWillUnmount() {
           method: "GET",
         }).then(this.handleDistanceResponse)
           .catch((error) => {
-            
+
             console.log("Unable to connect to server. Error: " + error);
             Alert.alert("Unable to connect to server. Error: " + error);
             // this.setState({ loading: false });
@@ -380,17 +371,17 @@ componentWillUnmount() {
 
   validateDistance = (Distance) => {
     return Distance && Distance.rows &&
-     Distance.rows.length && Distance.rows[0]
-     && Distance.rows[0].elements 
-     && Distance.rows[0].elements.length 
-     && Distance.rows[0].elements[0].duration
-     && Distance.rows[0].elements[0].distance;
+      Distance.rows.length && Distance.rows[0]
+      && Distance.rows[0].elements
+      && Distance.rows[0].elements.length
+      && Distance.rows[0].elements[0].duration
+      && Distance.rows[0].elements[0].distance;
   }
 
   formatDistanceCall = (origin, destination) => {
     console.log("origin = " + origin.latitude + " \n");
     console.log("destination = " + destination.latitude + " \n");
-    return "https://maps.googleapis.com/maps/api/distancematrix/json?" + "mode=walking&"+  "origins=" + origin.latitude + "," +
+    return "https://maps.googleapis.com/maps/api/distancematrix/json?" + "mode=walking&" + "origins=" + origin.latitude + "," +
       + origin.longitude + "&destinations=" + destination.latitude + "," + destination.longitude + "&key=" + GOOGLE_MAPS_APIKEY;
   }
 
@@ -438,12 +429,38 @@ componentWillUnmount() {
         <View style={styles.distanceView} >
           <Icon style={styles.walkIcon} name={'md-walk'} size={30} color="#fff" />
           <Text style={styles.distanceText}>
-              {this.state.distanceInfo.time}
+            {this.state.distanceInfo.time}
           </Text>
         </View>);
     }
     return null;
   }
+
+  renderClassSummary() {
+    if (this.state.showDirections && this.state.nextClassInfo && this.state.nextClassInfo.summary) {
+      return (
+        <View style={styles.classSummaryView} >
+          {/* <Icon style={styles.walkIcon} name={'md-walk'} size={30} color="#fff" /> */}
+          <Text style={styles.classInfoText}>
+            {this.state.nextClassInfo.summary}
+          </Text>
+        </View>);
+    }
+    return null;
+  }
+
+  renderClassRoomNo() {
+    if (this.state.showDirections && this.state.nextClassInfo && this.state.nextClassInfo.room) {
+      return (
+        <View style={styles.classRoomNoView} >
+          <Text style={styles.classInfoText}>
+            {this.state.nextClassInfo.room}
+          </Text>
+        </View>);
+    }
+    return null;
+  }
+
   renderGoToNextClass = () => {
     return (
       <View style={styles.bottomView}>
@@ -460,8 +477,9 @@ componentWillUnmount() {
         {this.renderBusyIndicator()}
         {this.renderMap()}
         {this.renderGoToNextClass()}
-        {this.renderMessage()}
         {this.renderWalkingDistance()}
+        {this.renderClassSummary()}
+        {this.renderClassRoomNo()}
       </View>
     );
   }
@@ -510,34 +528,6 @@ const styles = StyleSheet.create({
     bottom: 10,
     backgroundColor: "rgba(255, 255, 255, 0.0)"
   },
-  calloutView: {
-    backgroundColor: "rgba(255, 255, 255, 0.65)",
-    borderRadius: 10,
-    width: "75%",
-    height: 40,
-    marginLeft: "30%",
-    marginRight: "30%",
-    marginTop: 20,
-    top: "5%",
-    position: "absolute"
-  },
-  callout: {
-    flexDirection: "row",
-    marginLeft: "auto",
-    alignSelf: "center",
-    width: "100%"
-  },
-  calloutMessage: {
-    borderColor: "transparent",
-    marginLeft: 10,
-    marginTop: 10,
-    marginBottom: 10,
-    marginRight: 10,
-    height: 40,
-    borderWidth: 0.0,
-    textAlign: "center",
-    fontWeight: "bold"
-  },
   LogOut: {
     borderWidth: 1,
     borderColor: 'rgba(0,0,0,1)',
@@ -559,7 +549,7 @@ const styles = StyleSheet.create({
   distanceView: {
     backgroundColor: "#f4511e",
     marginTop: 20,
-    top: "2%",
+    top: "14%",
     left: 0,
     position: "absolute",
     flex: 1,
@@ -582,5 +572,49 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     flex: 1,
     color: "#fff"
-  }
+  },
+  classSummaryView: {
+    backgroundColor: "#f4511e",
+    marginTop: 20,
+    top: "2%",
+    left: 0,
+    position: "absolute",
+    flex: 1,
+    flexDirection: 'column',
+    alignItems: 'center',
+    justifyContent: 'flex-start',
+    paddingLeft: 10,
+    paddingTop: 5,
+    paddingBottom: 5,
+    paddingRight: 20,
+    borderBottomRightRadius: 50,
+    borderTopRightRadius: 50,
+  },
+  classInfoText: {
+    borderColor: "transparent",
+    height: 'auto',
+    width: 'auto',
+    borderWidth: 0.0,
+    textAlign: "center",
+    fontWeight: "bold",
+    flex: 1,
+    color: "#fff"
+  },
+  classRoomNoView: {
+    backgroundColor: "#f4511e",
+    marginTop: 20,
+    top: "8%",
+    left: 0,
+    position: "absolute",
+    flex: 1,
+    flexDirection: 'column',
+    alignItems: 'center',
+    justifyContent: 'flex-start',
+    paddingLeft: 10,
+    paddingTop: 5,
+    paddingBottom: 5,
+    paddingRight: 20,
+    borderBottomRightRadius: 50,
+    borderTopRightRadius: 50,
+  },
 });
