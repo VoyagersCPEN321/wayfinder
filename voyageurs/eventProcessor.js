@@ -157,3 +157,6 @@ const VANCOUVER_TZ = "America/Vancouver";
 export function convertToLocalDate(timeString) {
   return moment(timeString).tz(VANCOUVER_TZ).toDate();//new Date(timeString);
 }
+module.exports =  { 
+  isHappeningOnDay, isHappeningRightNow, getNextClass
+ }

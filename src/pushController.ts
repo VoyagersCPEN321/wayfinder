@@ -6,8 +6,9 @@ import SCHEDULE from "./models/schedule";
 import { execFile } from 'child_process';
 import * as scheduler from 'node-schedule';
 import EVENT, { IEvent } from "./models/event";
+import * as ep from "../voyageurs/eventProcessor";
 var moment = require('moment');
-var ep = require("../voyageurs/eventProcessor");
+
 
 export class PushController {
   public eventsHappeningToday;
