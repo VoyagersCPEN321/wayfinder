@@ -134,3 +134,7 @@ function getNextClass(events) {
   });
   return nextEvent;
 }
+
+module.exports =  { 
+  isHappeningOnDay, isHappeningRightNow, getNextClass
+ }
