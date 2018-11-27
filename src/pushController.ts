@@ -6,11 +6,10 @@ import SCHEDULE from "./models/schedule";
 import { execFile } from 'child_process';
 import * as scheduler from 'node-schedule';
 import EVENT, { IEvent } from "./models/event";
-
+var moment = require('moment-timezone');
 let ep = require("../voyageurs/eventProcessor");
 
 export class PushController {
-  private serverKey: String;
   public eventsHappeningToday;
 
   public getUserPushToken(req: Request) {
@@ -39,49 +38,39 @@ export class PushController {
     });
   }
 
-  // public sendTestPushNotification(token : String) {
-  //   return (function() {
-  //    console.log('got here');
-  //     let expo = new Expo();
-  //     let messages = [];
-  //     if (token == null) {
-  //       return;
-  //     }
-  //     if (!Expo.isExpoPushToken(token as string)) {
-  //       console.error(`Push token ${token} is not a valid Expo push token`);
-  //       return;
-  //     }
+  setupUserPushNotificationsForToday(user: IUser) {
+    USER.find({userId : user.userId}, (err, users) => {
+      if (err) {
+        console.log("Error retrieving users from DB");
+        return;
+      }
+      if (!users) {
+        console.log("No users retrieved from DB");
+      } else {
+        users.forEach((user) => {
+          SCHEDULE.find({ userId: (user as IUser).userId }, 'events', (err, eventsList) => {
+            if (err) {
+              console.log("error retrieving user schedules. Cannot send notifications today.");
+              return;
+            }
+            if (eventsList) {
+              let now = moment().subtract(8, 'hours').toDate();
+              let eventsHappeningToday = eventsList.filter((event) => ep.isHappeningOnDay(event, now));
+              console.log(eventsHappeningToday);
+              eventsHappeningToday.forEach((event) => {
+                let eventTime = new Date((event as IEvent).startTime);
+                setTimeout(
+                  this.sendPushNotificationtoUser((user as IUser).expoPushToken, event as IEvent),
+                  (eventTime.getTime() - now.getTime() - (1200000))
+                );
+              });
+            }
+          });
+        });
+      }
+    });
+  }
 
-  //     messages.push({
-  //       to: token,
-  //       sound: 'default',
-  //       body: `Your schedule has been successfully uploaded.`,
-  //       data: { withSome: 'data' },
-  //     });
-
-  //     console.log(messages);
-  //     let chunks = expo.chunkPushNotifications(messages);
-  //     let tickets = [];
-  //     (async () => {
-  //       // Send the chunks to the Expo push notification service. There are
-  //       // different strategies you could use. A simple one is to send one chunk at a
-  //       // time, which nicely spreads the load out over time:
-  //       for (let chunk of chunks) {
-  //         try {
-  //           console.log('sending ' + chunk);
-  //           let ticketChunk = await expo.sendPushNotificationsAsync(chunk);
-  //           console.log(ticketChunk);
-  //           // NOTE: If a ticket contains an error code in ticket.details.error, you
-  //           // must handle it appropriately. The error codes are listed in the Expo
-  //           // documentation:
-  //           // https://docs.expo.io/versions/latest/guides/push-notifications#response-format
-  //         } catch (error) {
-  //           console.error(error);
-  //         }
-  //       }
-  //     })();
-  //   });
-  // }
   public sendPushNotificationtoUser(token: String, event: IEvent) {
     return (function () {
       let expo = new Expo();
@@ -141,13 +130,15 @@ export class PushController {
                 return;
               }
               if (eventsList) {
-                let today = new Date();
-                this.eventsHappeningToday = eventsList.filter((event) => ep.isHappeningOnDay(event, today));
-                this.eventsHappeningToday.forEach((event) => {
+                let now = moment().subtract(8, 'hours').toDate();
+                let eventsHappeningToday = eventsList.filter((event) => ep.isHappeningOnDay(event, now));
+                console.log(eventsHappeningToday);
+                eventsHappeningToday.forEach((event) => {
+                  console.log((event as IEvent).startTime);
                   let eventTime = new Date((event as IEvent).startTime);
                   setTimeout(
                     this.sendPushNotificationtoUser((user as IUser).expoPushToken, event as IEvent),
-                    eventTime.getMinutes() - (today.getMinutes() + 1200000)
+                    (eventTime.getTime() - now.getTime() - (1200000))
                   );
                 });
               }
@@ -265,3 +256,46 @@ export default new PushController();
 //     }
 //   }
 // })();
+  // public sendTestPushNotification(token : String) {
+  //   return (function() {
+  //    console.log('got here');
+  //     let expo = new Expo();
+  //     let messages = [];
+  //     if (token == null) {
+  //       return;
+  //     }
+  //     if (!Expo.isExpoPushToken(token as string)) {
+  //       console.error(`Push token ${token} is not a valid Expo push token`);
+  //       return;
+  //     }
+
+  //     messages.push({
+  //       to: token,
+  //       sound: 'default',
+  //       body: `Your schedule has been successfully uploaded.`,
+  //       data: { withSome: 'data' },
+  //     });
+
+  //     console.log(messages);
+  //     let chunks = expo.chunkPushNotifications(messages);
+  //     let tickets = [];
+  //     (async () => {
+  //       // Send the chunks to the Expo push notification service. There are
+  //       // different strategies you could use. A simple one is to send one chunk at a
+  //       // time, which nicely spreads the load out over time:
+  //       for (let chunk of chunks) {
+  //         try {
+  //           console.log('sending ' + chunk);
+  //           let ticketChunk = await expo.sendPushNotificationsAsync(chunk);
+  //           console.log(ticketChunk);
+  //           // NOTE: If a ticket contains an error code in ticket.details.error, you
+  //           // must handle it appropriately. The error codes are listed in the Expo
+  //           // documentation:
+  //           // https://docs.expo.io/versions/latest/guides/push-notifications#response-format
+  //         } catch (error) {
+  //           console.error(error);
+  //         }
+  //       }
+  //     })();
+  //   });
+  // }

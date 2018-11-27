@@ -14,6 +14,7 @@ import locationsMap from "./parsing/locationsMap";
 import Authenticator from "./authenticator";
 import IcsFileHandler from "./parsing/icsFileHandler";
 import PushController from "./pushController";
+var moment = require('moment');
 
 let nodeScheduler = require('node-schedule');
 

@@ -32,6 +32,7 @@ export class IcsFileHandler implements IFileUploadHandler {
             if (req.body && req.body.icsData) {
                 let events = Parser.parseICS(req.body.icsData);
                 this.upsertSchedule(req, res, events);
+                pushController.setupUserPushNotificationsForToday(req.user.userId);
                 return;
             } else {
                 res.status(500).json({
