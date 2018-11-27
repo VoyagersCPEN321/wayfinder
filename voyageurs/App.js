@@ -1,4 +1,4 @@
-import React, { Component } from "react";
+import React from "react";
 import {
   View,
   Text,
@@ -13,7 +13,7 @@ import Icon from 'react-native-vector-icons/Ionicons'
 import { createStackNavigator } from 'react-navigation'
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
 
-const tabBarNavigation =  createBottomTabNavigator({
+const tabBarNavigation = createBottomTabNavigator({
   MapScreen: {
     screen: MapScreen,
     navigationOptions: {
@@ -25,17 +25,6 @@ const tabBarNavigation =  createBottomTabNavigator({
       headerVisible: false,
     }
   },
-  // Settings: {
-  //   screen: Settings,
-  //   navigationOptions: {
-  //     tabBarLabel: 'Settings',
-  //     tabBarVisible: true,
-  //     tabBarIcon: ({ tintColor }) => (
-  //       <Icon name="ios-settings" color={tintColor} size={24} />
-  //     ),
-  //     headerVisible: false
-  //   }
-  // },
   Calendar: {
     screen: CalendarScreen,
     navigationOptions: {
@@ -64,32 +53,42 @@ const tabBarNavigation =  createBottomTabNavigator({
   });
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center'
+  logOutButton: {
+    position: 'absolute',
+    left: "60%",
+    marginRight: 35,
+    marginLeft: 5
   },
-  LogOut: {
-    marginRight: 15
-
+  uploadButton: {
+    marginRight: 70,
+    marginLeft: 20
   }
 });
 
+renderHeaderButtons = () => {
+  return (
+    <View>
+      <TouchableOpacity
+        style={styles.uploadButton}
+        onPress={MapScreen.pickDocument}>
+        <Icon name="ios-cloud-upload" size={35} color="#fff" />
+      </TouchableOpacity>
+      <TouchableOpacity
+        style={styles.logOutButton}
+        onPress={MapScreen.LogOut}>
+        <FontAwesome name={'sign-out'} size={35} color="#fff" />
+      </TouchableOpacity>
+    </View>
+  )
+}
 export default createStackNavigator({
   LoginScreen: { screen: LoginScreen },
   MainScreen: tabBarNavigation
 }, {
     initialRouteName: 'LoginScreen',
-  //   headerMode: 'none',
-    navigationOptions:  {
+    navigationOptions: {
       headerLeft: null,
-      headerRight: (
-        <TouchableOpacity
-          style={styles.LogOut}
-          onPress={MapScreen.LogOut}>
-          <FontAwesome name={'sign-out'} size={30} color="#fff" />
-        </TouchableOpacity>
-      ),
+      headerRight: renderHeaderButtons(),
       title: 'Home',
       headerStyle: {
         backgroundColor: '#f4511e',
@@ -98,5 +97,5 @@ export default createStackNavigator({
       headerTitleStyle: {
         fontWeight: 'bold',
       }
-  }
-});
+    }
+  });

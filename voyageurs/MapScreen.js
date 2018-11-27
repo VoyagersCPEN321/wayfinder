@@ -270,13 +270,12 @@ export default class MapScreen extends Component {
     CONSTANTS.MapScreenRef.actualInstance.goToLoginScreen();
   }
 
-  pickDocument = async () => {
+  static pickDocument = async () => {
     let token = await AsyncStorage.getItem(CONSTANTS.TOKEN_LOCATION);
     if (!token) {
       Alert.alert("Please login!");
-      this.goToLoginScreen();
+      CONSTANTS.MapScreenRef.actualInstance.goToLoginScreen();
     }
-
 
     const document = await Expo.DocumentPicker.getDocumentAsync(
       {
@@ -289,7 +288,7 @@ export default class MapScreen extends Component {
       return;
     }
 
-    this.setState({ loading: true });
+    CONSTANTS.MapScreenRef.actualInstance.setState({ loading: true });
     let fileData = await Expo.FileSystem.readAsStringAsync(document.uri);
     fetch(CONSTANTS.APP_URL + "/schedule", {
       method: 'POST',
@@ -305,15 +304,15 @@ export default class MapScreen extends Component {
       if (res.status == 200) {
         let events = (await res.json()).events;
         await AsyncStorage.setItem(CONSTANTS.SCHEDULE_LOCATION, JSON.stringify(events));
-        this.setState({ events: events.slice() });
+        CONSTANTS.MapScreenRef.actualInstance.setState({ events: events.slice() });
         Alert.alert("File upload successful!");
       } else {
         let message = (await res.json()).message;
         Alert.alert(message);
       }
-      this.setState({ loading: false });
+      CONSTANTS.MapScreenRef.actualInstance.setState({ loading: false });
     }).catch((err) => {
-      this.setState({ loading: false });
+      CONSTANTS.MapScreenRef.actualInstance.setState({ loading: false });
       console.log(err);
       Alert.alert("Oops, something went wrong. Please try again.");
     });
@@ -438,23 +437,11 @@ export default class MapScreen extends Component {
     );
   }
 
-  renderUploadButton = () => {
-    return (<TouchableOpacity
-      style={styles.uploadButton}
-      onPress={this.pickDocument}>
-      <Icon name="ios-cloud-upload" size={30} color="#fff" />
-      <Text style={styles.uploadMessage}>
-        Upload
-            </Text>
-    </TouchableOpacity>);
-  }
-
   render() {
     return (
       <View style={styles.container}>
         {this.renderBusyIndicator()}
         {this.renderMap()}
-        {this.renderUploadButton()}
         {this.renderGoToNextClass()}
         {this.renderMessage()}
         {this.renderWalkingDistance()}
@@ -533,26 +520,6 @@ const styles = StyleSheet.create({
     borderWidth: 0.0,
     textAlign: "center",
     fontWeight: "bold"
-  },
-  uploadButton: {
-    borderWidth: 1,
-    borderColor: 'rgba(0,0,0,1)',
-    alignItems: 'center',
-    justifyContent: 'center',
-    width: 50,
-    height: 50,
-    borderRadius: 40,
-    position: "absolute",
-    top: "7%",
-    right: 10,
-    backgroundColor: "#f4511e"
-  },
-  uploadMessage: {
-    borderColor: "transparent",
-    borderWidth: 0.0,
-    textAlign: "center",
-    fontSize: 8,
-    color: "#fff"
   },
   LogOut: {
     borderWidth: 1,
