@@ -7,7 +7,7 @@ import {
   Text,
   View, Button, Alert, NetInfo,
   TouchableOpacity,
-  Modal, ActivityIndicator
+  Modal, ActivityIndicator, BackHandler,
 } from "react-native";
 import { AsyncStorage } from "react-native";
 import * as CONSTANTS from "./constants";
@@ -54,8 +54,16 @@ export default class MapScreen extends Component {
   }
 
 
+componentWillMount(){
+  BackHandler.addEventListener('hardwareBackPress', function() {
+    BackHandler.exitApp();
+    return true;
+  });
+}
 
-
+componentWillUnmount() {
+  BackHandler.removeEventListener('hardwareBackPress', this.handleBackPress);
+}
 
 
 
