@@ -47,11 +47,18 @@ export default class MapScreen extends Component {
         distance: null
       }
     };
-
+    
     NetInfo.isConnected.addEventListener('connectionChange', this.handleFirstConnectivityChange);
     this.init();
     CONSTANTS.MapScreenRef.actualInstance = this;
   }
+
+
+
+
+
+
+
 
   handleFirstConnectivityChange = (connectionInfo) => {
     console.log('First change, type: ' + connectionInfo.type + ', effectiveType: ' + connectionInfo.effectiveType);
@@ -307,6 +314,8 @@ export default class MapScreen extends Component {
         await AsyncStorage.setItem(CONSTANTS.SCHEDULE_LOCATION, JSON.stringify(events));
         this.setState({ events: events.slice() });
         Alert.alert("File upload successful!");
+        this.setState({ showDirections: false });
+
       } else {
         let message = (await res.json()).message;
         Alert.alert(message);
