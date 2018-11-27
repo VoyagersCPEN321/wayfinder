@@ -7,7 +7,7 @@ import {
   Text,
   View, Button, Alert, NetInfo,
   TouchableOpacity,
-  Modal, ActivityIndicator
+  Modal, ActivityIndicator, BackHandler,
 } from "react-native";
 import { AsyncStorage } from "react-native";
 import * as CONSTANTS from "./constants";
@@ -47,11 +47,26 @@ export default class MapScreen extends Component {
         distance: null
       }
     };
-
+    
     NetInfo.isConnected.addEventListener('connectionChange', this.handleFirstConnectivityChange);
     this.init();
     CONSTANTS.MapScreenRef.actualInstance = this;
   }
+
+
+componentWillMount(){
+  BackHandler.addEventListener('hardwareBackPress', function() {
+    BackHandler.exitApp();
+    return true;
+  });
+}
+
+componentWillUnmount() {
+  BackHandler.removeEventListener('hardwareBackPress', this.handleBackPress);
+}
+
+
+
 
   handleFirstConnectivityChange = (connectionInfo) => {
     console.log('First change, type: ' + connectionInfo.type + ', effectiveType: ' + connectionInfo.effectiveType);
@@ -306,6 +321,8 @@ export default class MapScreen extends Component {
         await AsyncStorage.setItem(CONSTANTS.SCHEDULE_LOCATION, JSON.stringify(events));
         CONSTANTS.MapScreenRef.actualInstance.setState({ events: events.slice() });
         Alert.alert("File upload successful!");
+        this.setState({ showDirections: false });
+
       } else {
         let message = (await res.json()).message;
         Alert.alert(message);
