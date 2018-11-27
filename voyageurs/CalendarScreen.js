@@ -56,19 +56,15 @@ export default class CalendarScreen extends Component {
   }
 
   loadItems(day) {
-    this.fetchSchedule();
     
     let currentDay = new Date();
     let today = new Date();
 
     for (let i = -10; i < 10; i++) {
-      //const time = day.timestamp + i * 24 * 60 * 60 * 1000;
+
       currentDay.setDate(today.getDate() + i);
 
       const strTime = dateFormat(currentDay, "yyyy-mm-dd");
-      //console.log("strTime: " + strTime);
-      //console.log("currentDay: " + currentDay);
-      //console.log("currentDayFormatted: " + dateFormat(currentDay, "yyyy-mm-dd"));
       
       this.state.items[strTime] = [];
 
@@ -78,17 +74,35 @@ export default class CalendarScreen extends Component {
 
       currentDayClasses.forEach((event) => {
 
-        //let month = today.getUTCMonth() + 1; //months from 1-12
-        //let day = today.getUTCDate();
-        //let year = today.getUTCFullYear();
-        //console.log("date: " + year + "-" + month + "-" + day);
-
         let eventStartTime = new Date(event.startTime);
-        let eventStartTimeFormatted = eventStartTime.getUTCHours() + ":" + eventStartTime.getUTCMinutes();
-        //console.log("todays event start: " + eventStartTimeFormatted);
+
+        let eventStartTimeHours = eventStartTime.getUTCHours();
+        if(eventStartTimeHours <= 9){
+          eventStartTimeHours = "0" + eventStartTimeHours;
+        }
+
+        let eventStartTimeMinutes = eventStartTime.getUTCMinutes();
+        if(eventStartTimeMinutes <= 9){
+          eventStartTimeMinutes = "0" + eventStartTimeMinutes;
+        }
+
+        let eventStartTimeFormatted = eventStartTimeHours + ":" + eventStartTimeMinutes;
+
 
         let eventEndTime = new Date(event.endTime);
-        let eventEndTimeFormatted = eventEndTime.getUTCHours() + ":" + eventEndTime.getUTCMinutes();
+
+        let eventEndTimeHours = eventEndTime.getUTCHours();
+        if(eventEndTimeHours <= 9){
+          eventEndTimeHours = "0" + eventEndTimeHours;
+        }
+
+        let eventEndTimeMinutes = eventEndTime.getUTCMinutes();
+
+        if(eventEndTimeMinutes <= 9){
+          eventEndTimeMinutes = "0" + eventEndTimeMinutes;
+        }
+
+        let eventEndTimeFormatted = eventEndTimeHours + ":" + eventEndTimeMinutes;
         //console.log("todays event end: " + eventEndTimeFormatted);
 
         this.state.items[strTime].push({
@@ -100,6 +114,9 @@ export default class CalendarScreen extends Component {
 
       });
 
+      this.state.items[strTime].sort((a, b)=>{
+        return a.time.split(" - ")[0] > b.time.split(" - ")[0];
+      });
 
     }
     
