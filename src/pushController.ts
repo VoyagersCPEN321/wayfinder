@@ -53,6 +53,7 @@ export class PushController {
 
   setupUserPushNotificationsForToday(user: IUser) {
     try {
+      console.log(user);
       USER.findOne({ userId: user.userId }, (err, user) => {
         if (err) {
           console.log("Error retrieving users from DB");
