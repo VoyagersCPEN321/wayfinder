@@ -100,11 +100,7 @@ export class PushController {
 
       messages.push({
         to: token,
-        sound: true,
-        android : {
-          sound : true
-        },
-        vibrate : true,
+        sound: 'default',
         body: `Your class ${event.summary} happening in 20 mins`,
         data: { withSome: 'data' },
       });
