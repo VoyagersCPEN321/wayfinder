@@ -102,7 +102,6 @@ UID:12341539653976599abcd263820
 DTSTART;TZID=America/Vancouver:20190104T100000
 DTEND;TZID=America/Vancouver:20190104T120000
 END:VEVENT` + ICS_FOOTER;
-        console.log(Parser.parseICS(weirdLocationIcs));
         let targetEvent = Parser.parseICS(weirdLocationIcs).filter((event: IEvent) => {
             return event.location === 'MacLeodsssssssssssss'
         });
