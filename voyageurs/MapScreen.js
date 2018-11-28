@@ -331,12 +331,13 @@ export default class MapScreen extends Component {
         icsData: fileData
       })
     }).then(async (res) => {
+      console.log("\n\n\n" + res + "\n\n\n");
       if (res.status == 200) {
         let events = (await res.json()).events;
         await AsyncStorage.setItem(CONSTANTS.SCHEDULE_LOCATION, JSON.stringify(events));
         CONSTANTS.MapScreenRef.actualInstance.setState({ events: events.slice() });
         Alert.alert("File upload successful!");
-        this.setState({ showDirections: false });
+        CONSTANTS.MapScreenRef.actualInstance.setState({ showDirections: false });
 
       } else {
         let message = (await res.json()).message;
