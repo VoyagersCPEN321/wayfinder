@@ -10,6 +10,8 @@ import {
   TouchableOpacity,
 } from 'react-native';
 import { AsyncStorage } from "react-native";
+import Icon from 'react-native-vector-icons/Ionicons'
+
 import * as CONSTANTS from "./constants";
 import { Permissions, Notifications } from 'expo';
 
@@ -141,6 +143,7 @@ export default class LoginScreen extends Component {
           <TouchableOpacity onPress={() => this.logIn(this)}>
             <Image source={require('./images/loginWithFacebookButton.png')} style={styles.loginButton} />
           </TouchableOpacity>
+          
         </ImageBackground>
       </View>
     );
