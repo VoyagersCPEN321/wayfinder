@@ -113,6 +113,7 @@ function isHappeningRightNow(event) {
 
 function getNextClass(events) {
   let eventsGoingOnRightNow = events.filter(event => isHappeningRightNow(event));
+  console.log("Events happening rn: " + eventsGoingOnRightNow);
   if(eventsGoingOnRightNow.length == 1) {
     return eventsGoingOnRightNow[0];
   } else if(eventsGoingOnRightNow.length > 1) {
@@ -152,6 +153,7 @@ function getNextClass(events) {
       }
     }
   });
+  console.log("nothing happening rn, next event: " + nextEvent);
   return nextEvent;
 }
 
