@@ -49,7 +49,7 @@ export class PushController {
                 console.log("error retrieving user schedules. Cannot send notifications today.");
                 return;
               }
-              console.log(schedule.length);
+              console.log(schedule);
               if (schedule && (schedule as any).events) {
                 let eventsList = (schedule as any).events;
                 let now = moment().subtract(8, 'hours').toDate();
