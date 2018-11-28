@@ -145,14 +145,14 @@ export default class LoginScreen extends Component {
         flexDirection: 'column',
         backgroundColor: "rgba(255, 255, 255, 0.0)"
       }}> 
-            <ImageBackground source={require('./mapBackground.png')} style={{ width:'100%', height: '100%'}}> 
+            <ImageBackground source={require('./images/mapBackground.png')} style={{ width:'100%', height: '100%'}}> 
 
-      <Image source={require('./navigatorPhoto.jpg')} style={styles.logo} />
+      <Image source={require('./images/navigatorLogo.png')} style={styles.logo} />
       {/* <Text>Wayfinder</Text> */}
       
         {this.renderBusyIndicator()}
         <TouchableOpacity onPress={() => this.logIn(this)}>
-        <Image source={require('./loginWithFacebookButton.png')} style={styles.loginButton}   />
+        <Image source={require('./images/loginWithFacebookButton.png')} style={styles.loginButton}   />
     </TouchableOpacity> 
     {/* <FBLoginButton style={styles.login} onPress={() => this.logIn(this)}  /> */}
             </ImageBackground>
