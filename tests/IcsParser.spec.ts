@@ -24,7 +24,7 @@ UID:12341539653976599abcd263820
 DTSTART;TZID=America/Vancouver:20190104T100000
 DTEND;TZID=America/Vancouver:20190104T120000
 END:VEVENT` + ICS_FOOTER;
-        expect(() => Parser.parseICS(invalidCal)).to.throw('Invalid ics file,some event(s) have no frequency.');
+        expect(() => Parser.parseICS(invalidCal)).to.throw('Invalid ics file, some event(s) have no frequency.');
     });
 
     it('should return N/A if location is unspecified', () => {
