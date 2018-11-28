@@ -7,11 +7,13 @@ import {
   Modal,
   ImageBackground,
   Image,
+  Text,
   TouchableOpacity,
 } from 'react-native';
 import { AsyncStorage } from "react-native";
 import * as CONSTANTS from "./constants";
 import { Permissions, Notifications } from 'expo';
+import Icon from 'react-native-vector-icons/Ionicons';
 
 const APP_ID = "171287213807359";
 const FB_AUTH = "/auth/fb/";
@@ -135,12 +137,14 @@ export default class LoginScreen extends Component {
   render() {
     return (
       <View style={styles.container}>
-        <ImageBackground source={require('./images/mapBackground.png')} style={{ width: '100%', height: '100%' }}>
+        <ImageBackground source={require('./images/mapBackground.png')} style={{ width: '100%', height: '100%', flex: 1, flexDirection: 'column' }}>
           <Image source={require('./images/navigatorLogo.png')} style={styles.logo} />
           {this.renderBusyIndicator()}
-          <TouchableOpacity onPress={() => this.logIn(this)}>
-            <Image source={require('./images/loginWithFacebookButton.png')} style={styles.loginButton} />
+          <TouchableOpacity onPress={() => this.logIn(this)} style={styles.loginButtonParent}>
+            <Icon style={styles.fbIcon} name={'logo-facebook'} size={30} color="#fff" />
+            <Text style={styles.loginText}> Continue with Facebook</Text> 
           </TouchableOpacity>
+          
         </ImageBackground>
       </View>
     );
@@ -177,11 +181,41 @@ const styles = StyleSheet.create({
     marginTop: 100,
     alignItems: 'center'
   },
-  loginButton: {
-    width: "85%",
-    height: 56,
-    marginLeft: 'auto',
-    marginRight: 'auto',
+  loginButtonParent: {
+    backgroundColor: "#4367b0",
+    marginTop: 20,
+    top: "75%",
+    left: "11%",
+    position: "absolute",
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'flex-start',
+    paddingLeft: 10,
+    paddingTop: 5,
+    paddingBottom: 5,
+    paddingRight: 20,
+    borderBottomRightRadius: 50,
+    borderTopRightRadius: 50,
+    borderTopLeftRadius: 50,
+    borderBottomLeftRadius: 50,
+    width: 'auto'
+  },
+  fbIcon: {
+    marginTop: 5,
+    marginBottom: 5,
+    marginLeft: 5,
+    marginRight: 5
+  },
+  loginText: {
+    borderColor: "transparent",
+    height: 'auto',
+    width: 'auto',
+    borderWidth: 0.0,
+    textAlign: "center",
+    fontWeight: "bold",
+    fontSize: 20,
+    color: "#fff"
   }
 });
 

@@ -273,7 +273,7 @@ export default class MapScreen extends Component {
           apikey={GOOGLE_MAPS_APIKEY}
           mode={"bicycling"}
           strokeWidth={6}
-          strokeColor={"red"}
+          strokeColor={"navy"}
         />
       );
     }
@@ -448,7 +448,7 @@ export default class MapScreen extends Component {
     if (this.state.showDirections && this.state.distanceInfo.time) {
       return (
         <View style={styles.distanceView} >
-          <Icon style={styles.walkIcon} name={'md-walk'} size={30} color="#fff" />
+          <Icon name={'md-walk'} size={30} color="#fff" />
           <Text style={styles.distanceText}>
             {this.state.distanceInfo.time}
           </Text>
@@ -461,7 +461,6 @@ export default class MapScreen extends Component {
     if (this.state.showDirections && this.state.nextClassInfo && this.state.nextClassInfo.summary) {
       return (
         <View style={styles.classSummaryView} >
-          {/* <Icon style={styles.walkIcon} name={'md-walk'} size={30} color="#fff" /> */}
           <Text style={styles.classInfoText}>
             {this.state.nextClassInfo.summary}
           </Text>
@@ -499,7 +498,15 @@ export default class MapScreen extends Component {
       <View style={styles.bottomView}>
         <Button
           title="Get Next Class"
-          onPress={this.getDestination} />
+          onPress={this.getDestination}
+          buttonStyle={{
+            backgroundColor: "rgba(92, 99,216, 1)",
+            width: 300,
+            height: 45,
+            borderColor: "transparent",
+            borderWidth: 0,
+            borderRadius: 5
+          }} />
       </View>
     );
   }
@@ -581,7 +588,7 @@ const styles = StyleSheet.create({
     backgroundColor: "rgba(255, 255, 255, 0.3)"
   },
   classSummaryView: {
-    backgroundColor: "#f4511e",
+    backgroundColor: "#4367b0",
     marginTop: 20,
     top: "2%",
     left: 0,
@@ -608,7 +615,7 @@ const styles = StyleSheet.create({
     color: "#fff"
   },
   classRoomNoView: {
-    backgroundColor: "#f4511e",
+    backgroundColor: "#4367b0",
     marginTop: 20,
     top: "14%",
     left: 0,
@@ -625,7 +632,7 @@ const styles = StyleSheet.create({
     borderTopRightRadius: 50,
   },
   buildingNameView: {
-    backgroundColor: "#f4511e",
+    backgroundColor: "#4367b0",
     marginTop: 20,
     top: "8%",
     left: 0,
@@ -642,7 +649,7 @@ const styles = StyleSheet.create({
     borderTopRightRadius: 50,
   },
   distanceView: {
-    backgroundColor: "#f4511e",
+    backgroundColor: "#4367b0",
     marginTop: 20,
     top: "20%",
     left: 0,
