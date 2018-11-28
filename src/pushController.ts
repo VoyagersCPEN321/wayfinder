@@ -42,6 +42,7 @@ export class PushController {
                                 startTime.getMinutes(), startTime.getSeconds());
     console.log(eventTime);
     let timeOut = (eventTime.getTime() - now.getTime() - (1200000));
+    console.log(timeOut);
     if (timeOut >= 0) {
       console.log("setting timeOut for Event " + event);
       setTimeout(
