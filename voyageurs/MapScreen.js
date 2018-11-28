@@ -260,7 +260,7 @@ export default class MapScreen extends Component {
           apikey={GOOGLE_MAPS_APIKEY}
           mode={"bicycling"}
           strokeWidth={6}
-          strokeColor={"navy"}
+          strokeColor={"red"}
         />
       );
     }
@@ -483,7 +483,7 @@ export default class MapScreen extends Component {
   renderGoToNextClass = () => {
     return (
       <View style={styles.bottomView}>
-          <TouchableOpacity onPress={() => this.logIn(this)} style={styles.goToNextClassParent}>
+          <TouchableOpacity onPress={this.getDestination} style={styles.goToNextClassParent}>
             <Text style={styles.goToNextClassText}> Go To Next Class </Text> 
           </TouchableOpacity>
       </View>
@@ -578,7 +578,7 @@ const styles = StyleSheet.create({
     backgroundColor: "rgba(255, 255, 255, 0.3)"
   },
   classSummaryView: {
-    backgroundColor: "#4367b0",
+    backgroundColor: "#f4511e",
     marginTop: 20,
     top: "2%",
     left: 0,
@@ -605,7 +605,7 @@ const styles = StyleSheet.create({
     color: "#fff"
   },
   classRoomNoView: {
-    backgroundColor: "#4367b0",
+    backgroundColor: "#f4511e",
     marginTop: 20,
     top: "14%",
     left: 0,
@@ -622,7 +622,7 @@ const styles = StyleSheet.create({
     borderTopRightRadius: 50,
   },
   buildingNameView: {
-    backgroundColor: "#4367b0",
+    backgroundColor: "#f4511e",
     marginTop: 20,
     top: "8%",
     left: 0,
@@ -639,7 +639,7 @@ const styles = StyleSheet.create({
     borderTopRightRadius: 50,
   },
   distanceView: {
-    backgroundColor: "#4367b0",
+    backgroundColor: "#f4511e",
     marginTop: 20,
     top: "20%",
     left: 0,
