@@ -448,7 +448,7 @@ export default class MapScreen extends Component {
     if (this.state.showDirections && this.state.distanceInfo.time) {
       return (
         <View style={styles.distanceView} >
-          <Icon style={styles.walkIcon} name={'md-walk'} size={30} color="#fff" />
+          <Icon name={'md-walk'} size={30} color="#fff" />
           <Text style={styles.distanceText}>
             {this.state.distanceInfo.time}
           </Text>
@@ -461,7 +461,6 @@ export default class MapScreen extends Component {
     if (this.state.showDirections && this.state.nextClassInfo && this.state.nextClassInfo.summary) {
       return (
         <View style={styles.classSummaryView} >
-          {/* <Icon style={styles.walkIcon} name={'md-walk'} size={30} color="#fff" /> */}
           <Text style={styles.classInfoText}>
             {this.state.nextClassInfo.summary}
           </Text>
