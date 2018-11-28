@@ -19,7 +19,7 @@ export default class CalendarScreen extends Component {
     super(props);
     this.state = {
       items: {
-        
+        null:null
       },
       events: []
     };
@@ -60,7 +60,7 @@ export default class CalendarScreen extends Component {
     let currentDay = new Date();
     let today = new Date();
 
-    for (let i = -30; i < 31; i++) {
+    for (let i = -20; i < 20; i++) {
 
       currentDay.setDate(today.getDate() + i);
 
@@ -103,11 +103,13 @@ export default class CalendarScreen extends Component {
         }
 
         let eventEndTimeFormatted = eventEndTimeHours + ":" + eventEndTimeMinutes;
+        //console.log("todays event end: " + eventEndTimeFormatted);
 
         this.state.items[strTime].push({
+          //name: 'Class for ' + strTime,
           name: event.summary,
           time: eventStartTimeFormatted + " - " + eventEndTimeFormatted,
-          location: event.building
+          location: event.building  + " " + event.room
         })
 
       });
@@ -224,4 +226,3 @@ const styles = StyleSheet.create({
     paddingTop: 30
   }
 });
-  

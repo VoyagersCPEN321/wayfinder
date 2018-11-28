@@ -91,7 +91,7 @@ export default createStackNavigator({
       headerRight: renderHeaderButtons(),
       title: 'Home',
       headerStyle: {
-        backgroundColor: '#f4511e',
+        backgroundColor: '#4367b0',
       },
       headerTintColor: '#fff',
       headerTitleStyle: {
