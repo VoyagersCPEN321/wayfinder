@@ -93,6 +93,7 @@ function isHappeningRightNow(event) {
 }
 
 function getUpcomingEvents(events) {
+  let currentDate = moment().tz(VANCOUVER_TZ).toDate();
   return events.filter((event) => {
     let startTime = convertToLocalDate(event.startTime);
     return startTime.getUTCHours() >= currentDate.getHours();
