@@ -224,7 +224,7 @@ export default class MapScreen extends Component {
         nextClassInfo: {
           summary: nextEvent.summary,
           room: nextEvent.room,
-          building: nextEvent.building || "MACLEOD"
+          building: nextEvent.building
         }
       });
     }
