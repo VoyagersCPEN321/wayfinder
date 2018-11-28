@@ -31,6 +31,7 @@ function isBeforeDay(a, b) {
 }
 
 function dayToUTCDay(day) {
+  console.log(day);
   switch (day) {
     case "SU": return 0;
     case "MO": return 1;
