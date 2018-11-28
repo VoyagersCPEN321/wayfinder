@@ -26,20 +26,24 @@ export default class MapScreen extends Component {
   constructor(props) {
     super(props);
     this.state = {
+      //current location
       initialPosition: {
         latitude: 0,
         longitude: 0,
         latitudeDelta: 0,
         longitudeDelta: 0,
       },
+      //destination marker
       markerPosition: {
         latitude: 0,
         longitude: 0,
       },
+      //class location
       destination: {
         latitude: 49.2580,
         longitude: -123.253,
       },
+
       showDirections: false,
       nextClassInfo: null,
       loading: true,
@@ -84,6 +88,7 @@ export default class MapScreen extends Component {
     this.props.navigation.navigate("LoginScreen");
   }
 
+  //try to get schedule from local storage. Fetch from server if not available
   init = async () => {
     let events = JSON.parse(await AsyncStorage.getItem(CONSTANTS.SCHEDULE_LOCATION));
     if (events) {
@@ -99,7 +104,7 @@ export default class MapScreen extends Component {
     header: null,
   };
 
-
+  //getting current position for location tracking 
   componentDidMount() {
     navigator.geolocation.getCurrentPosition((position) => {
       var lat = parseFloat(position.coords.latitude);
@@ -125,6 +130,7 @@ export default class MapScreen extends Component {
       }
   }
 
+  //get the destination of the walking path for a route
   getDestination = async () => {
     this.setState({ loading: true });
     try {
@@ -141,6 +147,7 @@ export default class MapScreen extends Component {
     this.setState({ loading: false });
   }
 
+  //retrieves the users schedule from the cloud server
   fetchSchedule = async () => {
     return NetInfo.isConnected.fetch().then(async (isConnected) => {
       if (!isConnected) {
@@ -170,6 +177,7 @@ export default class MapScreen extends Component {
     });
   }
 
+  // takes the response from the cloud server and stores the users schedule locally
   handleResponse = async (response) => {
     if (response.status == 200) {
       await response.json().then(async (schedule) => {
@@ -188,6 +196,7 @@ export default class MapScreen extends Component {
     this.setState({ loading: false });
   }
 
+  //get the next immediate event and it's location
   getToNextClass = async () => {
     let allEvents = this.state.events;
     let today = new Date();
@@ -342,7 +351,6 @@ export default class MapScreen extends Component {
       if (!isConnected) {
         console.log(isConnected);
         Alert.alert("You are not connected to the internet");
-        // this.setState({ loading: false });
       }
       else {
         let origin = this.state.initialPosition;
@@ -351,10 +359,8 @@ export default class MapScreen extends Component {
           method: "GET",
         }).then(this.handleDistanceResponse)
           .catch((error) => {
-
             console.log("Unable to connect to server. Error: " + error);
             Alert.alert("Unable to connect to server. Error: " + error);
-            // this.setState({ loading: false });
           });
       }
     });
