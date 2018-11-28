@@ -24,10 +24,13 @@ export default class CalendarScreen extends Component {
         null:null
       },
       //events from the schedule
-      events: []
+      events: [],
+      lastDayCalled: null,
+      refreshing: false
     };
 
     this.init();
+    CONSTANTS.CalendarScreenRef.actualInstance = this;
   }
 
   static navigationOptions = {
@@ -46,24 +49,41 @@ export default class CalendarScreen extends Component {
   }
 
   render() {
-    return (
-      <Agenda
-        items={this.state.items}
-        loadItemsForMonth={this.loadItems.bind(this)}
-        selected={new Date()}
-        renderItem={this.renderItem.bind(this)}
-        renderEmptyDate={this.renderEmptyDate.bind(this)}
-        rowHasChanged={this.rowHasChanged.bind(this)}
-      />
-    );
+    if(!this.state.refreshing) {
+      return (
+        <Agenda
+          items={this.state.items}
+          loadItemsForMonth={this.loadItems}
+          selected={new Date()}
+          renderItem={this.renderItem.bind(this)}
+          renderEmptyDate={this.renderEmptyDate.bind(this)}
+          rowHasChanged={this.rowHasChanged.bind(this)}
+          refreshing={this.state.refreshing}
+        />
+      );
+    }
+    return null;
   }
 
 
-  loadItems(day) {    
+static updateSchedule = async () => {
+    let calendarScreen = CONSTANTS.CalendarScreenRef.actualInstance;
+    if(calendarScreen && calendarScreen.init) {
+      calendarScreen.setState({ refreshing: true });
+      await calendarScreen.init();
+      let lastDayCalled = calendarScreen.state.lastDayCalled
+      if(lastDayCalled) {
+        calendarScreen.loadItems(lastDayCalled).then(() => {
+          calendarScreen.setState({ refreshing: false });
+        });
+      }
+    }
+  }
 
+  loadItems = async (day) => {
     let currentDay = new Date();
     let today = new Date();
-
+    this.setState({ lastDayCalled: day });
     for (let i = -20; i < 20; i++) {
 
       currentDay.setDate(today.getDate() + i);

@@ -12,6 +12,7 @@ import {
 } from "react-native";
 import { AsyncStorage } from "react-native";
 import * as CONSTANTS from "./constants";
+import CalendarScreen from './CalendarScreen.js';
 import Icon from 'react-native-vector-icons/Ionicons'
 import Expo from 'expo'
 
@@ -43,6 +44,8 @@ export default class MapScreen extends Component {
       showDirections: false,
       nextClassInfo: null,
       loading: true,
+      mapLoaded: false,
+      gotUserLocation: false,
       events: [],
       distanceInfo: {
         time: null,
@@ -114,6 +117,7 @@ export default class MapScreen extends Component {
 
       this.setState({ initialPosition: initialRegion });
       this.setState({ markerPosition: initialRegion });
+      this.setState({ gotUserLocation: true });
     }, (error) => alert(JSON.stringify(error)),
       { enableHighAccuracy: true, maximumAge: 1000 });
 
@@ -321,7 +325,21 @@ export default class MapScreen extends Component {
       if (res.status == 200) {
         let events = (await res.json()).events;
         await AsyncStorage.setItem(CONSTANTS.SCHEDULE_LOCATION, JSON.stringify(events));
-        CONSTANTS.MapScreenRef.actualInstance.setState({ events: events.slice() });
+        CalendarScreen.updateSchedule();
+        // let calendarScreen = CONSTANTS.CalendarScreenRef.actualInstance;
+        // CONSTANTS.MapScreenRef.actualInstance.setState({ events: events.slice() });
+        // if(CONSTANTS.CalendarScreenRef.actualInstance 
+        //   && CONSTANTS.CalendarScreenRef.actualInstance.init) {
+        //     console.log("updating the schedule");
+        //   CONSTANTS.CalendarScreenRef.actualInstance.setState({ refreshing: true });
+        //   await CONSTANTS.CalendarScreenRef.actualInstance.init();
+        //   let lastDayCalled = CONSTANTS.CalendarScreenRef.actualInstance.state.lastDayCalled
+        //   if(lastDayCalled) {
+        //     CONSTANTS.CalendarScreenRef.actualInstance.loadItems(lastDayCalled).then(() => {
+        //       CONSTANTS.CalendarScreenRef.actualInstance.setState({ refreshing: false });
+        //     });
+        //   }
+        // }
         Alert.alert("File upload successful!");
         CONSTANTS.MapScreenRef.actualInstance.setState({ showDirections: false });
 
@@ -396,7 +414,7 @@ export default class MapScreen extends Component {
 
 
   renderBusyIndicator = () => {
-    if (this.state.loading) {
+    if (this.state.loading || !this.state.mapLoaded || !this.gotUserLocation) {
       return (
         <Modal
           visible={this.state.loading}
@@ -416,7 +434,8 @@ export default class MapScreen extends Component {
           style={styles.map}
           region={this.state.initialPosition}
           showUserLocation={true}
-          followsUserLocation={true}  >
+          followsUserLocation={true}
+          onMapReady={()=>{this.setState({ mapLoaded: true})}} >
           <MapView.Marker
             coordinate={this.state.markerPosition}>
             <View style={styles.radius}>
