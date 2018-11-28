@@ -61,6 +61,7 @@ export class PushController {
         if (!users) {
           console.log("No users retrieved from DB");
         } else {
+          console.log("setting up notification for new user");
           users.forEach((user) => {
             SCHEDULE.findOne({ userId: (user as IUser).userId }, (err, schedule) => {
               if (err) {
