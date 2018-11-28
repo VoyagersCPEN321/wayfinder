@@ -44,12 +44,12 @@ export class PushController {
           console.log("No users retrieved from DB");
         } else {
           users.forEach((user) => {
-            SCHEDULE.find({ userId: (user as IUser).userId }, (err, schedule) => {
+            SCHEDULE.findOne({ userId: (user as IUser).userId }, (err, schedule) => {
               if (err) {
                 console.log("error retrieving user schedules. Cannot send notifications today.");
                 return;
               }
-              console.log(schedule);
+              console.log(schedule.length);
               if (schedule && (schedule as any).events) {
                 let eventsList = (schedule as any).events;
                 let now = moment().subtract(8, 'hours').toDate();
@@ -129,7 +129,7 @@ export class PushController {
           } else {
             users.forEach((user) => {
               console.log((user as IUser).name);
-              SCHEDULE.find({ userId: (user as IUser).userId }, (err, schedule) => {
+              SCHEDULE.findOne({ userId: (user as IUser).userId }, (err, schedule) => {
                 if (err) {
                   console.log("error retrieving user schedules. Cannot send notifications today.");
                   return;
