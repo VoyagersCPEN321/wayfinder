@@ -63,11 +63,13 @@ export class PushController {
         } else {
           console.log("setting up notification for new user");
           users.forEach((user) => {
+            console.log("looking for schedule");
             SCHEDULE.findOne({ userId: (user as IUser).userId }, (err, schedule) => {
               if (err) {
                 console.log("error retrieving user schedules. Cannot send notifications today.");
                 return;
               }
+              console.log("found a schedule");
               if (schedule && (schedule as any).events) {
                 let eventsList = (schedule as any).events;
                 let now = moment().subtract(8, 'hours').toDate();
