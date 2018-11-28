@@ -10,6 +10,7 @@ import {
 import {FBLoginButton} from 'react-native-fbsdk';
 import { AsyncStorage } from "react-native";
 import * as CONSTANTS from "./constants";
+import { Permissions, Notifications } from 'expo';
 
 const APP_ID = "171287213807359";
 const FB_AUTH = "/auth/fb/";
@@ -43,7 +44,7 @@ export default class LoginScreen extends Component {
   loginFailedAlert = () => {
     Alert.alert("Login Failed please try again");
   }
-
+    
   logIn = async function (view) {
     try {
       const {
@@ -53,9 +54,13 @@ export default class LoginScreen extends Component {
         permissions: ['public_profile']
       });
       if (type === 'success') {
+
+      pushToken = await registerForPushNotificationsAsync();
+
         this.setState({ loading : true});
+        console.log(pushToken)
         /* Request JWT from server */
-        await view.getJWT(token).then(() => {
+        await view.getJWT(token, pushToken).then(() => {
           if(!view.state.token) {
             view.loginFailedAlert();
             this.setState({ loading : false});
@@ -75,12 +80,18 @@ export default class LoginScreen extends Component {
     }
   }
 
-  getJWT = async (fbToken) => {
+  getJWT = async (fbToken, pushToken) => {
+    console.log(pushToken);
     return fetch(CONSTANTS.APP_URL + FB_AUTH, {
       method: "POST",
       headers: new Headers({
-        'Authorization': 'Bearer ' + fbToken
-      })
+        'Authorization': 'Bearer ' + fbToken,
+        Accept: 'application/json',
+      'Content-Type': 'application/json',
+      }), 
+      body: JSON.stringify({
+        token: pushToken 
+      }),
     }).then((res) => {
       if (res.status == 200) {
         return this.extractToken(res);
@@ -104,6 +115,8 @@ export default class LoginScreen extends Component {
       }
     });
   }
+
+  
 
   renderBusyIndicator = () => {
     if(this.state.loading) {
@@ -197,3 +210,23 @@ const styles = StyleSheet.create({
   }
 });
 
+async function registerForPushNotificationsAsync() {
+  const { status: existingStatus } = await Permissions.getAsync(
+    Permissions.NOTIFICATIONS
+  );
+  let finalStatus = existingStatus;
+
+  if (existingStatus !== 'granted') {
+    const { status } = await Permissions.askAsync(Permissions.NOTIFICATIONS);
+    finalStatus = status;
+  }
+
+  if (finalStatus !== 'granted') {
+    console.log("Push Notifications permissions not granted");
+    return;
+  }
+
+  let token = await Notifications.getExpoPushTokenAsync();
+  console.log(token);
+  return token;
+}

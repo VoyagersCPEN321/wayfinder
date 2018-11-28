@@ -31,6 +31,7 @@ function isBeforeDay(a, b) {
 }
 
 function dayToUTCDay(day) {
+  console.log(day);
   switch (day) {
     case "SU": return 0;
     case "MO": return 1;
@@ -43,7 +44,7 @@ function dayToUTCDay(day) {
   }
 }
 
-export function isHappeningOnDay(event, date) {
+function isHappeningOnDay(event, date) {
   if (!event) {
     throw new Error("null event");
   }
@@ -63,6 +64,7 @@ export function isHappeningOnDay(event, date) {
     }
     return false;
   }
+  console.log("before calling UTC... "+ event);
 
   /* We know the event is within its ocurrence range */
   if (date.getDay() !== dayToUTCDay(event.day)) {
@@ -109,8 +111,9 @@ function isHappeningRightNow(event) {
   return false;
 }
 
-export function getNextClass(events) {
+function getNextClass(events) {
   let eventsGoingOnRightNow = events.filter(event => isHappeningRightNow(event));
+  console.log("Events happening rn: " + eventsGoingOnRightNow);
   if(eventsGoingOnRightNow.length == 1) {
     return eventsGoingOnRightNow[0];
   } else if(eventsGoingOnRightNow.length > 1) {
@@ -150,10 +153,15 @@ export function getNextClass(events) {
       }
     }
   });
+  console.log("nothing happening rn, next event: " + nextEvent);
   return nextEvent;
 }
 
 const VANCOUVER_TZ = "America/Vancouver";
-export function convertToLocalDate(timeString) {
+function convertToLocalDate(timeString) {
   return moment(timeString).tz(VANCOUVER_TZ).toDate();//new Date(timeString);
 }
+module.exports =  { 
+  isHappeningOnDay, isHappeningRightNow,
+  getNextClass, convertToLocalDate
+ }

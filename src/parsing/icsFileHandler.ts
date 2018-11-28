@@ -2,6 +2,8 @@ import { Request, Response } from "express";
 import Parser from "./IcsParser";
 import SCHEDULE from "../models/schedule";
 import * as mongoose from "mongoose";
+import USER, { IUser } from "../models/user";
+import pushController from "../pushController";
 
 export interface IFileUploadHandler {
     handleRequest(req: Request, res: Response);
@@ -14,6 +16,19 @@ export class IcsFileHandler implements IFileUploadHandler {
             return;
         }
         try {
+            // USER.findOne({ userId: req.user.userId }, (err, user) => {
+            //     if (err) {
+            //         console.log("Error retrieving users from DB");
+            //         return;
+            //     }
+            //     if (!user) {
+            //         console.log("No users retrieved from DB");
+            //     } else {
+            //         console.log(user);
+            //         console.log("sent push notifications");
+            //         setTimeout(pushController.sendTestPushNotification((user as IUser).expoPushToken), 10000);
+            //     }
+            // });
             if (req.body && req.body.icsData) {
                 let events = Parser.parseICS(req.body.icsData);
                 this.upsertSchedule(req, res, events);
@@ -44,6 +59,7 @@ export class IcsFileHandler implements IFileUploadHandler {
                 });
                 newSchedule.save().then((doc) => {
                     res.status(200).json({ events: events });
+                    pushController.setupUserPushNotificationsForToday(req.user.userId);
                     return;
                 }, (err) => this.handleError(err, res));
             } else {
@@ -58,6 +74,7 @@ export class IcsFileHandler implements IFileUploadHandler {
                             return;
                         } else if (doc) {
                             res.status(200).json({ events: events });
+                            pushController.setupUserPushNotificationsForToday(req.user.userId);
                             return;
                         } else {
                             res.status(500).json({
