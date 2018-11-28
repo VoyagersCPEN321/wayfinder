@@ -24,7 +24,8 @@ const tabBarNavigation = createBottomTabNavigator({
         activeTintColor: 'white',
         inactiveTintColor: '#4367b0',
         activeBackgroundColor: '#4367b0',
-        inactiveBackgroundColor: 'white'
+        inactiveBackgroundColor: 'white',
+        tabBarTestID: 'MapTab'
       },
       headerVisible: false,
     }
@@ -41,7 +42,8 @@ const tabBarNavigation = createBottomTabNavigator({
         activeTintColor: 'white',
         inactiveTintColor: '#4367b0',
         activeBackgroundColor: '#4367b0',
-        inactiveBackgroundColor: 'white'
+        inactiveBackgroundColor: 'white',
+        tabBarTestID: 'CalendarTab'
       },
       headerVisible: false
     }
@@ -80,12 +82,14 @@ renderHeaderButtons = () => {
     <View>
       <TouchableOpacity
         style={styles.uploadButton}
-        onPress={MapScreen.pickDocument}>
+        onPress={MapScreen.pickDocument}
+        testID="UploadButton" >
         <FontAwesome name="cloud-upload" size={35} color="#fff" />
       </TouchableOpacity>
       <TouchableOpacity
         style={styles.logOutButton}
-        onPress={MapScreen.LogOut}>
+        onPress={MapScreen.LogOut}
+        testID="LogOutButton">
         <FontAwesome name={'sign-out'} size={35} color="#fff" />
       </TouchableOpacity>
     </View>

@@ -26,6 +26,7 @@ export default class LoginScreen extends Component {
   }
 
   init = async () => {
+    // Retrieving the token from our storage
     let token = await AsyncStorage.getItem(CONSTANTS.TOKEN_LOCATION);
     if (token) {
       this.gotoMapScreen();
@@ -35,6 +36,8 @@ export default class LoginScreen extends Component {
     }
   }
 
+  // This Just sets up the header on the login screen with a title
+  // and placing it onto the left side.
   static navigationOptions = {
     title: 'UBC WayFinder',
     headerRight: null
@@ -68,12 +71,13 @@ export default class LoginScreen extends Component {
             view.loginFailedAlert();
             this.setState({ loading: false });
           } else {
-            // TODO delete
             view.gotoMapScreen();
             this.setState({ loading: false });
           }
         });
-      } else {
+      } 
+      /* error checking */
+      else {
         view.loginFailedAlert();
         this.setState({ loading: false });
       }
@@ -83,6 +87,7 @@ export default class LoginScreen extends Component {
     }
   }
 
+  //Getting the Server authentication Token 
   getJWT = async (fbToken, pushToken) => {
     console.log(pushToken);
     return fetch(CONSTANTS.APP_URL + FB_AUTH, {
@@ -105,6 +110,9 @@ export default class LoginScreen extends Component {
     });
   }
 
+
+// Extracts the token from the body of the JWT ( JSON WEB TOKEN ) that is returned
+// from the  erver call in GetJWT
   extractToken = async (res) => {
     return res.json().then(async (jsonBody) => {
       if (!jsonBody.token) {
@@ -119,7 +127,9 @@ export default class LoginScreen extends Component {
     });
   }
 
-
+// The Busy indicator on the login screen blocks the user
+// from clicking on Login button, and allows the authentication page to 
+// do its job. 
   renderBusyIndicator = () => {
     if (this.state.loading) {
       return (
@@ -134,13 +144,16 @@ export default class LoginScreen extends Component {
     return null;
   }
 
+
   render() {
     return (
       <View style={styles.container}>
+      {/* rendering the background Image */}
         <ImageBackground source={require('./images/mapBackground.png')} style={{ width: '100%', height: '100%', flex: 1, flexDirection: 'column' }}>
           <Image source={require('./images/navigatorLogo.png')} style={styles.logo} />
           {this.renderBusyIndicator()}
-          <TouchableOpacity onPress={() => this.logIn(this)} style={styles.loginButtonParent}>
+          {/* rendering the login button */}
+          <TouchableOpacity onPress={() => this.logIn(this)} style={styles.loginButtonParent} testID="loginButton">
             <Icon style={styles.fbIcon} name={'logo-facebook'} size={30} color="#fff" />
             <Text style={styles.loginText}> Continue with Facebook</Text> 
           </TouchableOpacity>

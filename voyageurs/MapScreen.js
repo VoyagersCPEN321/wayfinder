@@ -20,7 +20,7 @@ var ep = require("./eventProcessor.js");
 const LATITUDEDELTA = 0.0122;
 const LONGITUDEDELTA = .0221;
 const GOOGLE_MAPS_APIKEY = "AIzaSyCvW9JtKWa3ftr-FD-bGsFqR9EBQMlGn7k";
-Geocoder.init(GOOGLE_MAPS_APIKEY); // use a valid API key
+Geocoder.init(GOOGLE_MAPS_APIKEY); 
 const NOT_AVAILABLE = "N/A";
 export default class MapScreen extends Component {
   constructor(props) {
@@ -253,6 +253,7 @@ export default class MapScreen extends Component {
     if (this.state.showDirections) {
       return (
         <MapView.Marker
+          testID="destination"
           coordinate={this.state.destination}>
         </MapView.Marker>
       );
@@ -264,6 +265,8 @@ export default class MapScreen extends Component {
     if (this.state.showDirections) {
       return (
         <MapViewDirections
+        // sets up the parameters for the Google Directions API call
+          testID="directions" 
           origin={this.state.markerPosition}
           destination={this.state.destination}
           apikey={GOOGLE_MAPS_APIKEY}
@@ -424,7 +427,9 @@ export default class MapScreen extends Component {
           showUserLocation={true}
           followsUserLocation={true}  >
           <MapView.Marker
-            coordinate={this.state.markerPosition}>
+            coordinate={this.state.markerPosition}
+            testID="currentLocation"
+            >
             <View style={styles.radius}>
               <View style={styles.marker} />
             </View>
@@ -489,7 +494,7 @@ export default class MapScreen extends Component {
   renderGoToNextClass = () => {
     return (
       <View style={styles.bottomView}>
-          <TouchableOpacity onPress={this.getDestination} style={styles.goToNextClassParent}>
+          <TouchableOpacity onPress={this.getDestination} style={styles.goToNextClassParent} testID="getNextClassButton">
             <Text style={styles.goToNextClassText}> Go To Next Class </Text> 
           </TouchableOpacity>
       </View>

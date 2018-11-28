@@ -118,7 +118,7 @@ export default class CalendarScreen extends Component {
 
       //sorts all events on this date from earliest to latest for display
       this.state.items[strTime].sort((a, b)=>{
-        return a.time.split(" - ")[0] > b.time.split(" - ")[0];
+        return   b.time.split(" - ")[0] > a.time.split(" - ")[0] ? -1 : 1 ;
       });
 
     }
