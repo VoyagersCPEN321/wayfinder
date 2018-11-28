@@ -49,7 +49,6 @@ export class PushController {
                 console.log("error retrieving user schedules. Cannot send notifications today.");
                 return;
               }
-              console.log(schedule);
               if (schedule && (schedule as any).events) {
                 let eventsList = (schedule as any).events;
                 let now = moment().subtract(8, 'hours').toDate();
@@ -61,10 +60,12 @@ export class PushController {
                                               now.getDate(), startTime.getHours(),
                                                 startTime.getMinutes(), startTime.getSeconds());
                   console.log(eventTime);
-                  setTimeout(
-                    PushController.sendPushNotificationtoUser((user as IUser).expoPushToken, event as IEvent),
-                    (eventTime.getTime() - now.getTime() - (1200000))
-                  );
+                  let timeOut = (eventTime.getTime() - now.getTime() - (1200000));
+                  if (timeOut >= 0) {
+                    setTimeout(
+                      PushController.sendPushNotificationtoUser((user as IUser).expoPushToken, event as IEvent),
+                      timeOut);
+                  }
                 });
               }
             });
@@ -150,10 +151,12 @@ export class PushController {
                                               now.getDate(), startTime.getHours(),
                                                 startTime.getMinutes(), startTime.getSeconds());
                     console.log(eventTime);
-                    setTimeout(
-                      PushController.sendPushNotificationtoUser((user as IUser).expoPushToken, event as IEvent),
-                      (eventTime.getTime() - now.getTime() - (1200000))
-                    );
+                    let timeOut = (eventTime.getTime() - now.getTime() - (1200000));
+                    if (timeOut >= 0) {
+                      setTimeout(
+                        PushController.sendPushNotificationtoUser((user as IUser).expoPushToken, event as IEvent),
+                        timeOut);
+                    }
                   });
                 }
               });

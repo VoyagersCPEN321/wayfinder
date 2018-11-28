@@ -273,7 +273,7 @@ export default class MapScreen extends Component {
           apikey={GOOGLE_MAPS_APIKEY}
           mode={"bicycling"}
           strokeWidth={6}
-          strokeColor={"red"}
+          strokeColor={"navy"}
         />
       );
     }
@@ -498,7 +498,15 @@ export default class MapScreen extends Component {
       <View style={styles.bottomView}>
         <Button
           title="Get Next Class"
-          onPress={this.getDestination} />
+          onPress={this.getDestination}
+          buttonStyle={{
+            backgroundColor: "rgba(92, 99,216, 1)",
+            width: 300,
+            height: 45,
+            borderColor: "transparent",
+            borderWidth: 0,
+            borderRadius: 5
+          }} />
       </View>
     );
   }
@@ -580,7 +588,7 @@ const styles = StyleSheet.create({
     backgroundColor: "rgba(255, 255, 255, 0.3)"
   },
   classSummaryView: {
-    backgroundColor: "#f4511e",
+    backgroundColor: "#4367b0",
     marginTop: 20,
     top: "2%",
     left: 0,
@@ -607,7 +615,7 @@ const styles = StyleSheet.create({
     color: "#fff"
   },
   classRoomNoView: {
-    backgroundColor: "#f4511e",
+    backgroundColor: "#4367b0",
     marginTop: 20,
     top: "14%",
     left: 0,
@@ -624,7 +632,7 @@ const styles = StyleSheet.create({
     borderTopRightRadius: 50,
   },
   buildingNameView: {
-    backgroundColor: "#f4511e",
+    backgroundColor: "#4367b0",
     marginTop: 20,
     top: "8%",
     left: 0,
@@ -641,7 +649,7 @@ const styles = StyleSheet.create({
     borderTopRightRadius: 50,
   },
   distanceView: {
-    backgroundColor: "#f4511e",
+    backgroundColor: "#4367b0",
     marginTop: 20,
     top: "20%",
     left: 0,

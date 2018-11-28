@@ -11,6 +11,8 @@ import {
   TouchableOpacity,
 } from 'react-native';
 import { AsyncStorage } from "react-native";
+import Icon from 'react-native-vector-icons/Ionicons'
+
 import * as CONSTANTS from "./constants";
 import { Permissions, Notifications } from 'expo';
 import Icon from 'react-native-vector-icons/Ionicons';
@@ -144,6 +146,7 @@ export default class LoginScreen extends Component {
             <Icon style={styles.fbIcon} name={'logo-facebook'} size={30} color="#fff" />
             <Text style={styles.loginText}> Continue with Facebook</Text> 
           </TouchableOpacity>
+          
         </ImageBackground>
       </View>
     );
