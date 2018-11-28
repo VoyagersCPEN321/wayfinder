@@ -144,7 +144,6 @@ export default class LoginScreen extends Component {
             <Icon style={styles.fbIcon} name={'logo-facebook'} size={30} color="#fff" />
             <Text style={styles.loginText}> Continue with Facebook</Text> 
           </TouchableOpacity>
-          
         </ImageBackground>
       </View>
     );
