@@ -43,7 +43,6 @@ export class PushController {
         if (!users) {
           console.log("No users retrieved from DB");
         } else {
-          let parentScope = this;
           users.forEach((user) => {
             SCHEDULE.findOne({ userId: (user as IUser).userId }, (err, schedule) => {
               if (err) {
@@ -59,7 +58,7 @@ export class PushController {
                 eventsHappeningToday.forEach((event) => {
                   let eventTime = new Date((event as IEvent).startTime.toString());
                   setTimeout(
-                    parentScope.sendPushNotificationtoUser((user as IUser).expoPushToken, event as IEvent),
+                    PushController.sendPushNotificationtoUser((user as IUser).expoPushToken, event as IEvent),
                     (eventTime.getTime() - now.getTime() - (1200000))
                   );
                 });
@@ -74,7 +73,7 @@ export class PushController {
     }
   }
 
-  public sendPushNotificationtoUser(token: String, event: IEvent) {
+  static sendPushNotificationtoUser(token: String, event: IEvent) {
     return (function () {
       let expo = new Expo();
       let messages = [];
@@ -128,7 +127,6 @@ export class PushController {
           if (!users) {
             console.log("No users retrieved from DB");
           } else {
-            let parentScope = this;
             users.forEach((user) => {
               console.log((user as IUser).name);
               SCHEDULE.findOne({ userId: (user as IUser).userId }, (err, schedule) => {
@@ -146,7 +144,7 @@ export class PushController {
                     console.log((event as IEvent).startTime);
                     let eventTime = new Date((event as IEvent).startTime.toString());
                     setTimeout(
-                      parentScope.sendPushNotificationtoUser((user as IUser).expoPushToken, event as IEvent),
+                      PushController.sendPushNotificationtoUser((user as IUser).expoPushToken, event as IEvent),
                       (eventTime.getTime() - now.getTime() - (1200000))
                     );
                   });
