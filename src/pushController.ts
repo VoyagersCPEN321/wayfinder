@@ -53,16 +53,15 @@ export class PushController {
 
   setupUserPushNotificationsForToday(user: IUser) {
     try {
-      USER.find({ userId: user.userId }, (err, users) => {
+      USER.findOne({ userId: user.userId }, (err, user) => {
         if (err) {
           console.log("Error retrieving users from DB");
           return;
         }
-        if (!users) {
-          console.log("No users retrieved from DB");
+        if (!user) {
+          console.log("This user does not exist");
         } else {
           console.log("setting up notification for new user");
-          users.forEach((user) => {
             console.log("looking for schedule");
             SCHEDULE.findOne({ userId: (user as IUser).userId }, (err, schedule) => {
               if (err) {
@@ -78,7 +77,6 @@ export class PushController {
                 eventsHappeningToday.forEach( (event) => PushController.setUpTimeOutForEvent(event, now, (user as IUser).expoPushToken));
               }
             });
-          });
         }
       });
     } catch (err) {
