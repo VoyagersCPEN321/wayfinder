@@ -5,8 +5,9 @@ import {
   Alert, 
   StyleSheet,
   ActivityIndicator,
-  Modal
+  Modal, ImageBackground, Image,TouchableOpacity, Text
 } from 'react-native';
+import {FBLoginButton} from 'react-native-fbsdk';
 import { AsyncStorage } from "react-native";
 import * as CONSTANTS from "./constants";
 
@@ -122,19 +123,35 @@ export default class LoginScreen extends Component {
     return (
       <View style={{
         width: "100%",
-        height: 80,
-        justifyContent: "center",
-        alignItems: "center",
-        position: "absolute",
-        bottom: 300,
+        height: "100%",
+        // justifyContent: "center",
+        // alignItems: "center",
+        // position: "absolute",
+        // // bottom: 300,
+        flex: 1,
+        flexDirection: 'column',
         backgroundColor: "rgba(255, 255, 255, 0.0)"
-      }}>
+      }}> 
+            <ImageBackground source={require('./mapBackground.png')} style={{ width:'100%', height: '100%'}}> 
+
+      <Image source={require('./navigatorPhoto.jpg')} style={styles.logo} />
+      {/* <Text>Wayfinder</Text> */}
+      
         {this.renderBusyIndicator()}
-        <Button testID="loginButton" 
-          title="Login-with Facebook"
+        <TouchableOpacity onPress={() => this.logIn(this)}>
+        <Image source={require('./loginWithFacebookButton.png')} style={styles.loginButton}   />
+    </TouchableOpacity> 
+    {/* <FBLoginButton style={styles.login} onPress={() => this.logIn(this)}  /> */}
+            </ImageBackground>
+
+        {/* <Button testID="loginButton" 
+          title="Login-with Facebook" style={styles.loginButton}
           onPress={() => this.logIn(this)}
-        />
+        /> */}
       </View>
+    
+              
+
     );
   }
 }
@@ -154,6 +171,29 @@ const styles = StyleSheet.create({
     height: '100%',
     width: '100%',
     backgroundColor: "rgba(255, 255, 255, 0.5)"
+  },
+  logo: {
+    //left: 50, right: 0, top: 50, bottom: 0, /*position: "absolute"*/
+    marginBottom: 150,
+    marginLeft: 'auto',
+    marginRight: 'auto',
+    marginTop: 100,
+    alignItems: 'center'
+  },
+  loginButton: {
+    width: "85%",
+    height: 56,
+    marginLeft: 'auto',
+    marginRight: 'auto',
+    // width: "100%",
+    // height: 80,
+    // justifyContent: "center",
+    // alignItems: "center",
+    // position: "absolute",
+    // //top: 
+    // bottom: 300,
+    // backgroundColor: "rgba(255, 255, 255, 0.0)"
+    //{left: 100,  bottom: 20,  position: "absolute"}
   }
 });
 
