@@ -58,7 +58,8 @@ export class IcsFileHandler implements IFileUploadHandler {
                     events: events
                 });
                 newSchedule.save().then((doc) => {
-                    pushController.setupUserPushNotificationsForToday(req.user.userId);
+                    console.log("got here! 1");
+                    pushController.setupUserPushNotificationsForToday(req.user);
                     res.status(200).json({ events: events });
                     return;
                 }, (err) => this.handleError(err, res));
@@ -73,7 +74,8 @@ export class IcsFileHandler implements IFileUploadHandler {
                             this.handleError(err, res);
                             return;
                         } else if (doc) {
-                            pushController.setupUserPushNotificationsForToday(req.user.userId);
+                            console.log("got here! 2");
+                            pushController.setupUserPushNotificationsForToday(req.user);
                             res.status(200).json({ events: events });
                             return;
                         } else {

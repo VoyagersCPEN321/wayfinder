@@ -42,6 +42,7 @@ export class PushController {
                                 startTime.getMinutes(), startTime.getSeconds());
     console.log(eventTime);
     let timeOut = (eventTime.getTime() - now.getTime() - (1200000));
+    console.log(timeOut);
     if (timeOut >= 0) {
       console.log("setting timeOut for Event " + event);
       setTimeout(
@@ -52,20 +53,23 @@ export class PushController {
 
   setupUserPushNotificationsForToday(user: IUser) {
     try {
-      USER.find({ userId: user.userId }, (err, users) => {
+      console.log(user);
+      USER.findOne({ userId: user.userId }, (err, user) => {
         if (err) {
           console.log("Error retrieving users from DB");
           return;
         }
-        if (!users) {
-          console.log("No users retrieved from DB");
+        if (!user) {
+          console.log("This user does not exist");
         } else {
-          users.forEach((user) => {
+          console.log("setting up notification for new user");
+            console.log("looking for schedule");
             SCHEDULE.findOne({ userId: (user as IUser).userId }, (err, schedule) => {
               if (err) {
                 console.log("error retrieving user schedules. Cannot send notifications today.");
                 return;
               }
+              console.log("found a schedule");
               if (schedule && (schedule as any).events) {
                 let eventsList = (schedule as any).events;
                 let now = moment().subtract(8, 'hours').toDate();
@@ -74,7 +78,6 @@ export class PushController {
                 eventsHappeningToday.forEach( (event) => PushController.setUpTimeOutForEvent(event, now, (user as IUser).expoPushToken));
               }
             });
-          });
         }
       });
     } catch (err) {
