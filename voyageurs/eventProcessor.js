@@ -64,7 +64,7 @@ function isHappeningOnDay(event, date) {
     }
     return false;
   }
-
+  console.log(event);
   /* We know the event is within its ocurrence range */
   if (date.getDay() !== dayToUTCDay(event.day)) {
     if(event.summary == "CPSC 320 202") {
