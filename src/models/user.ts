@@ -6,6 +6,7 @@ export interface IUser extends mongoose.Document {
     userId: mongoose.Schema.Types.ObjectId;
     facebookId: string;
     name: string;
+    expoPushToken: String;
 }
 
 class User {
@@ -16,7 +17,8 @@ class User {
         this.userSchema = new mongoose.Schema({
             userId: mongoose.Schema.Types.ObjectId,
             facebookId: { type: String, unique: true },
-            name: String
+            name: String,
+            expoPushToken: { type: String, default: null },
         });
 
         this.USER = mongoose.model<IUser>('User', this.userSchema);

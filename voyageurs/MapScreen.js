@@ -3,6 +3,7 @@ import MapView from "react-native-maps";
 import Geocoder from "react-native-geocoding";
 import MapViewDirections from "react-native-maps-directions";
 import {
+  Platform,
   StyleSheet,
   Text,
   View, Button, Alert, NetInfo,
@@ -11,7 +12,8 @@ import {
 } from "react-native";
 import { AsyncStorage } from "react-native";
 import * as CONSTANTS from "./constants";
-import Icon from 'react-native-vector-icons/Ionicons';
+import Icon from 'react-native-vector-icons/Ionicons'
+import Expo from 'expo'
 
 var ep = require("./eventProcessor.js");
 
@@ -97,6 +99,20 @@ export default class MapScreen extends Component {
     header: null,
   };
 
+  _createNotificationAsync = (eventSummarys) => {
+    return function(){
+      Expo.Notifications.presentLocalNotificationAsync({
+        title: 'Reminder',
+        body: 'Next class : ' + eventSummary + 'is in 20 minutes.' ,
+        android: {
+          priority: 'max',
+          vibrate: [0, 250, 250, 250],
+          color: '#FF0000',
+        },
+      });
+    }
+  } 
+
   componentDidMount() {
     navigator.geolocation.getCurrentPosition((position) => {
       var lat = parseFloat(position.coords.latitude);
@@ -113,6 +129,13 @@ export default class MapScreen extends Component {
       this.setState({ markerPosition: initialRegion });
     }, (error) => alert(JSON.stringify(error)),
       { enableHighAccuracy: true, maximumAge: 1000 });
+
+      if (Platform.OS === 'android') {
+        Expo.Notifications.createChannelAndroidAsync('chat-messages', {
+          name: 'Chat messages',
+          sound: true,
+        });
+      }
   }
 
   getDestination = async () => {

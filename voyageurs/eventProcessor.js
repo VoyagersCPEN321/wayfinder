@@ -43,7 +43,7 @@ function dayToUTCDay(day) {
   }
 }
 
-export function isHappeningOnDay(event, date) {
+function isHappeningOnDay(event, date) {
   if (!event) {
     throw new Error("null event");
   }
@@ -157,3 +157,6 @@ const VANCOUVER_TZ = "America/Vancouver";
 export function convertToLocalDate(timeString) {
   return moment(timeString).tz(VANCOUVER_TZ).toDate();//new Date(timeString);
 }
+module.exports =  { 
+  isHappeningOnDay, isHappeningRightNow, getNextClass
+ }
