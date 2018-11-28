@@ -23,7 +23,7 @@ export class PushController {
           $set: { expoPushToken: req.body.token },
         }, (err, res) => {
           if (err) {
-            this.handleError(err);
+            console.log(err);
             return;
           } else {
             console.log(`pushToken ${req.body.token} has been successfully uploaded.`);
@@ -31,9 +31,6 @@ export class PushController {
         });
       console.log("updated token");
     }
-  }
-  private handleError(err: any) {
-    console.log(err);
   }
 
   setupUserPushNotificationsForToday(user: IUser) {
@@ -69,7 +66,7 @@ export class PushController {
         }
       });
     } catch (err) {
-      this.handleError(err);
+      console.log(err);
       return;
     }
   }
@@ -137,7 +134,7 @@ export class PushController {
                 }
                 if (schedule && (schedule as any).events) {
                   let eventsList = (schedule as any).events;
-                  let now = moment().toDate();
+                  let now = moment().subtract(8, 'hours' ).toDate();
                   let eventsHappeningToday = eventsList.filter((event) => ep.isHappeningOnDay(event, now));
                   console.log("No. of events happening today: " + eventsHappeningToday.length);
                   eventsHappeningToday.forEach((event) => {
