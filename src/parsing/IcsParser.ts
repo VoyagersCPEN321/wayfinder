@@ -37,7 +37,7 @@ export class IcsParser {
     }
 
     /**
-     *  Extracts the important info through the ical library. 
+     *  Extracts the important info through the ical library.
      */
     private getMainComponent(icsContent: string): any {
         try {
@@ -120,7 +120,7 @@ export class IcsParser {
     private LOCATION_SPECIFIER: string = ", Vancouver, BC, CA";
     /**
      * Extracts the building from the location string
-     * in the ics file and then attempts to transform it 
+     * in the ics file and then attempts to transform it
      * into an actual address.
      */
     private getAddress(location: string): string {
