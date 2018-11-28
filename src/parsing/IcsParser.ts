@@ -107,6 +107,9 @@ export class IcsParser {
     private LOCATION_SPECIFIER: string = ", Vancouver, BC, CA";
     private getAddress(location: string): string {
         let buildingName = this.getBuildingName(location);
+        if (!buildingName) {
+            return location || this.NOT_AVAILABLE;
+        }
         // TODO transform building name
         let actualAddress: string = locationsMap.getAddress(buildingName);
         if (actualAddress) {
