@@ -134,7 +134,7 @@ export class PushController {
                 }
                 if (schedule && (schedule as any).events) {
                   let eventsList = (schedule as any).events;
-                  let now = moment().subtract(8, 'hours' ).toDate();
+                  let now = moment().subtract(8, 'hours').toDate();
                   let eventsHappeningToday = eventsList.filter((event) => ep.isHappeningOnDay(event, now));
                   console.log("No. of events happening today: " + eventsHappeningToday.length);
                   eventsHappeningToday.forEach((event) => {
