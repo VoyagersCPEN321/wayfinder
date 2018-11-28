@@ -23,7 +23,7 @@ export class PushController {
           $set: { expoPushToken: req.body.token },
         }, (err, res) => {
           if (err) {
-            this.handleError(err, res);
+            this.handleError(err);
             return;
           } else {
             console.log(`pushToken ${req.body.token} has been successfully uploaded.`);
@@ -32,44 +32,46 @@ export class PushController {
       console.log("updated token");
     }
   }
-  private handleError(err: any, res: Response) {
+  private handleError(err: any) {
     console.log(err);
-    res.status(500).json({
-      message: err ? err.message : "Unexpected Error, please try again"
-    });
   }
 
   setupUserPushNotificationsForToday(user: IUser) {
-    USER.find({userId : user.userId}, (err, users) => {
-      if (err) {
-        console.log("Error retrieving users from DB");
-        return;
-      }
-      if (!users) {
-        console.log("No users retrieved from DB");
-      } else {
-        users.forEach((user) => {
-          SCHEDULE.find({ userId: (user as IUser).userId }, 'events', (err, eventsList) => {
-            if (err) {
-              console.log("error retrieving user schedules. Cannot send notifications today.");
-              return;
-            }
-            if (eventsList) {
-              let now = moment().subtract(8, 'hours').toDate();
-              let eventsHappeningToday = eventsList.filter((event) => ep.isHappeningOnDay(event, now));
-              console.log(eventsHappeningToday);
-              eventsHappeningToday.forEach((event) => {
-                let eventTime = new Date((event as IEvent).startTime.toString());
-                setTimeout(
-                  this.sendPushNotificationtoUser((user as IUser).expoPushToken, event as IEvent),
-                  (eventTime.getTime() - now.getTime() - (1200000))
-                );
-              });
-            }
+    try {
+      USER.find({ userId: user.userId }, (err, users) => {
+        if (err) {
+          console.log("Error retrieving users from DB");
+          return;
+        }
+        if (!users) {
+          console.log("No users retrieved from DB");
+        } else {
+          users.forEach((user) => {
+            SCHEDULE.find({ userId: (user as IUser).userId }, 'events', (err, eventsList) => {
+              if (err) {
+                console.log("error retrieving user schedules. Cannot send notifications today.");
+                return;
+              }
+              if (eventsList) {
+                let now = moment().subtract(8, 'hours').toDate();
+                let eventsHappeningToday = eventsList.filter((event) => ep.isHappeningOnDay(event, now));
+                console.log(eventsHappeningToday);
+                eventsHappeningToday.forEach((event) => {
+                  let eventTime = new Date((event as IEvent).startTime.toString());
+                  setTimeout(
+                    this.sendPushNotificationtoUser((user as IUser).expoPushToken, event as IEvent),
+                    (eventTime.getTime() - now.getTime() - (1200000))
+                  );
+                });
+              }
+            });
           });
-        });
-      }
-    });
+        }
+      });
+    } catch (err) {
+      this.handleError(err);
+      return;
+    }
   }
 
   public sendPushNotificationtoUser(token: String, event: IEvent) {
@@ -114,47 +116,51 @@ export class PushController {
     });
   }
 
+
   public setupDailyPushNotifications() {
     return function () {
-      USER.find({}, (err, users) => {
-        if (err) {
-          console.log("Error retrieving users from DB");
-          return;
-        }
-        if (!users) {
-          console.log("No users retrieved from DB");
-        } else {
-          users.forEach((user) => {
-            console.log(user);
-            SCHEDULE.find({ userId: (user as IUser).userId }, 'events', (err, eventsList) => {
-              if (err) {
-                console.log("error retrieving user schedules. Cannot send notifications today.");
-                return;
-              }
-              if (eventsList) {
-                let now = moment().toDate();
-                console.log(now);
-                console.log(eventsList);
-                let eventsHappeningToday = eventsList.filter((event) => ep.isHappeningOnDay(event, now));
-                console.log(eventsHappeningToday);
-                console.log(eventsHappeningToday);
-                eventsHappeningToday.forEach((event) => {
-                  console.log((event as IEvent).startTime);
-                  let eventTime = new Date((event as IEvent).startTime.toString());
-                  setTimeout(
-                    this.sendPushNotificationtoUser((user as IUser).expoPushToken, event as IEvent),
-                    (eventTime.getTime() - now.getTime() - (1200000))
-                  );
-                });
-              }
+      try {
+        USER.find({}, (err, users) => {
+          if (err) {
+            console.log("Error retrieving users from DB");
+            return;
+          }
+          if (!users) {
+            console.log("No users retrieved from DB");
+          } else {
+            users.forEach((user) => {
+              console.log((user as IUser).name);
+              SCHEDULE.find({ userId: (user as IUser).userId }, 'events', (err, eventsList) => {
+                if (err) {
+                  console.log("error retrieving user schedules. Cannot send notifications today.");
+                  return;
+                }
+                if (eventsList) {
+                  let now = moment().toDate();
+                  console.log(now);
+                  console.log(eventsList);
+                  let eventsHappeningToday = eventsList.filter((event) => ep.isHappeningOnDay(event, now));
+                  console.log(eventsHappeningToday);
+                  eventsHappeningToday.forEach((event) => {
+                    console.log((event as IEvent).startTime);
+                    let eventTime = new Date((event as IEvent).startTime.toString());
+                    setTimeout(
+                      this.sendPushNotificationtoUser((user as IUser).expoPushToken, event as IEvent),
+                      (eventTime.getTime() - now.getTime() - (1200000))
+                    );
+                  });
+                }
+              });
             });
-          });
-        }
-      });
+          }
+        });
+      } catch (err) {
+        this.handleError(err);
+        return;
+      }
     };
   }
 }
-
 export default new PushController();
 
 // // Create a new Expo SDK client

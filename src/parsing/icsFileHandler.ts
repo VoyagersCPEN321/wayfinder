@@ -32,7 +32,6 @@ export class IcsFileHandler implements IFileUploadHandler {
             if (req.body && req.body.icsData) {
                 let events = Parser.parseICS(req.body.icsData);
                 this.upsertSchedule(req, res, events);
-                pushController.setupUserPushNotificationsForToday(req.user.userId);
                 return;
             } else {
                 res.status(500).json({
@@ -60,6 +59,7 @@ export class IcsFileHandler implements IFileUploadHandler {
                 });
                 newSchedule.save().then((doc) => {
                     res.status(200).json({ events: events });
+                    pushController.setupUserPushNotificationsForToday(req.user.userId);
                     return;
                 }, (err) => this.handleError(err, res));
             } else {
@@ -74,6 +74,7 @@ export class IcsFileHandler implements IFileUploadHandler {
                             return;
                         } else if (doc) {
                             res.status(200).json({ events: events });
+                            pushController.setupUserPushNotificationsForToday(req.user.userId);
                             return;
                         } else {
                             res.status(500).json({
