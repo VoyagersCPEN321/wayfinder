@@ -1,8 +1,9 @@
 import React, { Component } from "react";
-import MapView, { Callout } from "react-native-maps";
+import MapView from "react-native-maps";
 import Geocoder from "react-native-geocoding";
 import MapViewDirections from "react-native-maps-directions";
 import {
+  Platform,
   StyleSheet,
   Text,
   View, Button, Alert, NetInfo,
@@ -11,7 +12,8 @@ import {
 } from "react-native";
 import { AsyncStorage } from "react-native";
 import * as CONSTANTS from "./constants";
-import Icon from 'react-native-vector-icons/Ionicons';
+import Icon from 'react-native-vector-icons/Ionicons'
+import Expo from 'expo'
 
 var ep = require("./eventProcessor.js");
 
@@ -47,23 +49,23 @@ export default class MapScreen extends Component {
         distance: null
       }
     };
-    
+
     NetInfo.isConnected.addEventListener('connectionChange', this.handleFirstConnectivityChange);
     this.init();
     CONSTANTS.MapScreenRef.actualInstance = this;
   }
 
 
-componentWillMount(){
-  BackHandler.addEventListener('hardwareBackPress', function() {
-    BackHandler.exitApp();
-    return true;
-  });
-}
+  componentWillMount() {
+    BackHandler.addEventListener('hardwareBackPress', function () {
+      BackHandler.exitApp();
+      return true;
+    });
+  }
 
-componentWillUnmount() {
-  BackHandler.removeEventListener('hardwareBackPress', this.handleBackPress);
-}
+  componentWillUnmount() {
+    BackHandler.removeEventListener('hardwareBackPress', this.handleBackPress);
+  }
 
 
 
@@ -97,6 +99,20 @@ componentWillUnmount() {
     header: null,
   };
 
+  _createNotificationAsync = (eventSummarys) => {
+    return function(){
+      Expo.Notifications.presentLocalNotificationAsync({
+        title: 'Reminder',
+        body: 'Next class : ' + eventSummary + 'is in 20 minutes.' ,
+        android: {
+          priority: 'max',
+          vibrate: [0, 250, 250, 250],
+          color: '#FF0000',
+        },
+      });
+    }
+  } 
+
   componentDidMount() {
     navigator.geolocation.getCurrentPosition((position) => {
       var lat = parseFloat(position.coords.latitude);
@@ -113,6 +129,13 @@ componentWillUnmount() {
       this.setState({ markerPosition: initialRegion });
     }, (error) => alert(JSON.stringify(error)),
       { enableHighAccuracy: true, maximumAge: 1000 });
+
+      if (Platform.OS === 'android') {
+        Expo.Notifications.createChannelAndroidAsync('chat-messages', {
+          name: 'Chat messages',
+          sound: true,
+        });
+      }
   }
 
   getDestination = async () => {
@@ -213,14 +236,20 @@ componentWillUnmount() {
           }
 
           this.setState({ destination: destinationResult });
-          this.setState({ showDirections: true });
-          this.setState({ nextClassInfo: nextEvent.summary + ", " + nextEvent.room });
         })
         .catch((error) => {
           Alert.alert("Unexpected geocoder communication error, please try again.");
           return;
         });
       await this.getDistance();
+      this.setState({ showDirections: true });
+      this.setState({
+        nextClassInfo: {
+          summary: nextEvent.summary,
+          room: nextEvent.room,
+          building: nextEvent.building
+        }
+      });
     }
   }
 
@@ -247,20 +276,6 @@ componentWillUnmount() {
           strokeColor={"red"}
         />
       );
-    }
-    return null;
-  }
-
-  renderMessage = () => {
-    if (this.state.showDirections) {
-      return (
-        <View style={styles.calloutView} >
-          <Callout>
-            <Text style={styles.calloutMessage}>
-              {this.state.nextClassInfo}
-            </Text>
-          </Callout>
-        </View>);
     }
     return null;
   }
@@ -335,8 +350,6 @@ componentWillUnmount() {
     });
   }
 
-
-
   getDistance = async () => {
     return NetInfo.isConnected.fetch().then(async (isConnected) => {
       if (!isConnected) {
@@ -351,7 +364,7 @@ componentWillUnmount() {
           method: "GET",
         }).then(this.handleDistanceResponse)
           .catch((error) => {
-            
+
             console.log("Unable to connect to server. Error: " + error);
             Alert.alert("Unable to connect to server. Error: " + error);
             // this.setState({ loading: false });
@@ -364,7 +377,6 @@ componentWillUnmount() {
     if (response.status == 200) {
       await response.json().then((Distance) => {
         if (this.validateDistance(Distance)) {
-          console.log(Distance);
           this.setState({
             distanceInfo:
             {
@@ -380,17 +392,17 @@ componentWillUnmount() {
 
   validateDistance = (Distance) => {
     return Distance && Distance.rows &&
-     Distance.rows.length && Distance.rows[0]
-     && Distance.rows[0].elements 
-     && Distance.rows[0].elements.length 
-     && Distance.rows[0].elements[0].duration
-     && Distance.rows[0].elements[0].distance;
+      Distance.rows.length && Distance.rows[0]
+      && Distance.rows[0].elements
+      && Distance.rows[0].elements.length
+      && Distance.rows[0].elements[0].duration
+      && Distance.rows[0].elements[0].distance;
   }
 
   formatDistanceCall = (origin, destination) => {
     console.log("origin = " + origin.latitude + " \n");
     console.log("destination = " + destination.latitude + " \n");
-    return "https://maps.googleapis.com/maps/api/distancematrix/json?" + "mode=walking&"+  "origins=" + origin.latitude + "," +
+    return "https://maps.googleapis.com/maps/api/distancematrix/json?" + "mode=walking&" + "origins=" + origin.latitude + "," +
       + origin.longitude + "&destinations=" + destination.latitude + "," + destination.longitude + "&key=" + GOOGLE_MAPS_APIKEY;
   }
 
@@ -438,12 +450,50 @@ componentWillUnmount() {
         <View style={styles.distanceView} >
           <Icon style={styles.walkIcon} name={'md-walk'} size={30} color="#fff" />
           <Text style={styles.distanceText}>
-              {this.state.distanceInfo.time}
+            {this.state.distanceInfo.time}
           </Text>
         </View>);
     }
     return null;
   }
+
+  renderClassSummary() {
+    if (this.state.showDirections && this.state.nextClassInfo && this.state.nextClassInfo.summary) {
+      return (
+        <View style={styles.classSummaryView} >
+          {/* <Icon style={styles.walkIcon} name={'md-walk'} size={30} color="#fff" /> */}
+          <Text style={styles.classInfoText}>
+            {this.state.nextClassInfo.summary}
+          </Text>
+        </View>);
+    }
+    return null;
+  }
+
+  renderBuildingName() {
+    if (this.state.showDirections && this.state.nextClassInfo && this.state.nextClassInfo.building) {
+      return (
+        <View style={styles.buildingNameView} >
+          <Text style={styles.classInfoText}>
+            {this.state.nextClassInfo.building}
+          </Text>
+        </View>);
+    }
+    return null;
+  }
+
+  renderClassRoomNo() {
+    if (this.state.showDirections && this.state.nextClassInfo && this.state.nextClassInfo.room) {
+      return (
+        <View style={styles.classRoomNoView} >
+          <Text style={styles.classInfoText}>
+            {this.state.nextClassInfo.room}
+          </Text>
+        </View>);
+    }
+    return null;
+  }
+
   renderGoToNextClass = () => {
     return (
       <View style={styles.bottomView}>
@@ -460,7 +510,9 @@ componentWillUnmount() {
         {this.renderBusyIndicator()}
         {this.renderMap()}
         {this.renderGoToNextClass()}
-        {this.renderMessage()}
+        {this.renderClassSummary()}
+        {this.renderBuildingName()}
+        {this.renderClassRoomNo()}
         {this.renderWalkingDistance()}
       </View>
     );
@@ -510,34 +562,6 @@ const styles = StyleSheet.create({
     bottom: 10,
     backgroundColor: "rgba(255, 255, 255, 0.0)"
   },
-  calloutView: {
-    backgroundColor: "rgba(255, 255, 255, 0.65)",
-    borderRadius: 10,
-    width: "75%",
-    height: 40,
-    marginLeft: "30%",
-    marginRight: "30%",
-    marginTop: 20,
-    top: "5%",
-    position: "absolute"
-  },
-  callout: {
-    flexDirection: "row",
-    marginLeft: "auto",
-    alignSelf: "center",
-    width: "100%"
-  },
-  calloutMessage: {
-    borderColor: "transparent",
-    marginLeft: 10,
-    marginTop: 10,
-    marginBottom: 10,
-    marginRight: 10,
-    height: 40,
-    borderWidth: 0.0,
-    textAlign: "center",
-    fontWeight: "bold"
-  },
   LogOut: {
     borderWidth: 1,
     borderColor: 'rgba(0,0,0,1)',
@@ -556,10 +580,71 @@ const styles = StyleSheet.create({
     width: '100%',
     backgroundColor: "rgba(255, 255, 255, 0.3)"
   },
-  distanceView: {
+  classSummaryView: {
     backgroundColor: "#f4511e",
     marginTop: 20,
     top: "2%",
+    left: 0,
+    position: "absolute",
+    flex: 1,
+    flexDirection: 'column',
+    alignItems: 'center',
+    justifyContent: 'flex-start',
+    paddingLeft: 10,
+    paddingTop: 5,
+    paddingBottom: 5,
+    paddingRight: 20,
+    borderBottomRightRadius: 50,
+    borderTopRightRadius: 50,
+  },
+  classInfoText: {
+    borderColor: "transparent",
+    height: 'auto',
+    width: 'auto',
+    borderWidth: 0.0,
+    textAlign: "center",
+    fontWeight: "bold",
+    flex: 1,
+    color: "#fff"
+  },
+  classRoomNoView: {
+    backgroundColor: "#f4511e",
+    marginTop: 20,
+    top: "14%",
+    left: 0,
+    position: "absolute",
+    flex: 1,
+    flexDirection: 'column',
+    alignItems: 'center',
+    justifyContent: 'flex-start',
+    paddingLeft: 10,
+    paddingTop: 5,
+    paddingBottom: 5,
+    paddingRight: 20,
+    borderBottomRightRadius: 50,
+    borderTopRightRadius: 50,
+  },
+  buildingNameView: {
+    backgroundColor: "#f4511e",
+    marginTop: 20,
+    top: "8%",
+    left: 0,
+    position: "absolute",
+    flex: 1,
+    flexDirection: 'column',
+    alignItems: 'center',
+    justifyContent: 'flex-start',
+    paddingLeft: 10,
+    paddingTop: 5,
+    paddingBottom: 5,
+    paddingRight: 20,
+    borderBottomRightRadius: 50,
+    borderTopRightRadius: 50,
+  },
+  distanceView: {
+    backgroundColor: "#f4511e",
+    marginTop: 20,
+    top: "20%",
     left: 0,
     position: "absolute",
     flex: 1,
@@ -582,5 +667,5 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     flex: 1,
     color: "#fff"
-  }
+  },
 });
