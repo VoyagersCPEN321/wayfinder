@@ -125,14 +125,18 @@ export class PushController {
           console.log("No users retrieved from DB");
         } else {
           users.forEach((user) => {
+            console.log(user);
             SCHEDULE.find({ userId: (user as IUser).userId }, 'events', (err, eventsList) => {
               if (err) {
                 console.log("error retrieving user schedules. Cannot send notifications today.");
                 return;
               }
               if (eventsList) {
-                let now = moment().subtract(8, 'hours').toDate();
+                let now = moment().toDate();
+                console.log(now);
+                console.log(eventsList);
                 let eventsHappeningToday = eventsList.filter((event) => ep.isHappeningOnDay(event, now));
+                console.log(eventsHappeningToday);
                 console.log(eventsHappeningToday);
                 eventsHappeningToday.forEach((event) => {
                   console.log((event as IEvent).startTime);
