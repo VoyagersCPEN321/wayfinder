@@ -1,13 +1,14 @@
-import React, {Component} from 'react';
-import { 
+import React, { Component } from 'react';
+import {
   View,
-  Button,
-  Alert, 
+  Alert,
   StyleSheet,
   ActivityIndicator,
-  Modal, ImageBackground, Image,TouchableOpacity, Text
+  Modal,
+  ImageBackground,
+  Image,
+  TouchableOpacity,
 } from 'react-native';
-import {FBLoginButton} from 'react-native-fbsdk';
 import { AsyncStorage } from "react-native";
 import * as CONSTANTS from "./constants";
 import { Permissions, Notifications } from 'expo';
@@ -26,9 +27,9 @@ export default class LoginScreen extends Component {
     let token = await AsyncStorage.getItem(CONSTANTS.TOKEN_LOCATION);
     if (token) {
       this.gotoMapScreen();
-      this.setState({ loading : false});
+      this.setState({ loading: false });
     } else {
-      this.setState({ loading : false});
+      this.setState({ loading: false });
     }
   }
 
@@ -38,13 +39,13 @@ export default class LoginScreen extends Component {
   };
 
   gotoMapScreen = () => {
-   this.props.navigation.navigate('MainScreen');
+    this.props.navigation.navigate('MainScreen');
   }
 
   loginFailedAlert = () => {
     Alert.alert("Login Failed please try again");
   }
-    
+
   logIn = async function (view) {
     try {
       const {
@@ -55,28 +56,28 @@ export default class LoginScreen extends Component {
       });
       if (type === 'success') {
 
-      pushToken = await registerForPushNotificationsAsync();
+        pushToken = await registerForPushNotificationsAsync();
 
-        this.setState({ loading : true});
+        this.setState({ loading: true });
         console.log(pushToken)
         /* Request JWT from server */
         await view.getJWT(token, pushToken).then(() => {
-          if(!view.state.token) {
+          if (!view.state.token) {
             view.loginFailedAlert();
-            this.setState({ loading : false});
+            this.setState({ loading: false });
           } else {
             // TODO delete
             view.gotoMapScreen();
-            this.setState({ loading : false});
+            this.setState({ loading: false });
           }
         });
       } else {
         view.loginFailedAlert();
-        this.setState({ loading : false});
+        this.setState({ loading: false });
       }
     } catch (e) {
       alert(`Facebook Login Error: ` + e);
-      this.setState({ loading : false});
+      this.setState({ loading: false });
     }
   }
 
@@ -87,10 +88,10 @@ export default class LoginScreen extends Component {
       headers: new Headers({
         'Authorization': 'Bearer ' + fbToken,
         Accept: 'application/json',
-      'Content-Type': 'application/json',
-      }), 
+        'Content-Type': 'application/json',
+      }),
       body: JSON.stringify({
-        token: pushToken 
+        token: pushToken
       }),
     }).then((res) => {
       if (res.status == 200) {
@@ -103,7 +104,7 @@ export default class LoginScreen extends Component {
   }
 
   extractToken = async (res) => {
-    return res.json().then( async (jsonBody) => {
+    return res.json().then(async (jsonBody) => {
       if (!jsonBody.token) {
         this.loginFailedAlert();
         console.log("Failed here at .json getJWT");
@@ -116,60 +117,44 @@ export default class LoginScreen extends Component {
     });
   }
 
-  
 
   renderBusyIndicator = () => {
-    if(this.state.loading) {
+    if (this.state.loading) {
       return (
-      <Modal 
-        visible={this.state.loading}
-        transparent={true}
-        animationType={'none'}
-        onRequestClose = {() => {}}>
-          <ActivityIndicator animating={this.state.loading} size="large" style={styles.busyIndicator}/>
-      </Modal>);
+        <Modal
+          visible={this.state.loading}
+          transparent={true}
+          animationType={'none'}
+          onRequestClose={() => { }}>
+          <ActivityIndicator animating={this.state.loading} size="large" style={styles.busyIndicator} />
+        </Modal>);
     }
     return null;
   }
 
   render() {
     return (
-      <View style={{
-        width: "100%",
-        height: "100%",
-        // justifyContent: "center",
-        // alignItems: "center",
-        // position: "absolute",
-        // // bottom: 300,
-        flex: 1,
-        flexDirection: 'column',
-        backgroundColor: "rgba(255, 255, 255, 0.0)"
-      }}> 
-            <ImageBackground source={require('./images/mapBackground.png')} style={{ width:'100%', height: '100%'}}> 
-
-      <Image source={require('./images/navigatorLogo.png')} style={styles.logo} />
-      {/* <Text>Wayfinder</Text> */}
-      
-        {this.renderBusyIndicator()}
-        <TouchableOpacity onPress={() => this.logIn(this)}>
-        <Image source={require('./images/loginWithFacebookButton.png')} style={styles.loginButton}   />
-    </TouchableOpacity> 
-    {/* <FBLoginButton style={styles.login} onPress={() => this.logIn(this)}  /> */}
-            </ImageBackground>
-
-        {/* <Button testID="loginButton" 
-          title="Login-with Facebook" style={styles.loginButton}
-          onPress={() => this.logIn(this)}
-        /> */}
+      <View style={styles.container}>
+        <ImageBackground source={require('./images/mapBackground.png')} style={{ width: '100%', height: '100%' }}>
+          <Image source={require('./images/navigatorLogo.png')} style={styles.logo} />
+          {this.renderBusyIndicator()}
+          <TouchableOpacity onPress={() => this.logIn(this)}>
+            <Image source={require('./images/loginWithFacebookButton.png')} style={styles.loginButton} />
+          </TouchableOpacity>
+        </ImageBackground>
       </View>
-    
-              
-
     );
   }
 }
 
 const styles = StyleSheet.create({
+  container:{
+    width: "100%",
+    height: "100%",
+    flex: 1,
+    flexDirection: 'column',
+    backgroundColor: "rgba(255, 255, 255, 0.0)"
+  },
   indicator: {
     flex: 1,
     alignItems: 'center',
@@ -186,7 +171,6 @@ const styles = StyleSheet.create({
     backgroundColor: "rgba(255, 255, 255, 0.5)"
   },
   logo: {
-    //left: 50, right: 0, top: 50, bottom: 0, /*position: "absolute"*/
     marginBottom: 150,
     marginLeft: 'auto',
     marginRight: 'auto',
@@ -198,15 +182,6 @@ const styles = StyleSheet.create({
     height: 56,
     marginLeft: 'auto',
     marginRight: 'auto',
-    // width: "100%",
-    // height: 80,
-    // justifyContent: "center",
-    // alignItems: "center",
-    // position: "absolute",
-    // //top: 
-    // bottom: 300,
-    // backgroundColor: "rgba(255, 255, 255, 0.0)"
-    //{left: 100,  bottom: 20,  position: "absolute"}
   }
 });
 

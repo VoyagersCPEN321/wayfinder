@@ -1,10 +1,8 @@
 import React from "react";
 import {
   View,
-  Text,
   StyleSheet, TouchableOpacity,
 } from "react-native";
-
 import MapScreen from './MapScreen.js';
 import CalendarScreen from './CalendarScreen.js';
 import LoginScreen from './LoginScreen.js'
