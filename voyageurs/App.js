@@ -20,6 +20,12 @@ const tabBarNavigation = createBottomTabNavigator({
       tabBarIcon: ({ tintColor }) => (
         <Icon name="ios-map" color={tintColor} size={24} />
       ),
+      tabBarOptions: {
+        activeTintColor: 'white',
+        inactiveTintColor: '#4367b0',
+        activeBackgroundColor: '#4367b0',
+        inactiveBackgroundColor: 'white'
+      },
       headerVisible: false,
     }
   },
@@ -31,6 +37,12 @@ const tabBarNavigation = createBottomTabNavigator({
       tabBarIcon: ({ tintColor }) => (
         <Icon name="ios-calendar" color={tintColor} size={24} />
       ),
+      tabBarOptions: {
+        activeTintColor: 'white',
+        inactiveTintColor: '#4367b0',
+        activeBackgroundColor: '#4367b0',
+        inactiveBackgroundColor: 'white'
+      },
       headerVisible: false
     }
   }
@@ -96,4 +108,5 @@ export default createStackNavigator({
         fontWeight: 'bold',
       }
     }
+    
   });
