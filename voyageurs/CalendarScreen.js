@@ -3,7 +3,6 @@ import {
   View,
   Text,
   StyleSheet,
-  Button,
   AsyncStorage,
   Alert
 } from "react-native";
@@ -18,9 +17,13 @@ export default class CalendarScreen extends Component {
   constructor(props) {
     super(props);
     this.state = {
+      //event items that will be displayed in the calendar
+      // map from string to array of events
+      // eg. '2018-11-23': [{name: 'CPEN 311', time: '12:30 - 2:00', location: "McLeod 202"}]
       items: {
         null:null
       },
+      //events from the schedule
       events: []
     };
 
@@ -31,6 +34,7 @@ export default class CalendarScreen extends Component {
     title: 'Calendar'
   };
 
+  //retrieve the schedule from storage and add it to state or call fetch if it's not present
   init = async () => {
     let events = JSON.parse(await AsyncStorage.getItem(CONSTANTS.SCHEDULE_LOCATION));
     if (events) {
@@ -63,19 +67,19 @@ export default class CalendarScreen extends Component {
     for (let i = -20; i < 20; i++) {
 
       currentDay.setDate(today.getDate() + i);
-
       const strTime = dateFormat(currentDay, "yyyy-mm-dd");
       
+      //current date string mapped to array of events in state
       this.state.items[strTime] = [];
-
       let allEvents = this.state.events;
-
       var currentDayClasses = allEvents.filter((event) => ep.isHappeningOnDay(event, currentDay));
 
       currentDayClasses.forEach((event) => {
 
         let eventStartTime = new Date(event.startTime);
 
+        //this is for assembling the class start times and end times that will 
+        //be displayed in calendar entries
         let eventStartTimeHours = eventStartTime.getUTCHours();
         if(eventStartTimeHours <= 9){
           eventStartTimeHours = "0" + eventStartTimeHours;
@@ -87,7 +91,6 @@ export default class CalendarScreen extends Component {
         }
 
         let eventStartTimeFormatted = eventStartTimeHours + ":" + eventStartTimeMinutes;
-
 
         let eventEndTime = new Date(event.endTime);
 
@@ -103,10 +106,9 @@ export default class CalendarScreen extends Component {
         }
 
         let eventEndTimeFormatted = eventEndTimeHours + ":" + eventEndTimeMinutes;
-        //console.log("todays event end: " + eventEndTimeFormatted);
 
+        //add the assembled calendar event to the current date
         this.state.items[strTime].push({
-          //name: 'Class for ' + strTime,
           name: event.summary,
           time: eventStartTimeFormatted + " - " + eventEndTimeFormatted,
           location: event.building  + " " + event.room
@@ -114,12 +116,15 @@ export default class CalendarScreen extends Component {
 
       });
 
+      //sorts all events on this date from earliest to latest for display
       this.state.items[strTime].sort((a, b)=>{
         return a.time.split(" - ")[0] > b.time.split(" - ")[0];
       });
 
     }
     
+    //handles when a day is pressed on the calendar and there are not any classes 
+    // displayed. It is filled with a placeholder event on that day
     const emptyTime = day.timestamp;
     const emptyStrTime = this.timeToString(emptyTime);
     if (!this.state.items[emptyStrTime]) {
@@ -138,6 +143,7 @@ export default class CalendarScreen extends Component {
     });
   }
 
+  //display a class event with its information
   renderItem(item) {
     return (
       <View style={[styles.item, {height: item.height}]}>
@@ -156,11 +162,13 @@ export default class CalendarScreen extends Component {
     return r1.name !== r2.name;
   }
 
+  //used for the key values in the events object in state
   timeToString(time) {
     const date = new Date(time);
     return date.toISOString().split('T')[0];
   }
-
+  
+  //retrieves the users schedule from the cloud server
   fetchSchedule = async () => {
     return NetInfo.isConnected.fetch().then(async (isConnected) => {
       if (!isConnected) {
@@ -190,6 +198,7 @@ export default class CalendarScreen extends Component {
     });
   }
 
+  // takes the response from the cloud server and stores the users schedule locally
   handleResponse = async (response) => {
     if (response.status == 200) {
       await response.json().then(async (schedule) => {
@@ -206,9 +215,7 @@ export default class CalendarScreen extends Component {
       Alert.alert("Unexpected Error please try again.");
     }
     this.setState({ loading: false });
-
   }
-
 } 
 
 const styles = StyleSheet.create({
