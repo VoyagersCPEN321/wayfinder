@@ -19,8 +19,7 @@ export default class CalendarScreen extends Component {
     super(props);
     this.state = {
       items: {
-        '2018-11-23': [{name: 'CPEN 311', time: '12:30 - 2:00', location: "McLeod 202"},
-                       {name: 'ELEC 221', time: '3:30 - 5:00', location: "Kaiser 451"}]
+        
       },
       events: []
     };
@@ -61,7 +60,7 @@ export default class CalendarScreen extends Component {
     let currentDay = new Date();
     let today = new Date();
 
-    for (let i = -10; i < 10; i++) {
+    for (let i = -30; i < 31; i++) {
 
       currentDay.setDate(today.getDate() + i);
 
@@ -104,13 +103,11 @@ export default class CalendarScreen extends Component {
         }
 
         let eventEndTimeFormatted = eventEndTimeHours + ":" + eventEndTimeMinutes;
-        //console.log("todays event end: " + eventEndTimeFormatted);
 
         this.state.items[strTime].push({
-          //name: 'Class for ' + strTime,
           name: event.summary,
           time: eventStartTimeFormatted + " - " + eventEndTimeFormatted,
-          location: event.location
+          location: event.building
         })
 
       });
@@ -163,13 +160,13 @@ export default class CalendarScreen extends Component {
   }
 
   fetchSchedule = async () => {
-   /* return NetInfo.isConnected.fetch().then(async (isConnected) => {
+    return NetInfo.isConnected.fetch().then(async (isConnected) => {
       if (!isConnected) {
         console.log(isConnected);
         Alert.alert("You are not connected to the internet");
         this.setState({ loading: false });
       }
-      else { */
+      else { 
         let token = await AsyncStorage.getItem(CONSTANTS.TOKEN_LOCATION);
         if (token) {
           await fetch(CONSTANTS.APP_URL + "/schedule", {
@@ -187,8 +184,8 @@ export default class CalendarScreen extends Component {
           this.setState({ loading: false });
           this.goToLoginScreen();
         }
-    //  }
-    //});
+      }
+    });
   }
 
   handleResponse = async (response) => {
