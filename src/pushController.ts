@@ -71,7 +71,7 @@ export class PushController {
                 let now = moment().subtract(8, 'hours').toDate();
                 let eventsHappeningToday = eventsList.filter((event) => ep.isHappeningOnDay(event, now));
                 console.log(eventsHappeningToday);
-                eventsHappeningToday.forEach(PushController.setUpTimeOutForEvent(event, now, (user as IUser).expoPushToken));
+                eventsHappeningToday.forEach( (event) => PushController.setUpTimeOutForEvent(event, now, (user as IUser).expoPushToken));
               }
             });
           });
@@ -150,7 +150,7 @@ export class PushController {
                   let now = moment().subtract(8, 'hours').toDate();
                   let eventsHappeningToday = eventsList.filter((event) => ep.isHappeningOnDay(event, now));
                   console.log("No. of events happening today: " + eventsHappeningToday.length);
-                  eventsHappeningToday.forEach(PushController.setUpTimeOutForEvent(event, now, (user as IUser).expoPushToken));
+                  eventsHappeningToday.forEach((event) => PushController.setUpTimeOutForEvent(event, now, (user as IUser).expoPushToken));
                 }
               });
             });
