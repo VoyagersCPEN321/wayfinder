@@ -64,7 +64,7 @@ export class IcsParser {
         } else {
             location = this.getAddress(fullICSLocation.slice());
             room = this.extractRoom(fullICSLocation.slice());
-            building = this.getBuildingName(fullICSLocation.slice());
+            building = this.getBuildingName(fullICSLocation.slice()) || this.NOT_AVAILABLE;
         }
         let description: string = parsedEvent.getFirstPropertyValue(this.DESCRIPTION_SELECTOR);
         let startTime: Date = new Date(parsedEvent.getFirstPropertyValue(this.START_DATE_SELECTOR));
@@ -107,6 +107,9 @@ export class IcsParser {
     private LOCATION_SPECIFIER: string = ", Vancouver, BC, CA";
     private getAddress(location: string): string {
         let buildingName = this.getBuildingName(location);
+        if (!buildingName) {
+            return location || this.NOT_AVAILABLE;
+        }
         // TODO transform building name
         let actualAddress: string = locationsMap.getAddress(buildingName);
         if (actualAddress) {

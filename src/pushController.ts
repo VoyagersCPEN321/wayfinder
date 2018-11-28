@@ -44,19 +44,21 @@ export class PushController {
           console.log("No users retrieved from DB");
         } else {
           users.forEach((user) => {
-            SCHEDULE.find({ userId: (user as IUser).userId }, 'events', (err, eventsList) => {
+            SCHEDULE.findOne({ userId: (user as IUser).userId }, (err, schedule) => {
               if (err) {
                 console.log("error retrieving user schedules. Cannot send notifications today.");
                 return;
               }
-              if (eventsList) {
+              console.log(schedule);
+              if (schedule && (schedule as any).events) {
+                let eventsList = (schedule as any).events;
                 let now = moment().subtract(8, 'hours').toDate();
                 let eventsHappeningToday = eventsList.filter((event) => ep.isHappeningOnDay(event, now));
                 console.log(eventsHappeningToday);
                 eventsHappeningToday.forEach((event) => {
                   let eventTime = new Date((event as IEvent).startTime.toString());
                   setTimeout(
-                    this.sendPushNotificationtoUser((user as IUser).expoPushToken, event as IEvent),
+                    PushController.sendPushNotificationtoUser((user as IUser).expoPushToken, event as IEvent),
                     (eventTime.getTime() - now.getTime() - (1200000))
                   );
                 });
@@ -71,7 +73,7 @@ export class PushController {
     }
   }
 
-  public sendPushNotificationtoUser(token: String, event: IEvent) {
+  static sendPushNotificationtoUser(token: String, event: IEvent) {
     return (function () {
       let expo = new Expo();
       let messages = [];
@@ -127,21 +129,22 @@ export class PushController {
           } else {
             users.forEach((user) => {
               console.log((user as IUser).name);
-              SCHEDULE.find({ userId: (user as IUser).userId }, (err, schedule) => {
+              SCHEDULE.findOne({ userId: (user as IUser).userId }, (err, schedule) => {
                 if (err) {
                   console.log("error retrieving user schedules. Cannot send notifications today.");
                   return;
                 }
+                console.log(schedule);
                 if (schedule && (schedule as any).events) {
                   let eventsList = (schedule as any).events;
-                  let now = moment().subtract(8, 'hours' ).toDate();
+                  let now = moment().subtract(8, 'hours').toDate();
                   let eventsHappeningToday = eventsList.filter((event) => ep.isHappeningOnDay(event, now));
                   console.log("No. of events happening today: " + eventsHappeningToday.length);
                   eventsHappeningToday.forEach((event) => {
                     console.log((event as IEvent).startTime);
                     let eventTime = new Date((event as IEvent).startTime.toString());
                     setTimeout(
-                      this.sendPushNotificationtoUser((user as IUser).expoPushToken, event as IEvent),
+                      PushController.sendPushNotificationtoUser((user as IUser).expoPushToken, event as IEvent),
                       (eventTime.getTime() - now.getTime() - (1200000))
                     );
                   });
