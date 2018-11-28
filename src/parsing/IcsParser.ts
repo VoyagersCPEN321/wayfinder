@@ -16,6 +16,10 @@ import locationsMap from "./locationsMap";
  */
 export class IcsParser {
     private VEVENT_SELECTOR: string = "vevent";
+    /**
+     * Parses ics files and transforms them into Event objects.
+     * @param icsContent data to parse
+     */
     public parseICS(icsContent: string): mongoose.Document[] {
         if (icsContent == null) {
             throw new ReferenceError("Null calendar data.");
@@ -32,6 +36,9 @@ export class IcsParser {
         return allEvents;
     }
 
+    /**
+     *  Extracts the important info through the ical library. 
+     */
     private getMainComponent(icsContent: string): any {
         try {
             var icalData = ICAL.parse(icsContent);
@@ -52,7 +59,8 @@ export class IcsParser {
         let summary: string = parsedEvent.getFirstPropertyValue(this.SUMMARY_SELECTOR);
         let rules: any = parsedEvent.getFirstPropertyValue(this.RULE_SELECTOR);
         let day: string = rules.parts.BYDAY[0];
-        // TODO use the db to transform to actual location.
+
+        /* Location related fields */
         let fullICSLocation = parsedEvent.getFirstPropertyValue(this.LOCATION_SELECTOR);
         let location: string;
         let room: string;
@@ -66,15 +74,16 @@ export class IcsParser {
             room = this.extractRoom(fullICSLocation.slice());
             building = this.getBuildingName(fullICSLocation.slice()) || this.NOT_AVAILABLE;
         }
+
         let description: string = parsedEvent.getFirstPropertyValue(this.DESCRIPTION_SELECTOR);
+        /* Timing related fields. */
         let startTime: Date = new Date(parsedEvent.getFirstPropertyValue(this.START_DATE_SELECTOR));
         let endTime: Date = new Date(parsedEvent.getFirstPropertyValue(this.END_DATE_SELECTOR));
-        // TODO might be a bit redundant since we know the start date from the start time
         let startDay: Date = new Date(parsedEvent.getFirstPropertyValue(this.START_DATE_SELECTOR));
         let lastDay: Date = new Date(rules.until);
         let frequency: string = rules.freq;
         if (frequency == null) {
-            throw new Error("Invalid ics file,some event(s) have no frequency.");
+            throw new Error("Invalid ics file, some event(s) have no frequency.");
         }
         let recurrence: number = rules.interval;
 
@@ -95,6 +104,10 @@ export class IcsParser {
     }
 
     private NOT_AVAILABLE: string = "N/A";
+    /**
+     * Extracts the room string: 'Room 202'
+     * from the location string in the ics file.
+     */
     private extractRoom(location: string) {
         let roomPtrn = new RegExp('Room.*');
         let roomMatches = location.match(roomPtrn);
@@ -105,12 +118,17 @@ export class IcsParser {
     }
 
     private LOCATION_SPECIFIER: string = ", Vancouver, BC, CA";
+    /**
+     * Extracts the building from the location string
+     * in the ics file and then attempts to transform it 
+     * into an actual address.
+     */
     private getAddress(location: string): string {
         let buildingName = this.getBuildingName(location);
         if (!buildingName) {
             return location || this.NOT_AVAILABLE;
         }
-        // TODO transform building name
+
         let actualAddress: string = locationsMap.getAddress(buildingName);
         if (actualAddress) {
             return actualAddress + this.LOCATION_SPECIFIER;
@@ -118,6 +136,10 @@ export class IcsParser {
         return buildingName + this.LOCATION_SPECIFIER;
     }
 
+    /**
+     * Extracts the building string: 'Macleod'
+     * from the location string in the ics file.
+     */
     private getBuildingName(location: string) {
         let tokens = location.split(',');
         if (tokens.length <= 1) {

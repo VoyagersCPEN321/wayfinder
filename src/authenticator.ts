@@ -34,6 +34,7 @@ class Authenticator implements IAuthenticator {
             clientSecret: this.APP_SECRET,
             enableProof: false
         }, (accessToken, refreshToken, profile: FacebookTokenStrategy.Profile, done) => {
+            /* Upsert user into db upon successful fb authentication. */
             USER.findOne({ facebookId: profile.id }).then((user: mongoose.Document) => {
                 if (!user) {
                     let newUser = new USER({
@@ -48,6 +49,7 @@ class Authenticator implements IAuthenticator {
                 return done(null, user);
             });
         }));
+        /* Delegate verifying user sent FB tokens to the passport facebook-token module. */
         this.authenticateFB = passport.authenticate('facebook-token', { session: false });
 
         /* Init user token validator */
@@ -55,6 +57,7 @@ class Authenticator implements IAuthenticator {
             secret: this.APP_SECRET,
             requestProperty: 'user',
             getToken: function (req: Request) {
+                /* Extracts authentication token headers from request. */
                 if (req.headers['x-auth-token']) {
                     return req.headers['x-auth-token'];
                 }
@@ -63,6 +66,10 @@ class Authenticator implements IAuthenticator {
         });
     }
 
+    /**
+     * Generates a JsonWebToken for the user.
+     * @param user user object to generate token for.
+     */
     public getUserToken(user: mongoose.Document): string {
         if (user) {
             return jwt.sign(user.toObject(), this.APP_SECRET);
@@ -70,9 +77,11 @@ class Authenticator implements IAuthenticator {
         return null;
     }
 
+    /**
+     * Handler for unauthorized requests.
+     */
     public unauthorizedHandler(err: any, req: Request, res: Response, next: any) {
         if (err.name === 'UnauthorizedError' && !res.headersSent) {
-            // TODO add a meaningful error message
             res.status(401).send('Please Login.');
             return;
           }

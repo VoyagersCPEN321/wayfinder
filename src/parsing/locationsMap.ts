@@ -4,7 +4,10 @@ import * as mongoose from "mongoose";
 class LocationsMap {
     private locations: {};
     private COLLECTION_NAME: string = "locations";
-    // TODO periodically update the map incase we add new addresses
+    /**
+     * Load the stored building to address translations from the db into memory
+     * so it is fast to use when parsing new user schedules.
+     */
     public async config() {
         this.locations = [];
         let cursor = await mongoose.connection.db.collection(this.COLLECTION_NAME).find();

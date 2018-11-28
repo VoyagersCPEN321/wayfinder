@@ -338,20 +338,6 @@ export default class MapScreen extends Component {
         let events = (await res.json()).events;
         await AsyncStorage.setItem(CONSTANTS.SCHEDULE_LOCATION, JSON.stringify(events));
         CalendarScreen.updateSchedule();
-        // let calendarScreen = CONSTANTS.CalendarScreenRef.actualInstance;
-        // CONSTANTS.MapScreenRef.actualInstance.setState({ events: events.slice() });
-        // if(CONSTANTS.CalendarScreenRef.actualInstance 
-        //   && CONSTANTS.CalendarScreenRef.actualInstance.init) {
-        //     console.log("updating the schedule");
-        //   CONSTANTS.CalendarScreenRef.actualInstance.setState({ refreshing: true });
-        //   await CONSTANTS.CalendarScreenRef.actualInstance.init();
-        //   let lastDayCalled = CONSTANTS.CalendarScreenRef.actualInstance.state.lastDayCalled
-        //   if(lastDayCalled) {
-        //     CONSTANTS.CalendarScreenRef.actualInstance.loadItems(lastDayCalled).then(() => {
-        //       CONSTANTS.CalendarScreenRef.actualInstance.setState({ refreshing: false });
-        //     });
-        //   }
-        // }
         Alert.alert("File upload successful!");
         CONSTANTS.MapScreenRef.actualInstance.setState({ showDirections: false });
 

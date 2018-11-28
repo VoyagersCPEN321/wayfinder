@@ -8,28 +8,20 @@ import pushController from "../pushController";
 export interface IFileUploadHandler {
     handleRequest(req: Request, res: Response);
 }
-
+/**
+ * Handles ics file uploads to the server.
+ */
 export class IcsFileHandler implements IFileUploadHandler {
     public handleRequest(req: Request, res: Response) {
+        /* If user is not authenticated send a 401. */
         if (!req.user) {
             res.send(401);
             return;
         }
         try {
-            // USER.findOne({ userId: req.user.userId }, (err, user) => {
-            //     if (err) {
-            //         console.log("Error retrieving users from DB");
-            //         return;
-            //     }
-            //     if (!user) {
-            //         console.log("No users retrieved from DB");
-            //     } else {
-            //         console.log(user);
-            //         console.log("sent push notifications");
-            //         setTimeout(pushController.sendTestPushNotification((user as IUser).expoPushToken), 10000);
-            //     }
-            // });
+            /* Check if request has ics Data on its body. */
             if (req.body && req.body.icsData) {
+                /* Parse ics events from the user sent file and upsert into the db */
                 let events = Parser.parseICS(req.body.icsData);
                 this.upsertSchedule(req, res, events);
                 return;
@@ -44,7 +36,10 @@ export class IcsFileHandler implements IFileUploadHandler {
             return;
         }
     }
-
+    /**
+     * If the user has a previously inserted schedule update it,
+     * else insert a new entry for the user.
+     */
     private upsertSchedule(req: Request, res: Response, events: mongoose.Document[]) {
         SCHEDULE.findOne({ userId: req.user.userId }, (err, doc) => {
             if (err) {
@@ -52,18 +47,24 @@ export class IcsFileHandler implements IFileUploadHandler {
                 this.handleError(err, res);
                 return;
             } else if (!doc) {
-                console.log("didn't find doc: " + req.user);
+                /**
+                 *  We didn't find any previously stored schedules so
+                 *  we will insert a new one into the db.
+                 */
+                console.log("UPSERT: didn't find schedule, inserting new entry for: " + req.user);
                 let newSchedule = new SCHEDULE({
                     userId: req.user.userId,
                     events: events
                 });
                 newSchedule.save().then((doc) => {
-                    console.log("got here! 1");
                     pushController.setupUserPushNotificationsForToday(req.user);
                     res.status(200).json({ events: events });
                     return;
                 }, (err) => this.handleError(err, res));
             } else {
+                /**
+                 * Found an already existing entry, just update it.
+                 */
                 SCHEDULE.update({ userId: req.user.userId }, {
                     $set: {
                         events: events
@@ -74,7 +75,6 @@ export class IcsFileHandler implements IFileUploadHandler {
                             this.handleError(err, res);
                             return;
                         } else if (doc) {
-                            console.log("got here! 2");
                             pushController.setupUserPushNotificationsForToday(req.user);
                             res.status(200).json({ events: events });
                             return;
@@ -88,6 +88,9 @@ export class IcsFileHandler implements IFileUploadHandler {
         });
     }
 
+    /**
+     * Error handler and logger.
+     */
     private handleError(err: any, res: Response) {
         console.log(err);
         res.status(500).json({

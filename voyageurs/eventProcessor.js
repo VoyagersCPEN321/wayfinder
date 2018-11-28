@@ -1,5 +1,5 @@
 var moment = require('moment-timezone');
-// TODO add a frontend model class to match IEvent on the backend
+
 function isBeforeYear(a, b) {
   if (b.getFullYear() > a.getFullYear()) {
     return true;

@@ -1,8 +1,3 @@
-/*
- * Code to just get things going with the setup.
- * Copied from: https://brianflove.com/2016/03/29/typescript-express-node-js/
- */
-
 "use strict";
 
 import SCHEDULE from "./models/schedule";
@@ -35,7 +30,6 @@ export class Server {
      */
     constructor(dbLocation: string) {
         this.app = express();
-
         //configure application
         try {
             this.config(dbLocation);
@@ -47,6 +41,10 @@ export class Server {
         }
     }
 
+    /*
+     * Configure the db connection and load the location
+     * translations into memory.
+     */
     private config(dbLocation: string): void {
         try {
             this.app.use(bodyParser.json());
@@ -66,10 +64,17 @@ export class Server {
         }
     }
 
+    /**
+     * REST endpoints
+     */
     private routes(): void {
         const router = express.Router();
+        /**
+         * GET /schedule verifies user token and retrieves the user schedule from
+         * the db and sends it to the user.
+         */
         router.get("/schedule", Authenticator.validateUserToken, (req: Request, res: Response) => {
-            console.log("/schedule called");
+            console.log("GET /schedule called");
             if (!req.user) {
                 res.send(401);
                 return;
@@ -79,7 +84,8 @@ export class Server {
                 res.sendStatus(401);
                 return;
             }
-            /* Don't return userId */
+            /* User was authenticated successfully. */
+            /* userId:0 -> Don't return userId */
             SCHEDULE.findOne({userId: req.user.userId }, {userId: 0}, (err, doc) => {
                 if (err) {
                     this.logError(err);
@@ -96,11 +102,18 @@ export class Server {
             });
         });
 
+        /**
+         * POST /schedule parses user's ics file and upserts it into the db.
+         */
         router.post("/schedule", Authenticator.validateUserToken, (req: Request, res: Response) => {
             IcsFileHandler.handleRequest(req, res);
         });
 
-
+        /**
+         * POST /auth/fb verifies user token and upserts the user's entry in the
+         * user table. upon successful verification of FB token a new JWT is generated
+         * for the user and sent in the body of the HTTP response.
+         */
         router.post("/auth/fb", Authenticator.authenticateFB, (req, res) => {
             if (req.user.err) {
                 res.status(401).json({
@@ -108,8 +121,7 @@ export class Server {
                     message: 'Auth failed',
                     error: req.user.err
                 });
-            } else if (req.user) {
-                console.log(req.body.token);
+            } else if (req.user) {/* User was authenticated successfully. */
                 PushController.getUserPushToken(req);
                 res.status(200).json({
                     success: true,
@@ -124,14 +136,22 @@ export class Server {
                 });
             }
         });
-
         this.app.use("/", router);
     }
 
+    /**
+     * Logs error to the console.
+     */
     private logError(e: Error): void {
         console.log("Encountered Error : " + e + "\n" + e.stack);
     }
 
+    /**
+     * Basic error handler that handles various error and exceptions in
+     * the system by logging them to the console and sending the appropriate
+     * response if not sent already.
+     * NOTE: it delegates handling when necessary.
+     */
     private errorHandler(): void {
         this.app.use((err: any, req: Request, res: Response, next: any) => {
             if (err.name === UNAUTHORIZED) {
