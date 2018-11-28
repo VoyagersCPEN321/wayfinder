@@ -109,7 +109,7 @@ function isHappeningRightNow(event) {
   return false;
 }
 
-export function getNextClass(events) {
+function getNextClass(events) {
   let eventsGoingOnRightNow = events.filter(event => isHappeningRightNow(event));
   if(eventsGoingOnRightNow.length == 1) {
     return eventsGoingOnRightNow[0];
@@ -154,9 +154,10 @@ export function getNextClass(events) {
 }
 
 const VANCOUVER_TZ = "America/Vancouver";
-export function convertToLocalDate(timeString) {
+function convertToLocalDate(timeString) {
   return moment(timeString).tz(VANCOUVER_TZ).toDate();//new Date(timeString);
 }
 module.exports =  { 
-  isHappeningOnDay, isHappeningRightNow, getNextClass
+  isHappeningOnDay, isHappeningRightNow,
+  getNextClass, convertToLocalDate
  }

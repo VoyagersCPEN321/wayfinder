@@ -59,7 +59,7 @@ export class PushController {
               let eventsHappeningToday = eventsList.filter((event) => ep.isHappeningOnDay(event, now));
               console.log(eventsHappeningToday);
               eventsHappeningToday.forEach((event) => {
-                let eventTime = new Date((event as IEvent).startTime);
+                let eventTime = new Date((event as IEvent).startTime.toString());
                 setTimeout(
                   this.sendPushNotificationtoUser((user as IUser).expoPushToken, event as IEvent),
                   (eventTime.getTime() - now.getTime() - (1200000))
@@ -136,7 +136,7 @@ export class PushController {
                 console.log(eventsHappeningToday);
                 eventsHappeningToday.forEach((event) => {
                   console.log((event as IEvent).startTime);
-                  let eventTime = new Date((event as IEvent).startTime);
+                  let eventTime = new Date((event as IEvent).startTime.toString());
                   setTimeout(
                     this.sendPushNotificationtoUser((user as IUser).expoPushToken, event as IEvent),
                     (eventTime.getTime() - now.getTime() - (1200000))
