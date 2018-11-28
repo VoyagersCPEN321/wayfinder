@@ -223,7 +223,8 @@ export default class MapScreen extends Component {
       this.setState({
         nextClassInfo: {
           summary: nextEvent.summary,
-          room: nextEvent.room
+          room: nextEvent.room,
+          building: nextEvent.building || "MACLEOD"
         }
       });
     }
@@ -326,8 +327,6 @@ export default class MapScreen extends Component {
     });
   }
 
-
-
   getDistance = async () => {
     return NetInfo.isConnected.fetch().then(async (isConnected) => {
       if (!isConnected) {
@@ -355,7 +354,6 @@ export default class MapScreen extends Component {
     if (response.status == 200) {
       await response.json().then((Distance) => {
         if (this.validateDistance(Distance)) {
-          console.log(Distance);
           this.setState({
             distanceInfo:
             {
@@ -449,6 +447,18 @@ export default class MapScreen extends Component {
     return null;
   }
 
+  renderBuildingName() {
+    if (this.state.showDirections && this.state.nextClassInfo && this.state.nextClassInfo.building) {
+      return (
+        <View style={styles.buildingNameView} >
+          <Text style={styles.classInfoText}>
+            {this.state.nextClassInfo.building}
+          </Text>
+        </View>);
+    }
+    return null;
+  }
+
   renderClassRoomNo() {
     if (this.state.showDirections && this.state.nextClassInfo && this.state.nextClassInfo.room) {
       return (
@@ -477,9 +487,10 @@ export default class MapScreen extends Component {
         {this.renderBusyIndicator()}
         {this.renderMap()}
         {this.renderGoToNextClass()}
-        {this.renderWalkingDistance()}
         {this.renderClassSummary()}
+        {this.renderBuildingName()}
         {this.renderClassRoomNo()}
+        {this.renderWalkingDistance()}
       </View>
     );
   }
@@ -546,33 +557,6 @@ const styles = StyleSheet.create({
     width: '100%',
     backgroundColor: "rgba(255, 255, 255, 0.3)"
   },
-  distanceView: {
-    backgroundColor: "#f4511e",
-    marginTop: 20,
-    top: "14%",
-    left: 0,
-    position: "absolute",
-    flex: 1,
-    flexDirection: 'column',
-    alignItems: 'center',
-    justifyContent: 'flex-start',
-    paddingLeft: 10,
-    paddingTop: 10,
-    paddingBottom: 5,
-    paddingRight: 20,
-    borderBottomRightRadius: 50,
-    borderTopRightRadius: 50,
-  },
-  distanceText: {
-    borderColor: "transparent",
-    height: 'auto',
-    width: 'auto',
-    borderWidth: 0.0,
-    textAlign: "center",
-    fontWeight: "bold",
-    flex: 1,
-    color: "#fff"
-  },
   classSummaryView: {
     backgroundColor: "#f4511e",
     marginTop: 20,
@@ -603,6 +587,23 @@ const styles = StyleSheet.create({
   classRoomNoView: {
     backgroundColor: "#f4511e",
     marginTop: 20,
+    top: "14%",
+    left: 0,
+    position: "absolute",
+    flex: 1,
+    flexDirection: 'column',
+    alignItems: 'center',
+    justifyContent: 'flex-start',
+    paddingLeft: 10,
+    paddingTop: 5,
+    paddingBottom: 5,
+    paddingRight: 20,
+    borderBottomRightRadius: 50,
+    borderTopRightRadius: 50,
+  },
+  buildingNameView: {
+    backgroundColor: "#f4511e",
+    marginTop: 20,
     top: "8%",
     left: 0,
     position: "absolute",
@@ -616,5 +617,32 @@ const styles = StyleSheet.create({
     paddingRight: 20,
     borderBottomRightRadius: 50,
     borderTopRightRadius: 50,
+  },
+  distanceView: {
+    backgroundColor: "#f4511e",
+    marginTop: 20,
+    top: "20%",
+    left: 0,
+    position: "absolute",
+    flex: 1,
+    flexDirection: 'column',
+    alignItems: 'center',
+    justifyContent: 'flex-start',
+    paddingLeft: 10,
+    paddingTop: 10,
+    paddingBottom: 5,
+    paddingRight: 20,
+    borderBottomRightRadius: 50,
+    borderTopRightRadius: 50,
+  },
+  distanceText: {
+    borderColor: "transparent",
+    height: 'auto',
+    width: 'auto',
+    borderWidth: 0.0,
+    textAlign: "center",
+    fontWeight: "bold",
+    flex: 1,
+    color: "#fff"
   },
 });
