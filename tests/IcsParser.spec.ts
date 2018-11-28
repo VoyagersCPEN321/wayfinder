@@ -89,7 +89,7 @@ END:VCALENDAR`;
         expect(() => Parser.parseICS(invalidIcs)).to.throw('Invalid ICS file');
     });
 
-    it('should return null location if location is ill formatted' , () => {
+    it('should return location name if location is ill formatted' , () => {
         let weirdLocationIcs = this.validData + `
 BEGIN:VEVENT
 DTSTAMP:20181016T013936Z
@@ -102,9 +102,9 @@ UID:12341539653976599abcd263820
 DTSTART;TZID=America/Vancouver:20190104T100000
 DTEND;TZID=America/Vancouver:20190104T120000
 END:VEVENT` + ICS_FOOTER;
-        
+        console.log(Parser.parseICS(weirdLocationIcs));
         let targetEvent = Parser.parseICS(weirdLocationIcs).filter((event: IEvent) => {
-            return event.location === null
+            return event.location === 'MacLeodsssssssssssss'
         });
 
         expect(targetEvent).to.have.lengthOf(1);
