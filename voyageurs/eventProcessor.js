@@ -31,6 +31,7 @@ function isBeforeDay(a, b) {
 }
 
 function dayToUTCDay(day) {
+  console.log(day);
   switch (day) {
     case "SU": return 0;
     case "MO": return 1;
@@ -63,7 +64,7 @@ function isHappeningOnDay(event, date) {
     }
     return false;
   }
-
+  console.log(event);
   /* We know the event is within its ocurrence range */
   if (date.getDay() !== dayToUTCDay(event.day)) {
     if(event.summary == "CPSC 320 202") {
@@ -109,7 +110,7 @@ function isHappeningRightNow(event) {
   return false;
 }
 
-export function getNextClass(events) {
+function getNextClass(events) {
   let eventsGoingOnRightNow = events.filter(event => isHappeningRightNow(event));
   console.log("Events happening rn: " + eventsGoingOnRightNow);
   if(eventsGoingOnRightNow.length == 1) {
@@ -156,9 +157,10 @@ export function getNextClass(events) {
 }
 
 const VANCOUVER_TZ = "America/Vancouver";
-export function convertToLocalDate(timeString) {
+function convertToLocalDate(timeString) {
   return moment(timeString).tz(VANCOUVER_TZ).toDate();//new Date(timeString);
 }
 module.exports =  { 
-  isHappeningOnDay, isHappeningRightNow, getNextClass
+  isHappeningOnDay, isHappeningRightNow,
+  getNextClass, convertToLocalDate
  }
