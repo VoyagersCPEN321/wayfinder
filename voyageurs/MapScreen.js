@@ -99,19 +99,6 @@ export default class MapScreen extends Component {
     header: null,
   };
 
-  _createNotificationAsync = (eventSummarys) => {
-    return function(){
-      Expo.Notifications.presentLocalNotificationAsync({
-        title: 'Reminder',
-        body: 'Next class : ' + eventSummary + 'is in 20 minutes.' ,
-        android: {
-          priority: 'max',
-          vibrate: [0, 250, 250, 250],
-          color: '#FF0000',
-        },
-      });
-    }
-  } 
 
   componentDidMount() {
     navigator.geolocation.getCurrentPosition((position) => {
