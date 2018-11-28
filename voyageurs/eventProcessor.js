@@ -31,7 +31,6 @@ function isBeforeDay(a, b) {
 }
 
 function dayToUTCDay(day) {
-  console.log(day);
   switch (day) {
     case "SU": return 0;
     case "MO": return 1;
@@ -52,73 +51,61 @@ function isHappeningOnDay(event, date) {
   var startDay = convertToLocalDate(event.startDay);
   var lastDay = convertToLocalDate(event.lastDay);
   if (isBeforeDay(date, startDay)) {
-    if(event.summary == "CPSC 320 202") {
-      console.log("CPSC:    isBeforeDay : true");
-    }
     return false;
   }
   /* Check if the event's last occurrence already passed */
   if (isBeforeDay(lastDay, date)) {
-    if(event.summary == "CPSC 320 202") {
-      console.log("CPSC:    isBeforeDay2 : true");
-    }
     return false;
   }
-  console.log("before calling UTC... "+ event);
 
   /* We know the event is within its ocurrence range */
   if (date.getDay() !== dayToUTCDay(event.day)) {
-    if(event.summary == "CPSC 320 202") {
-      console.log("CPSC:    not equal day : true");
-    }
     return false;
   }
   // TODO check for non weekly recurrence, for now assume all events are weekly
-  if(event.summary == "CPSC 320 202") {
-    console.log("CPSC: -----passsed");
-    console.log("Start day: "+event.summary+ "  " + startDay);
-    console.log("Last day: "+event.summary+ "  " + lastDay);
-    console.log(startDay.getDay());
-    console.log(startDay.getMonth());
-    console.log(startDay.getYear());
-  }
   return true;
 }
 
 /* Assumes that the event has already been checked to be happening today. */
 function isHappeningRightNow(event) {
   let currentDate = moment().tz(VANCOUVER_TZ).toDate();
-  let currentHour = currentDate.getUTCHours();
+  let currentHour = currentDate.getHours();
 
   let eventStartTime = convertToLocalDate(event.startTime);
   let eventStartHour = eventStartTime.getUTCHours();
 
   let eventEndTime = convertToLocalDate(event.endTime);
   let eventEndHour = eventEndTime.getUTCHours();
-  if (eventStartHour <= currentHour && eventEndHour >= currentHour ) {
+  if (eventStartHour <= currentHour && eventEndHour >= currentHour) {
     let currentMinutes = currentDate.getMinutes();
     /* event's duration is less than or equal 1hr. */
-    if(eventStartHour === eventEndHour) {
+    if (eventStartHour === eventEndHour) {
       return currentMinutes >= eventStartTime.getMinutes()
-      && currentMinutes < eventEndTime.getMinutes();
+        && currentMinutes < eventEndTime.getMinutes();
     } else {
       /* Event duration is more than 1 hr. */
       return currentHour === eventStartHour && currentMinutes >= eventStartTime.getMinutes()
-      || currentHour === eventEndHour && currentMinutes < eventEndTime.getMinutes() 
-      || currentHour < eventEndHour;
+        || currentHour === eventEndHour && currentMinutes < eventEndTime.getMinutes()
+        || currentHour < eventEndHour;
     }
   }
   return false;
 }
 
+function getUpcomingEvents(events) {
+  return events.filter((event) => {
+    let startTime = convertToLocalDate(event.startTime);
+    return startTime.getUTCHours() >= currentDate.getHours();
+  });
+}
+
 function getNextClass(events) {
   let eventsGoingOnRightNow = events.filter(event => isHappeningRightNow(event));
-  console.log("Events happening rn: " + eventsGoingOnRightNow);
-  if(eventsGoingOnRightNow.length == 1) {
+  if (eventsGoingOnRightNow.length == 1) {
     return eventsGoingOnRightNow[0];
-  } else if(eventsGoingOnRightNow.length > 1) {
+  } else if (eventsGoingOnRightNow.length > 1) {
     console.log("Multiple events happening at the same time ....");
-    let eventsNames = ''; 
+    let eventsNames = '';
     eventsGoingOnRightNow.forEach(event => {
       eventsNames += event.summary + "\n";
     });
@@ -126,34 +113,25 @@ function getNextClass(events) {
   }
 
   let nextEvent = null;
-  let nextEventStartTime;
-  let currentDate = moment().tz(VANCOUVER_TZ).toDate();
-  events.forEach((event) => {
+  let nextEventStartTime = null;
+  let upcomingEventsToday = getUpcomingEvents(events);
+  upcomingEventsToday.forEach((event) => {
     let startTime = convertToLocalDate(event.startTime);
+    /* If it is the first iteration just take the first item. */
     if (nextEvent == null) {
-      if (startTime.getUTCHours() >= currentDate.getHours()) {
-        nextEvent = event;
-        nextEventStartTime = convertToLocalDate(nextEvent.startTime);
-      }
-      else if (startTime.getUTCHours() === currentDate.getHours()) {
-        if (startTime.getMinutes() <= currentDate.getMinutes()) {
-          nextEvent = event;
-          nextEventStartTime = convertToLocalDate(nextEvent.startTime);
-        }
-      }
-    }
-    else if (startTime.getUTCHours() < nextEventStartTime.getUTCHours()) {
       nextEvent = event;
       nextEventStartTime = convertToLocalDate(nextEvent.startTime);
     }
-    else if (startTime.getUTCHours() === nextEventStartTime.getUTCHours()) {
-      if (startTime.getMinutes() < nextEventStartTime.getMinutes()) {
-        nextEvent = event;
-        nextEventStartTime = convertToLocalDate(nextEvent.startTime);
-      }
+    /* If the current event is happening before nextEvent, select it instead. */
+    else if (startTime.getUTCHours() < nextEventStartTime.getUTCHours()) {
+      nextEvent = event;
+      nextEventStartTime = convertToLocalDate(nextEvent.startTime);
+    } else if (startTime.getUTCHours() === nextEventStartTime.getUTCHours()
+      && startTime.getMinutes() < nextEventStartTime.getMinutes()) {
+      nextEvent = event;
+      nextEventStartTime = convertToLocalDate(nextEvent.startTime);
     }
   });
-  console.log("nothing happening rn, next event: " + nextEvent);
   return nextEvent;
 }
 
@@ -161,7 +139,7 @@ const VANCOUVER_TZ = "America/Vancouver";
 function convertToLocalDate(timeString) {
   return moment(timeString).tz(VANCOUVER_TZ).toDate();//new Date(timeString);
 }
-module.exports =  { 
+module.exports = {
   isHappeningOnDay, isHappeningRightNow,
   getNextClass, convertToLocalDate
- }
+}
